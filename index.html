@@ -444,8 +444,8 @@
 
             if (totalLaps === 0) return '';
             
-            // 기본 15랩 표시
-            const displayLaps = Math.max(totalLaps, 15);
+            // 수정: 기본 10랩 표시 (10랩 넘으면 스크롤)
+            const displayLaps = Math.max(totalLaps, 10);
 
             const getTireClass = (type, forcedSwap) => {
                 if (forcedSwap) return 'tire-swap';
