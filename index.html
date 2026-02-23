@@ -37,8 +37,8 @@
             box-shadow: 0 0 0 1px #6366f1 !important;
         }
 
-        /* 타이어 행 내부의 드롭다운 특수 스타일 */
-        .tire-row select {
+        /* 공통 행 내부의 드롭다운 특수 스타일 */
+        .row-item select, .row-item input {
             background-color: #262932 !important;
             border: 1px solid #3f4451 !important;
             font-size: 12px !important;
@@ -99,24 +99,19 @@
                             <label id="lbl-session-purpose" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">목표/목적</label>
                             <input type="text" id="in-purpose" class="w-full rounded-xl p-3.5 text-sm">
                         </div>
-                        <div>
-                            <label id="lbl-session-detail" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">상세 계획</label>
-                            <textarea id="in-detail" class="w-full rounded-xl p-3.5 text-sm h-20 resize-none"></textarea>
-                        </div>
-                        
-                        <!-- 다중 타이어 추가 영역 (UI 개선) -->
+
+                        <!-- Stint 관리 영역 -->
                         <div class="space-y-3">
                             <div class="flex justify-between items-end mb-1 px-1">
-                                <label id="lbl-tire-list" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Tire Strategy</label>
-                                <button type="button" onclick="window.addTireRow()" class="text-[10px] bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 px-2.5 py-1.5 rounded-lg font-bold transition-all border border-indigo-500/30 shadow-sm">
-                                    + Add Tire
+                                <label id="lbl-stint-list" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Stint Strategy</label>
+                                <button type="button" onclick="window.addStintRow()" class="text-[10px] bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 px-2.5 py-1.5 rounded-lg font-bold transition-all border border-indigo-500/30 shadow-sm">
+                                    + Add Stint
                                 </button>
                             </div>
-                            <div id="tire-rows-container" class="space-y-2.5 bg-black/20 p-2.5 rounded-2xl border border-slate-800/50">
-                                <!-- Tire rows -->
+                            <div id="stint-rows-container" class="space-y-3 bg-black/20 p-2.5 rounded-2xl border border-slate-800/50">
                             </div>
                         </div>
-
+                        
                         <div>
                             <label id="lbl-session-note" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">기타</label>
                             <input type="text" id="in-note" class="w-full rounded-xl p-3.5 text-sm">
@@ -184,7 +179,7 @@
                 edit: "수정하기",
                 loading: "데이터 로딩 중...",
                 purposeTitle: "목표/목적",
-                detailTitle: "상세 계획",
+                stintListTitle: "스틴트별 계획",
                 noteTitle: "기타",
                 modalSession: "세션 편집",
                 modalDay: "일정 제목 수정",
@@ -192,10 +187,8 @@
                 lblTime: "시간",
                 lblFuel: "연료 (L)",
                 lblPurpose: "목표/목적",
-                lblDetail: "상세 계획",
-                lblTireTag: "타이어 태그",
-                lblTireSet: "타이어 세트",
-                lblTireStrategy: "타이어 전략",
+                lblStintStrategy: "스틴트 전략",
+                lblAttackLaps: "어택 랩",
                 lblNote: "기타 메모",
                 lblDayTitle: "제목",
                 btnDelete: "삭제",
@@ -203,6 +196,9 @@
                 btnApply: "적용하기",
                 btnDeleteDay: "일정 삭제",
                 phTask: "새 작업 추가...",
+                phStint: "스틴트 계획 입력...",
+                phLaps: "랩 수",
+                stintPrefix: "스틴트",
                 tires: {
                     new_dry: "신품(Dry)",
                     used_dry: "중고(Dry)",
@@ -219,7 +215,7 @@
                 edit: "Edit",
                 loading: "Loading car data...",
                 purposeTitle: "Purpose / Goal",
-                detailTitle: "Detailed Plan",
+                stintListTitle: "Stint Plans",
                 noteTitle: "Note / Misc",
                 modalSession: "Edit Session",
                 modalDay: "Edit Day Title",
@@ -227,10 +223,8 @@
                 lblTime: "Time Slot",
                 lblFuel: "Fuel (L)",
                 lblPurpose: "Purpose / Goal",
-                lblDetail: "Detailed Plan",
-                lblTireTag: "Tire Tag",
-                lblTireSet: "Set",
-                lblTireStrategy: "Tire Strategy",
+                lblStintStrategy: "Stint Strategy",
+                lblAttackLaps: "Attack Laps",
                 lblNote: "Notes",
                 lblDayTitle: "Title",
                 btnDelete: "Delete",
@@ -238,6 +232,9 @@
                 btnApply: "Apply",
                 btnDeleteDay: "Delete Day",
                 phTask: "Add task...",
+                phStint: "Enter stint plan...",
+                phLaps: "Laps",
+                stintPrefix: "Stint",
                 tires: {
                     new_dry: "New(Dry)",
                     used_dry: "Used(Dry)",
@@ -296,8 +293,7 @@
             document.getElementById('lbl-session-time').textContent = getTxt('lblTime');
             document.getElementById('lbl-session-fuel').textContent = getTxt('lblFuel');
             document.getElementById('lbl-session-purpose').textContent = getTxt('lblPurpose');
-            document.getElementById('lbl-session-detail').textContent = getTxt('lblDetail');
-            document.getElementById('lbl-tire-list').textContent = getTxt('lblTireStrategy');
+            document.getElementById('lbl-stint-list').textContent = getTxt('lblStintStrategy');
             document.getElementById('lbl-session-note').textContent = getTxt('lblNote');
             document.getElementById('btn-session-delete').textContent = getTxt('btnDelete');
             document.getElementById('btn-session-save').textContent = getTxt('btnSave');
@@ -312,10 +308,13 @@
             set(currentDataRef, window.appState).catch(error => console.error("Firebase Sync Error:", error));
         };
 
-        // --- 5. 타이어 로우 관리 (UI 개선) ---
-        window.addTireRow = function(type = 'new_dry', setNum = 'Set1') {
-            const container = document.getElementById('tire-rows-container');
-            const rowId = 'tire-row-' + Date.now() + Math.random().toString(36).substr(2, 5);
+        // --- 5. Stint 로우 관리 ---
+        window.addStintRow = function(content = '', type = 'new_dry', setNum = 'Set1', laps = '') {
+            const container = document.getElementById('stint-rows-container');
+            const stintCount = container.querySelectorAll('.stint-row').length;
+            if (stintCount >= 4) return;
+
+            const rowId = 'stint-row-' + Date.now() + Math.random().toString(36).substr(2, 5);
             
             let tireOptions = "";
             for (const [val, label] of Object.entries(i18n[currentCar].tires)) {
@@ -323,23 +322,30 @@
             }
 
             const html = `
-                <div id="${rowId}" class="tire-row flex gap-2 items-center">
-                    <div class="flex-1 relative">
-                        <select class="tire-type-select w-full">
-                            ${tireOptions}
-                        </select>
+                <div id="${rowId}" class="stint-row space-y-2 p-3 bg-[#1e2128] rounded-xl border border-slate-700/50 row-item shadow-sm transition-all">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">${getTxt('stintPrefix')} ${stintCount + 1}</span>
+                        <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-slate-500 hover:text-red-400 transition-colors">✕</button>
                     </div>
-                    <div class="w-[90px] relative">
-                        <select class="tire-set-select w-full font-mono">
-                            <option value="Set1" ${setNum === 'Set1' ? 'selected' : ''}>Set1</option>
-                            <option value="Set2" ${setNum === 'Set2' ? 'selected' : ''}>Set2</option>
-                            <option value="Set3" ${setNum === 'Set3' ? 'selected' : ''}>Set3</option>
-                            <option value="Set4" ${setNum === 'Set4' ? 'selected' : ''}>Set4</option>
-                        </select>
+                    <input type="text" class="stint-content w-full bg-transparent border-none p-0 text-sm focus:ring-0" placeholder="${getTxt('phStint')}" value="${content}">
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            <select class="stint-tire-type w-full text-[12px]">
+                                ${tireOptions}
+                            </select>
+                        </div>
+                        <div class="w-[75px]">
+                            <select class="stint-tire-set w-full font-mono text-[12px]">
+                                <option value="Set1" ${setNum === 'Set1' ? 'selected' : ''}>Set1</option>
+                                <option value="Set2" ${setNum === 'Set2' ? 'selected' : ''}>Set2</option>
+                                <option value="Set3" ${setNum === 'Set3' ? 'selected' : ''}>Set3</option>
+                                <option value="Set4" ${setNum === 'Set4' ? 'selected' : ''}>Set4</option>
+                            </select>
+                        </div>
+                        <div class="w-[65px]">
+                            <input type="number" class="stint-laps w-full text-[12px] font-bold text-center h-full" placeholder="${getTxt('phLaps')}" value="${laps}">
+                        </div>
                     </div>
-                    <button type="button" onclick="this.parentElement.remove()" class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors shrink-0">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                    </button>
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', html);
@@ -363,7 +369,7 @@
                 <div class="mb-6 border border-slate-700/60 rounded-xl overflow-hidden bg-[#16181d] shadow-lg">
                     <div class="p-4 border-b border-slate-700/60 flex justify-between items-center bg-[#1c1e24]">
                         <h2 class="text-base font-bold text-slate-100">${title}</h2>
-                        <button onclick="openDayTitleEditor(${day})" class="text-slate-400 hover:text-white p-1">⚙️</button>
+                        <button onclick="openDayTitleEditor(${day})" class="text-slate-400 hover:text-white p-1 transition-colors">⚙️</button>
                     </div>
                     <div class="flex flex-col">`;
 
@@ -376,12 +382,12 @@
                     const start = timeArr[0] ? timeArr[0].trim() : "00:00";
                     const end = timeArr[1] ? timeArr[1].trim() : "";
                     
-                    let tireInfo = "-";
-                    if (s.tires && Array.isArray(s.tires) && s.tires.length > 0) {
-                        tireInfo = s.tires.map(t => `${i18n[currentCar].tires[t.type] || t.type}:${t.set}`).join(", ");
+                    let tireSummary = "-";
+                    if (s.stints && Array.isArray(s.stints) && s.stints.length > 0) {
+                        tireSummary = s.stints.map(st => `${i18n[currentCar].tires[st.tireType] || st.tireType}:${st.tireSet}`).join(", ");
                     }
 
-                    const firstTire = (s.tires && s.tires[0]) ? s.tires[0].type : 'default';
+                    const firstTire = (s.stints && s.stints[0]) ? s.stints[0].tireType : 'default';
                     const colors = { 
                         new_dry: 'border-green-500', 
                         used_dry: 'border-yellow-500', 
@@ -401,20 +407,51 @@
                                 <div class="w-full bg-[#20232a] rounded-lg p-3 border-l-4 ${borderColor} flex justify-between items-center shadow-sm">
                                     <div class="min-w-0 pr-2">
                                         <h4 class="text-sm font-bold text-slate-100 truncate">${s.name}</h4>
-                                        <p class="text-[11px] text-slate-400 truncate">${s.fuel}L • ${tireInfo}</p>
+                                        <p class="text-[11px] text-slate-400 truncate">${s.fuel}L • ${tireSummary}</p>
                                     </div>
                                     <svg id="icon-${s.id}" class="transition-transform duration-200 text-slate-600" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 9l6 6 6-6"/></svg>
                                 </div>
                             </div>
                         </div>
-                        <div id="detail-${s.id}" class="hidden flex pr-4 pb-4">
-                            <div class="w-16 shrink-0"></div>
-                            <div class="flex-1 bg-[#1c1e24] border border-slate-700/50 rounded-lg p-4 space-y-3 shadow-inner text-sm">
-                                <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">${getTxt('purposeTitle')}</p><p class="text-slate-200">${s.purpose || '-'}</p></div>
-                                <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">${getTxt('detailTitle')}</p><p class="text-slate-300 whitespace-pre-wrap leading-relaxed">${s.detail || '-'}</p></div>
-                                ${s.note ? `<div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">${getTxt('noteTitle')}</p><p class="text-slate-300">${s.note}</p></div>` : ''}
-                                <div class="pt-3 border-t border-slate-700/50 flex justify-end">
-                                    <button onclick="openEditor('${s.id}', ${day})" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold rounded-lg transition-colors">${getTxt('edit')}</button>
+                        
+                        <div id="detail-${s.id}" class="hidden px-4 pb-4">
+                            <div class="bg-[#1c1e24] border border-slate-700/50 rounded-lg p-4 space-y-4 shadow-inner text-sm">
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('purposeTitle')}</p>
+                                    <p class="text-slate-200 bg-black/20 p-2.5 rounded-lg border border-slate-800/50">${s.purpose || '-'}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('stintListTitle')}</p>
+                                    <div class="flex flex-col gap-2 mt-1">
+                                        ${(s.stints || []).map((st, idx) => {
+                                            const isNew = st.tireType.startsWith('new');
+                                            const tireColorClass = isNew 
+                                                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
+                                                : 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+                                            
+                                            return `
+                                            <div class="bg-black/20 p-3 rounded-xl border border-slate-800 flex flex-col gap-2 transition-all hover:bg-black/30">
+                                                <div class="flex justify-between items-center">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-[10px] font-bold text-indigo-400 uppercase shrink-0">${getTxt('stintPrefix')} ${idx + 1}</span>
+                                                        ${st.laps ? `<span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30 font-bold">${st.laps} Laps</span>` : ''}
+                                                    </div>
+                                                    <span class="text-[11px] px-2.5 py-0.5 rounded-full border font-bold ${tireColorClass} shadow-sm">
+                                                        ${i18n[currentCar].tires[st.tireType]} (${st.tireSet})
+                                                    </span>
+                                                </div>
+                                                <p class="text-slate-300 text-[13px] leading-relaxed whitespace-pre-wrap">${st.content || '-'}</p>
+                                            </div>
+                                        `}).join('')}
+                                    </div>
+                                </div>
+                                ${s.note ? `
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('noteTitle')}</p>
+                                    <p class="text-slate-300 bg-black/20 p-2.5 rounded-lg border border-slate-800/50">${s.note}</p>
+                                </div>` : ''}
+                                <div class="pt-2 border-t border-slate-700/50 flex justify-end">
+                                    <button onclick="openEditor('${s.id}', ${day})" class="px-3.5 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold rounded-lg transition-colors border border-slate-600/50">${getTxt('edit')}</button>
                                 </div>
                             </div>
                         </div>
@@ -479,12 +516,11 @@
                     </div>`;
             });
 
-            // 체크리스트 입력 영역을 '세션 추가'와 동일한 레이아웃으로 변경
             html += `
                     <div class="flex min-h-[3.2rem] mt-2 group">
                         <div class="w-16 flex items-center justify-center shrink-0"><span class="text-slate-600 text-lg font-light">+</span></div>
                         <div class="flex-1 py-2 pr-4 flex items-center">
-                            <div class="w-full bg-[#1c1e24] rounded-lg p-2 border border-dashed border-slate-700/50 flex items-center">
+                            <div class="w-full bg-[#1c1e24] rounded-lg p-2 border border-dashed border-slate-700/50 flex items-center shadow-inner">
                                 <input type="text" id="new-task-input" placeholder="${getTxt('phTask')}" 
                                     onkeydown="if(event.key==='Enter') { addCheck(this); event.preventDefault(); }" 
                                     class="bg-transparent text-xs font-bold text-slate-400 placeholder:text-slate-600 focus:outline-none w-full border-none p-0 ml-1">
@@ -568,14 +604,13 @@
             document.getElementById('in-time').value = s.time;
             document.getElementById('in-fuel').value = s.fuel;
             document.getElementById('in-purpose').value = s.purpose;
-            document.getElementById('in-detail').value = s.detail;
             document.getElementById('in-note').value = s.note || "";
             
-            document.getElementById('tire-rows-container').innerHTML = '';
-            if (s.tires && Array.isArray(s.tires)) {
-                s.tires.forEach(t => window.addTireRow(t.type, t.set));
+            document.getElementById('stint-rows-container').innerHTML = '';
+            if (s.stints && Array.isArray(s.stints)) {
+                s.stints.forEach(st => window.addStintRow(st.content, st.tireType, st.tireSet, st.laps || ''));
             } else {
-                window.addTireRow();
+                window.addStintRow();
             }
             
             document.getElementById('modal').classList.remove('hidden');
@@ -586,19 +621,21 @@
             document.getElementById('session-form').reset();
             document.getElementById('edit-id').value = "";
             document.getElementById('in-name').value = currentCar === "#87" ? "New Session" : "새 세션";
-            document.getElementById('tire-rows-container').innerHTML = '';
-            window.addTireRow();
+            document.getElementById('stint-rows-container').innerHTML = '';
+            window.addStintRow();
             document.getElementById('modal').classList.remove('hidden');
         }
 
         window.saveSession = function() {
             const id = document.getElementById('edit-id').value;
-            const tireRows = document.querySelectorAll('.tire-row');
-            const tires = [];
-            tireRows.forEach(row => {
-                tires.push({
-                    type: row.querySelector('.tire-type-select').value,
-                    set: row.querySelector('.tire-set-select').value
+            const stintRows = document.querySelectorAll('.stint-row');
+            const stints = [];
+            stintRows.forEach(row => {
+                stints.push({
+                    content: row.querySelector('.stint-content').value,
+                    tireType: row.querySelector('.stint-tire-type').value,
+                    tireSet: row.querySelector('.stint-tire-set').value,
+                    laps: row.querySelector('.stint-laps').value
                 });
             });
 
@@ -608,8 +645,7 @@
                 time: document.getElementById('in-time').value || "00:00 - 00:00",
                 fuel: parseInt(document.getElementById('in-fuel').value) || 0,
                 purpose: document.getElementById('in-purpose').value,
-                detail: document.getElementById('in-detail').value,
-                tires: tires,
+                stints: stints,
                 note: document.getElementById('in-note').value
             };
             
