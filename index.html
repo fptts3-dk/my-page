@@ -55,37 +55,37 @@
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeModal()"></div>
             <div class="w-full max-w-[480px] bg-[#16181d] rounded-t-3xl sm:rounded-3xl z-10 flex flex-col max-h-[90vh] border border-slate-700/50 shadow-2xl transition-transform">
                 <div class="p-5 border-b border-slate-800 flex justify-between items-center shrink-0">
-                    <h3 class="font-bold text-white">Edit Session</h3>
+                    <h3 id="modal-session-title" class="font-bold text-white">Edit Session</h3>
                     <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center text-slate-400">✕</button>
                 </div>
                 <form id="session-form" class="p-5 space-y-4 overflow-y-auto" onsubmit="event.preventDefault(); saveSession();">
                     <input type="hidden" id="edit-id">
                     <div class="space-y-4">
                         <div>
-                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Session Title</label>
+                            <label id="lbl-session-name" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Session Title</label>
                             <input type="text" id="in-name" class="w-full rounded-xl p-3 text-sm font-semibold">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Time Slot</label>
+                                <label id="lbl-session-time" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Time Slot</label>
                                 <input type="text" id="in-time" class="w-full rounded-xl p-3 text-sm font-mono" placeholder="09:00 - 09:30">
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Fuel (L)</label>
+                                <label id="lbl-session-fuel" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Fuel (L)</label>
                                 <input type="number" id="in-fuel" class="w-full rounded-xl p-3 text-sm font-mono">
                             </div>
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">목표/목적</label>
+                            <label id="lbl-session-purpose" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">목표/목적</label>
                             <input type="text" id="in-purpose" class="w-full rounded-xl p-3 text-sm">
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">상세 계획</label>
+                            <label id="lbl-session-detail" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">상세 계획</label>
                             <textarea id="in-detail" class="w-full rounded-xl p-3 text-sm h-24 resize-none"></textarea>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Tire Tag</label>
+                                <label id="lbl-session-tire-tag" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Tire Tag</label>
                                 <select id="in-tire-type" class="w-full rounded-xl p-3 text-sm">
                                     <option value="new_dry">신품(Dry)</option>
                                     <option value="used_dry">중고(Dry)</option>
@@ -94,19 +94,19 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Tire Detail</label>
+                                <label id="lbl-session-tire-detail" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Tire Detail</label>
                                 <input type="text" id="in-tire" class="w-full rounded-xl p-3 text-sm" placeholder="예: 신품 2개">
                             </div>
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">기타</label>
+                            <label id="lbl-session-note" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">기타</label>
                             <input type="text" id="in-note" class="w-full rounded-xl p-3 text-sm">
                         </div>
                     </div>
                 </form>
                 <div class="p-5 border-t border-slate-800 flex gap-3 bg-[#16181d] rounded-b-3xl">
-                    <button onclick="deleteSessionFromModal()" class="px-5 py-3.5 bg-red-500/10 text-red-500 rounded-xl text-sm font-bold hover:bg-red-500/20 transition-all">Delete</button>
-                    <button onclick="saveSession()" class="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-indigo-500 transition-all">Save Changes</button>
+                    <button id="btn-session-delete" onclick="deleteSessionFromModal()" class="px-5 py-3.5 bg-red-500/10 text-red-500 rounded-xl text-sm font-bold hover:bg-red-500/20 transition-all">Delete</button>
+                    <button id="btn-session-save" onclick="saveSession()" class="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-indigo-500 transition-all">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -117,16 +117,16 @@
             <div class="bg-[#16181d] max-w-sm w-full rounded-3xl p-6 shadow-2xl z-10 border border-slate-700/50">
                 <input type="hidden" id="editing-day-id">
                 <div class="flex justify-between items-center mb-5">
-                    <h3 class="font-bold text-white text-lg">일정 제목 수정</h3>
+                    <h3 id="modal-day-title" class="font-bold text-white text-lg">일정 제목 수정</h3>
                     <button onclick="closeDayTitleModal()" class="text-slate-400">✕</button>
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">제목 (Title)</label>
+                    <label id="lbl-day-title" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">제목 (Title)</label>
                     <input type="text" id="in-day-title" class="w-full rounded-xl p-3.5 text-sm">
                 </div>
                 <div class="flex gap-3 mt-6">
-                    <button onclick="deleteDay()" class="px-5 bg-red-500/10 text-red-500 py-3.5 rounded-xl text-sm font-bold hover:bg-red-500/20">Delete Day</button>
-                    <button onclick="saveDayTitle()" class="flex-1 bg-slate-100 text-slate-900 py-3.5 rounded-xl text-sm font-bold">Apply</button>
+                    <button id="btn-day-delete" onclick="deleteDay()" class="px-5 bg-red-500/10 text-red-500 py-3.5 rounded-xl text-sm font-bold hover:bg-red-500/20">Delete Day</button>
+                    <button id="btn-day-apply" onclick="saveDayTitle()" class="flex-1 bg-slate-100 text-slate-900 py-3.5 rounded-xl text-sm font-bold">Apply</button>
                 </div>
             </div>
         </div>
@@ -151,11 +151,86 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         
-        // 차량 정보 전역 상태
         let currentCar = "#97";
         let currentDataRef = null;
 
-        // --- 2. 전역 상태 관리 ---
+        // --- 2. 다국어 사전 (Internationalization) ---
+        const i18n = {
+            "#97": {
+                header: "Session Plan",
+                maintenance: "Checklist",
+                noSessions: "등록된 세션이 없습니다.",
+                addDay: "일정 추가",
+                addSession: "세션 추가",
+                edit: "수정하기",
+                loading: "데이터 로딩 중...",
+                purposeTitle: "목표/목적",
+                detailTitle: "상세 계획",
+                noteTitle: "기타",
+                modalSession: "세션 편집",
+                modalDay: "일정 제목 수정",
+                lblTitle: "세션 제목",
+                lblTime: "시간",
+                lblFuel: "연료 (L)",
+                lblPurpose: "목표/목적",
+                lblDetail: "상세 계획",
+                lblTireTag: "타이어 태그",
+                lblTireDetail: "타이어 상세",
+                lblNote: "기타 메모",
+                lblDayTitle: "제목",
+                btnDelete: "삭제",
+                btnSave: "저장하기",
+                btnApply: "적용하기",
+                btnDeleteDay: "일정 삭제",
+                phTire: "예: 신품 2개",
+                phTask: "새 작업 추가...",
+                tires: {
+                    new_dry: "신품(Dry)",
+                    used_dry: "중고(Dry)",
+                    new_wet: "신품(Wet)",
+                    used_wet: "중고(Wet)"
+                }
+            },
+            "#87": {
+                header: "Session Plan",
+                maintenance: "Checklist",
+                noSessions: "No sessions scheduled.",
+                addDay: "Add Day",
+                addSession: "Add Session",
+                edit: "Edit",
+                loading: "Loading car data...",
+                purposeTitle: "Purpose / Goal",
+                detailTitle: "Detailed Plan",
+                noteTitle: "Note / Misc",
+                modalSession: "Edit Session",
+                modalDay: "Edit Day Title",
+                lblTitle: "Session Title",
+                lblTime: "Time Slot",
+                lblFuel: "Fuel (L)",
+                lblPurpose: "Purpose / Goal",
+                lblDetail: "Detailed Plan",
+                lblTireTag: "Tire Tag",
+                lblTireDetail: "Tire Detail",
+                lblNote: "Notes",
+                lblDayTitle: "Title",
+                btnDelete: "Delete",
+                btnSave: "Save Changes",
+                btnApply: "Apply",
+                btnDeleteDay: "Delete Day",
+                phTire: "e.g. 2 New Tires",
+                phTask: "Add task...",
+                tires: {
+                    new_dry: "New(Dry)",
+                    used_dry: "Used(Dry)",
+                    new_wet: "New(Wet)",
+                    used_wet: "Used(Wet)"
+                }
+            }
+        };
+
+        const getTxt = (key) => i18n[currentCar][key] || key;
+
+        // --- 3. 전역 상태 관리 ---
         window.appState = {
             dayTitles: { 1: "Day 1 Schedule", 2: "Day 2 Schedule" },
             days: { 1: [], 2: [] },
@@ -163,23 +238,17 @@
         };
         let editingDayId = 1;
 
-        // --- 3. 실시간 동기화 로직 및 차량 전환 ---
+        // --- 4. 실시간 동기화 로직 및 차량 전환 ---
         window.switchCar = function(carValue) {
             currentCar = carValue;
             
-            // 이전 리스너 해제
-            if (currentDataRef) {
-                off(currentDataRef);
-            }
+            if (currentDataRef) off(currentDataRef);
             
-            // 새 차량 데이터 경로 설정
             const carId = carValue.replace('#', 'car');
             currentDataRef = ref(db, `raceData/${carId}`);
             
-            // 로딩 상태 시각화
-            document.getElementById('timeline-container').innerHTML = '<div class="p-10 text-center text-slate-500 italic text-sm">Loading car data...</div>';
+            document.getElementById('timeline-container').innerHTML = `<div class="p-10 text-center text-slate-500 italic text-sm">${getTxt('loading')}</div>`;
 
-            // 데이터 구독 시작
             onValue(currentDataRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -191,23 +260,58 @@
                         checklist: data.checklist || []
                     };
                 } else {
-                    // 데이터가 없는 새 차량일 경우 기본값 초기화
                     window.appState = {
-                        dayTitles: { 1: "Day 1 Schedule", 2: "Day 2 Schedule" },
-                        days: { 1: [], 2: [] },
+                        dayTitles: { 1: currentCar === "#87" ? "Day 1 Schedule" : "Day 1 Schedule" },
+                        days: { 1: [] },
                         checklist: []
                     };
                 }
+                updateUIStrings();
                 renderAll();
             });
         };
+
+        // UI 텍스트 일괄 업데이트 (모달 및 정적 요소)
+        function updateUIStrings() {
+            document.getElementById('header-title').textContent = getTxt('header');
+            
+            // Session Modal
+            document.getElementById('modal-session-title').textContent = getTxt('modalSession');
+            document.getElementById('lbl-session-name').textContent = getTxt('lblTitle');
+            document.getElementById('lbl-session-time').textContent = getTxt('lblTime');
+            document.getElementById('lbl-session-fuel').textContent = getTxt('lblFuel');
+            document.getElementById('lbl-session-purpose').textContent = getTxt('lblPurpose');
+            document.getElementById('lbl-session-detail').textContent = getTxt('lblDetail');
+            document.getElementById('lbl-session-tire-tag').textContent = getTxt('lblTireTag');
+            document.getElementById('lbl-session-tire-detail').textContent = getTxt('lblTireDetail');
+            document.getElementById('lbl-session-note').textContent = getTxt('lblNote');
+            document.getElementById('in-tire').placeholder = getTxt('phTire');
+            document.getElementById('btn-session-delete').textContent = getTxt('btnDelete');
+            document.getElementById('btn-session-save').textContent = getTxt('btnSave');
+
+            // Day Modal
+            document.getElementById('modal-day-title').textContent = getTxt('modalDay');
+            document.getElementById('lbl-day-title').textContent = getTxt('lblDayTitle');
+            document.getElementById('btn-day-delete').textContent = getTxt('btnDeleteDay');
+            document.getElementById('btn-day-apply').textContent = getTxt('btnApply');
+
+            // Tire Selector Options
+            const tireSel = document.getElementById('in-tire-type');
+            tireSel.innerHTML = '';
+            for (const [val, label] of Object.entries(i18n[currentCar].tires)) {
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = label;
+                tireSel.appendChild(opt);
+            }
+        }
 
         window.saveData = function() {
             if (!currentDataRef) return;
             set(currentDataRef, window.appState).catch(error => console.error("Firebase Sync Error:", error));
         };
 
-        // --- 4. 렌더링 로직 ---
+        // --- 5. 렌더링 로직 ---
         window.renderAll = function() {
             const container = document.getElementById('timeline-container');
             if (!container) return;
@@ -230,7 +334,7 @@
                     <div class="flex flex-col">`;
 
                 if (sessions.length === 0) {
-                    html += `<div class="p-6 text-center text-xs text-slate-500 italic">No sessions scheduled.</div>`;
+                    html += `<div class="p-6 text-center text-xs text-slate-500 italic">${getTxt('noSessions')}</div>`;
                 }
 
                 sessions.forEach(s => {
@@ -238,7 +342,6 @@
                     const start = timeArr[0] ? timeArr[0].trim() : "00:00";
                     const end = timeArr[1] ? timeArr[1].trim() : "";
                     
-                    // 타이어 태그에 따른 색상 맵핑 업데이트
                     const colors = { 
                         new_dry: 'border-green-500', 
                         used_dry: 'border-yellow-500', 
@@ -246,6 +349,7 @@
                         used_wet: 'border-indigo-400'
                     };
                     const borderColor = colors[s.tireType] || 'border-slate-500';
+                    const tireLabel = i18n[currentCar].tires[s.tireType] || s.tireType;
 
                     html += `
                     <div class="flex flex-col border-b border-slate-800/60 last:border-none">
@@ -258,7 +362,7 @@
                                 <div class="w-full bg-[#20232a] rounded-lg p-3 border-l-4 ${borderColor} flex justify-between items-center shadow-sm">
                                     <div class="min-w-0 pr-2">
                                         <h4 class="text-sm font-bold text-slate-100 truncate">${s.name}</h4>
-                                        <p class="text-[11px] text-slate-400 truncate">${s.fuel}L • ${s.tire}</p>
+                                        <p class="text-[11px] text-slate-400 truncate">${s.fuel}L • ${tireLabel}</p>
                                     </div>
                                     <svg id="icon-${s.id}" class="transition-transform duration-200 text-slate-600" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 9l6 6 6-6"/></svg>
                                 </div>
@@ -267,11 +371,11 @@
                         <div id="detail-${s.id}" class="hidden flex pr-4 pb-4">
                             <div class="w-16 shrink-0"></div>
                             <div class="flex-1 bg-[#1c1e24] border border-slate-700/50 rounded-lg p-4 space-y-3 shadow-inner text-sm">
-                                <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">목표/목적</p><p class="text-slate-200">${s.purpose || '-'}</p></div>
-                                <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">상세 계획</p><p class="text-slate-300 whitespace-pre-wrap leading-relaxed">${s.detail || '-'}</p></div>
-                                ${s.note ? `<div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">기타</p><p class="text-slate-300">${s.note}</p></div>` : ''}
+                                <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">${getTxt('purposeTitle')}</p><p class="text-slate-200">${s.purpose || '-'}</p></div>
+                                <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">${getTxt('detailTitle')}</p><p class="text-slate-300 whitespace-pre-wrap leading-relaxed">${s.detail || '-'}</p></div>
+                                ${s.note ? `<div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">${getTxt('noteTitle')}</p><p class="text-slate-300">${s.note}</p></div>` : ''}
                                 <div class="pt-3 border-t border-slate-700/50 flex justify-end">
-                                    <button onclick="openEditor('${s.id}', ${day})" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold rounded-lg transition-colors">수정하기</button>
+                                    <button onclick="openEditor('${s.id}', ${day})" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold rounded-lg transition-colors">${getTxt('edit')}</button>
                                 </div>
                             </div>
                         </div>
@@ -280,10 +384,10 @@
 
                 html += `
                     <div class="flex min-h-[3.2rem] group cursor-pointer hover:bg-white/[0.01] transition-colors" onclick="addNewSession(${day})">
-                        <div class="w-16 flex items-center justify-center py-2 shrink-0"><span class="text-slate-600 text-lg font-light">+</span></div>
+                        <div class="w-16 flex items-center justify-center shrink-0"><span class="text-slate-600 text-lg font-light">+</span></div>
                         <div class="flex-1 py-2 pr-4 flex items-center">
                             <div class="w-full bg-[#1c1e24] rounded-lg p-2 border border-dashed border-slate-700/50 flex justify-between items-center">
-                                <h4 class="text-xs font-bold text-slate-600">세션 추가</h4>
+                                <h4 class="text-xs font-bold text-slate-600">${getTxt('addSession')}</h4>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="text-slate-700"><path d="M6 9l6 6 6-6"/></svg>
                             </div>
                         </div>
@@ -295,11 +399,11 @@
 
             container.insertAdjacentHTML('beforeend', `
                 <button onclick="addDay()" class="w-full mb-6 py-1.5 border-2 border-dashed border-slate-700/60 rounded-xl text-slate-500 font-bold hover:text-slate-300 hover:border-slate-500 transition-all flex items-center justify-center gap-2">
-                    <span class="text-xl leading-none">+</span> Add Day
+                    <span class="text-xl leading-none">+</span> ${getTxt('addDay')}
                 </button>`);
             
             renderChecklist();
-        }
+        };
 
         function renderChecklist() {
             const ui = document.getElementById('checklist-ui');
@@ -313,7 +417,7 @@
             <div class="mb-8 border border-slate-700/60 rounded-xl overflow-hidden bg-[#16181d] shadow-lg">
                 <div class="p-4 border-b border-slate-700/60 bg-[#1c1e24]">
                     <div class="flex justify-between items-center mb-3">
-                        <h2 class="text-base font-bold text-slate-100">Checklist</h2>
+                        <h2 class="text-base font-bold text-slate-100">${getTxt('maintenance')}</h2>
                         <span class="text-xs font-bold ${perc === 100 ? 'text-green-400' : 'text-indigo-400'}">${perc}%</span>
                     </div>
                     <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
@@ -339,14 +443,14 @@
             html += `
                     <div class="flex items-center gap-3 py-1.5 px-3">
                         <span class="text-slate-500 text-lg leading-none">+</span>
-                        <input type="text" id="new-task-input" placeholder="새 작업 추가..." onkeydown="if(event.key==='Enter') { addCheck(this); event.preventDefault(); }" class="bg-transparent text-sm text-slate-300 focus:outline-none w-full border-none">
+                        <input type="text" id="new-task-input" placeholder="${getTxt('phTask')}" onkeydown="if(event.key==='Enter') { addCheck(this); event.preventDefault(); }" class="bg-transparent text-sm text-slate-300 focus:outline-none w-full border-none">
                     </div>
                 </div>
             </div>`;
             ui.innerHTML = html;
         }
 
-        // --- 5. 전역 이벤트 핸들러 ---
+        // --- 6. 전역 이벤트 핸들러 ---
         window.toggleDetail = function(id) {
             const el = document.getElementById(`detail-${id}`);
             const icon = document.getElementById(`icon-${id}`);
@@ -383,7 +487,7 @@
             if (!window.appState.days) window.appState.days = {};
             if (!window.appState.dayTitles) window.appState.dayTitles = {};
             window.appState.days[next] = [];
-            window.appState.dayTitles[next] = `Day ${next} Schedule`;
+            window.appState.dayTitles[next] = currentCar === "#87" ? `Day ${next} Schedule` : `Day ${next} 일정`;
             window.saveData();
         }
 
@@ -429,6 +533,7 @@
             editingDayId = day;
             document.getElementById('session-form').reset();
             document.getElementById('edit-id').value = "";
+            document.getElementById('in-name').value = currentCar === "#87" ? "New Session" : "새 세션";
             document.getElementById('modal').classList.remove('hidden');
         }
 
@@ -436,7 +541,7 @@
             const id = document.getElementById('edit-id').value;
             const data = {
                 id: id || Date.now().toString(),
-                name: document.getElementById('in-name').value || "New Session",
+                name: document.getElementById('in-name').value || (currentCar === "#87" ? "New Session" : "새 세션"),
                 time: document.getElementById('in-time').value || "00:00 - 00:00",
                 fuel: parseInt(document.getElementById('in-fuel').value) || 0,
                 purpose: document.getElementById('in-purpose').value,
