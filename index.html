@@ -87,9 +87,10 @@
                             <div>
                                 <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Tire Tag</label>
                                 <select id="in-tire-type" class="w-full rounded-xl p-3 text-sm">
-                                    <option value="new">신품 (New)</option>
-                                    <option value="used">중고 (Used)</option>
-                                    <option value="super">결승용 (Super)</option>
+                                    <option value="new_dry">신품(Dry)</option>
+                                    <option value="used_dry">중고(Dry)</option>
+                                    <option value="new_wet">신품(Wet)</option>
+                                    <option value="used_wet">중고(Wet)</option>
                                 </select>
                             </div>
                             <div>
@@ -175,8 +176,8 @@
             const carId = carValue.replace('#', 'car');
             currentDataRef = ref(db, `raceData/${carId}`);
             
-            // 로딩 상태 시각화 (선택적)
-            document.getElementById('timeline-container').innerHTML = '<div class="p-10 text-center text-slate-500 italic">Loading car data...</div>';
+            // 로딩 상태 시각화
+            document.getElementById('timeline-container').innerHTML = '<div class="p-10 text-center text-slate-500 italic text-sm">Loading car data...</div>';
 
             // 데이터 구독 시작
             onValue(currentDataRef, (snapshot) => {
@@ -236,8 +237,15 @@
                     const timeArr = (s.time || "").split(/[-~]/);
                     const start = timeArr[0] ? timeArr[0].trim() : "00:00";
                     const end = timeArr[1] ? timeArr[1].trim() : "";
-                    const colors = { new: 'border-green-500', used: 'border-yellow-500', super: 'border-orange-500' };
-                    const borderColor = colors[s.tireType] || 'border-blue-500';
+                    
+                    // 타이어 태그에 따른 색상 맵핑 업데이트
+                    const colors = { 
+                        new_dry: 'border-green-500', 
+                        used_dry: 'border-yellow-500', 
+                        new_wet: 'border-blue-500',
+                        used_wet: 'border-indigo-400'
+                    };
+                    const borderColor = colors[s.tireType] || 'border-slate-500';
 
                     html += `
                     <div class="flex flex-col border-b border-slate-800/60 last:border-none">
