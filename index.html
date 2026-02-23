@@ -271,8 +271,20 @@
             if(container) container.innerHTML = `<div class="p-10 text-center text-slate-500 italic text-sm">${getTxt('loading')}</div>`;
 
             onValue(currentDataRef, (snapshot) => {
-                const data = snapshot.val();
+                let data = snapshot.val();
                 if (data) {
+                    // Firebase 자동 배열 변환 방어 로직
+                    if (Array.isArray(data.days)) {
+                        const daysObj = {};
+                        data.days.forEach((v, i) => { if(v !== null) daysObj[i] = v; });
+                        data.days = daysObj;
+                    }
+                    if (Array.isArray(data.dayTitles)) {
+                        const titlesObj = {};
+                        data.dayTitles.forEach((v, i) => { if(v !== null) titlesObj[i] = v; });
+                        data.dayTitles = titlesObj;
+                    }
+
                     window.appState = {
                         ...window.appState,
                         ...data,
@@ -678,12 +690,17 @@
         }
 
         window.addDay = function() {
-            const keys = Object.keys(window.appState.days || {}).map(Number);
+            const currentDays = window.appState.days || {};
+            const keys = Object.keys(currentDays).map(Number).filter(n => !isNaN(n));
             const next = keys.length > 0 ? Math.max(...keys) + 1 : 1;
+            
             if (!window.appState.days) window.appState.days = {};
             if (!window.appState.dayTitles) window.appState.dayTitles = {};
+            
             window.appState.days[next] = [];
             window.appState.dayTitles[next] = currentCar === "#87" ? `Day ${next} Schedule` : `Day ${next} 일정`;
+            
+            renderAll(); // 즉각적인 로컬 렌더링
             window.saveData();
         }
 
@@ -698,6 +715,7 @@
             if (!window.appState.dayTitles) window.appState.dayTitles = {};
             window.appState.dayTitles[d] = document.getElementById('in-day-title').value;
             closeDayTitleModal();
+            renderAll();
             window.saveData();
         }
 
@@ -706,6 +724,7 @@
             if (window.appState.days) delete window.appState.days[d];
             if (window.appState.dayTitles) delete window.appState.dayTitles[d];
             closeDayTitleModal();
+            renderAll();
             window.saveData();
         }
 
@@ -778,6 +797,7 @@
                 window.appState.days[editingDayId].push(data);
             }
             closeModal();
+            renderAll();
             window.saveData();
         }
 
@@ -787,6 +807,7 @@
                 window.appState.days[editingDayId] = window.appState.days[editingDayId].filter(x => x.id !== id);
             }
             closeModal();
+            renderAll();
             window.saveData();
         }
 
