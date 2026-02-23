@@ -19,11 +19,31 @@
             background-color: #1e2128 !important; 
             color: #f1f5f9 !important;
             border: 1px solid #334155 !important;
+            appearance: none; /* 기본 화살표 제거 */
         }
+        
+        /* 커스텀 화살표 아이콘 적용 */
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1rem;
+            padding-right: 2.5rem !important;
+        }
+
         input:focus, select:focus, textarea:focus {
             outline: none !important;
             border-color: #6366f1 !important;
             box-shadow: 0 0 0 1px #6366f1 !important;
+        }
+
+        /* 타이어 행 내부의 드롭다운 특수 스타일 */
+        .tire-row select {
+            background-color: #262932 !important;
+            border: 1px solid #3f4451 !important;
+            font-size: 12px !important;
+            padding: 0.65rem 0.75rem !important;
+            border-radius: 0.75rem !important;
         }
     </style>
 </head>
@@ -58,49 +78,48 @@
                     <h3 id="modal-session-title" class="font-bold text-white">Edit Session</h3>
                     <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center text-slate-400">✕</button>
                 </div>
-                <form id="session-form" class="p-5 space-y-4 overflow-y-auto" onsubmit="event.preventDefault(); saveSession();">
+                <form id="session-form" class="p-5 space-y-5 overflow-y-auto" onsubmit="event.preventDefault();">
                     <input type="hidden" id="edit-id">
                     <div class="space-y-4">
                         <div>
-                            <label id="lbl-session-name" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Session Title</label>
-                            <input type="text" id="in-name" class="w-full rounded-xl p-3 text-sm font-semibold">
+                            <label id="lbl-session-name" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">Session Title</label>
+                            <input type="text" id="in-name" class="w-full rounded-xl p-3.5 text-sm font-semibold">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label id="lbl-session-time" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Time Slot</label>
-                                <input type="text" id="in-time" class="w-full rounded-xl p-3 text-sm font-mono" placeholder="09:00 - 09:30">
+                                <label id="lbl-session-time" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">Time Slot</label>
+                                <input type="text" id="in-time" class="w-full rounded-xl p-3.5 text-sm font-mono" placeholder="09:00 - 09:30">
                             </div>
                             <div>
-                                <label id="lbl-session-fuel" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Fuel (L)</label>
-                                <input type="number" id="in-fuel" class="w-full rounded-xl p-3 text-sm font-mono">
+                                <label id="lbl-session-fuel" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">Fuel (L)</label>
+                                <input type="number" id="in-fuel" class="w-full rounded-xl p-3.5 text-sm font-mono">
                             </div>
                         </div>
                         <div>
-                            <label id="lbl-session-purpose" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">목표/목적</label>
-                            <input type="text" id="in-purpose" class="w-full rounded-xl p-3 text-sm">
+                            <label id="lbl-session-purpose" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">목표/목적</label>
+                            <input type="text" id="in-purpose" class="w-full rounded-xl p-3.5 text-sm">
                         </div>
                         <div>
-                            <label id="lbl-session-detail" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">상세 계획</label>
-                            <textarea id="in-detail" class="w-full rounded-xl p-3 text-sm h-24 resize-none"></textarea>
+                            <label id="lbl-session-detail" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">상세 계획</label>
+                            <textarea id="in-detail" class="w-full rounded-xl p-3.5 text-sm h-20 resize-none"></textarea>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label id="lbl-session-tire-tag" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Tire Tag</label>
-                                <select id="in-tire-type" class="w-full rounded-xl p-3 text-sm">
-                                    <option value="new_dry">신품(Dry)</option>
-                                    <option value="used_dry">중고(Dry)</option>
-                                    <option value="new_wet">신품(Wet)</option>
-                                    <option value="used_wet">중고(Wet)</option>
-                                </select>
+                        
+                        <!-- 다중 타이어 추가 영역 (UI 개선) -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-end mb-1 px-1">
+                                <label id="lbl-tire-list" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Tire Strategy</label>
+                                <button type="button" onclick="window.addTireRow()" class="text-[10px] bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 px-2.5 py-1.5 rounded-lg font-bold transition-all border border-indigo-500/30 shadow-sm">
+                                    + Add Tire
+                                </button>
                             </div>
-                            <div>
-                                <label id="lbl-session-tire-detail" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Tire Detail</label>
-                                <input type="text" id="in-tire" class="w-full rounded-xl p-3 text-sm" placeholder="예: 신품 2개">
+                            <div id="tire-rows-container" class="space-y-2.5 bg-black/20 p-2.5 rounded-2xl border border-slate-800/50">
+                                <!-- Tire rows -->
                             </div>
                         </div>
+
                         <div>
-                            <label id="lbl-session-note" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">기타</label>
-                            <input type="text" id="in-note" class="w-full rounded-xl p-3 text-sm">
+                            <label id="lbl-session-note" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">기타</label>
+                            <input type="text" id="in-note" class="w-full rounded-xl p-3.5 text-sm">
                         </div>
                     </div>
                 </form>
@@ -121,7 +140,7 @@
                     <button onclick="closeDayTitleModal()" class="text-slate-400">✕</button>
                 </div>
                 <div>
-                    <label id="lbl-day-title" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">제목 (Title)</label>
+                    <label id="lbl-day-title" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">제목 (Title)</label>
                     <input type="text" id="in-day-title" class="w-full rounded-xl p-3.5 text-sm">
                 </div>
                 <div class="flex gap-3 mt-6">
@@ -175,14 +194,14 @@
                 lblPurpose: "목표/목적",
                 lblDetail: "상세 계획",
                 lblTireTag: "타이어 태그",
-                lblTireDetail: "타이어 상세",
+                lblTireSet: "타이어 세트",
+                lblTireStrategy: "타이어 전략",
                 lblNote: "기타 메모",
                 lblDayTitle: "제목",
                 btnDelete: "삭제",
                 btnSave: "저장하기",
                 btnApply: "적용하기",
                 btnDeleteDay: "일정 삭제",
-                phTire: "예: 신품 2개",
                 phTask: "새 작업 추가...",
                 tires: {
                     new_dry: "신품(Dry)",
@@ -210,14 +229,14 @@
                 lblPurpose: "Purpose / Goal",
                 lblDetail: "Detailed Plan",
                 lblTireTag: "Tire Tag",
-                lblTireDetail: "Tire Detail",
+                lblTireSet: "Set",
+                lblTireStrategy: "Tire Strategy",
                 lblNote: "Notes",
                 lblDayTitle: "Title",
                 btnDelete: "Delete",
                 btnSave: "Save Changes",
                 btnApply: "Apply",
                 btnDeleteDay: "Delete Day",
-                phTire: "e.g. 2 New Tires",
                 phTask: "Add task...",
                 tires: {
                     new_dry: "New(Dry)",
@@ -238,16 +257,15 @@
         };
         let editingDayId = 1;
 
-        // --- 4. 실시간 동기화 로직 및 차량 전환 ---
+        // --- 4. 실시간 동기화 및 차량 전환 ---
         window.switchCar = function(carValue) {
             currentCar = carValue;
-            
             if (currentDataRef) off(currentDataRef);
-            
             const carId = carValue.replace('#', 'car');
             currentDataRef = ref(db, `raceData/${carId}`);
             
-            document.getElementById('timeline-container').innerHTML = `<div class="p-10 text-center text-slate-500 italic text-sm">${getTxt('loading')}</div>`;
+            const container = document.getElementById('timeline-container');
+            if(container) container.innerHTML = `<div class="p-10 text-center text-slate-500 italic text-sm">${getTxt('loading')}</div>`;
 
             onValue(currentDataRef, (snapshot) => {
                 const data = snapshot.val();
@@ -261,8 +279,8 @@
                     };
                 } else {
                     window.appState = {
-                        dayTitles: { 1: currentCar === "#87" ? "Day 1 Schedule" : "Day 1 Schedule" },
-                        days: { 1: [] },
+                        dayTitles: { 1: "Day 1 Schedule", 2: "Day 2 Schedule" },
+                        days: { 1: [], 2: [] },
                         checklist: []
                     };
                 }
@@ -271,39 +289,22 @@
             });
         };
 
-        // UI 텍스트 일괄 업데이트 (모달 및 정적 요소)
         function updateUIStrings() {
             document.getElementById('header-title').textContent = getTxt('header');
-            
-            // Session Modal
             document.getElementById('modal-session-title').textContent = getTxt('modalSession');
             document.getElementById('lbl-session-name').textContent = getTxt('lblTitle');
             document.getElementById('lbl-session-time').textContent = getTxt('lblTime');
             document.getElementById('lbl-session-fuel').textContent = getTxt('lblFuel');
             document.getElementById('lbl-session-purpose').textContent = getTxt('lblPurpose');
             document.getElementById('lbl-session-detail').textContent = getTxt('lblDetail');
-            document.getElementById('lbl-session-tire-tag').textContent = getTxt('lblTireTag');
-            document.getElementById('lbl-session-tire-detail').textContent = getTxt('lblTireDetail');
+            document.getElementById('lbl-tire-list').textContent = getTxt('lblTireStrategy');
             document.getElementById('lbl-session-note').textContent = getTxt('lblNote');
-            document.getElementById('in-tire').placeholder = getTxt('phTire');
             document.getElementById('btn-session-delete').textContent = getTxt('btnDelete');
             document.getElementById('btn-session-save').textContent = getTxt('btnSave');
-
-            // Day Modal
             document.getElementById('modal-day-title').textContent = getTxt('modalDay');
             document.getElementById('lbl-day-title').textContent = getTxt('lblDayTitle');
             document.getElementById('btn-day-delete').textContent = getTxt('btnDeleteDay');
             document.getElementById('btn-day-apply').textContent = getTxt('btnApply');
-
-            // Tire Selector Options
-            const tireSel = document.getElementById('in-tire-type');
-            tireSel.innerHTML = '';
-            for (const [val, label] of Object.entries(i18n[currentCar].tires)) {
-                const opt = document.createElement('option');
-                opt.value = val;
-                opt.textContent = label;
-                tireSel.appendChild(opt);
-            }
         }
 
         window.saveData = function() {
@@ -311,7 +312,40 @@
             set(currentDataRef, window.appState).catch(error => console.error("Firebase Sync Error:", error));
         };
 
-        // --- 5. 렌더링 로직 ---
+        // --- 5. 타이어 로우 관리 (UI 개선) ---
+        window.addTireRow = function(type = 'new_dry', setNum = 'Set1') {
+            const container = document.getElementById('tire-rows-container');
+            const rowId = 'tire-row-' + Date.now() + Math.random().toString(36).substr(2, 5);
+            
+            let tireOptions = "";
+            for (const [val, label] of Object.entries(i18n[currentCar].tires)) {
+                tireOptions += `<option value="${val}" ${val === type ? 'selected' : ''}>${label}</option>`;
+            }
+
+            const html = `
+                <div id="${rowId}" class="tire-row flex gap-2 items-center">
+                    <div class="flex-1 relative">
+                        <select class="tire-type-select w-full">
+                            ${tireOptions}
+                        </select>
+                    </div>
+                    <div class="w-[90px] relative">
+                        <select class="tire-set-select w-full font-mono">
+                            <option value="Set1" ${setNum === 'Set1' ? 'selected' : ''}>Set1</option>
+                            <option value="Set2" ${setNum === 'Set2' ? 'selected' : ''}>Set2</option>
+                            <option value="Set3" ${setNum === 'Set3' ? 'selected' : ''}>Set3</option>
+                            <option value="Set4" ${setNum === 'Set4' ? 'selected' : ''}>Set4</option>
+                        </select>
+                    </div>
+                    <button type="button" onclick="this.parentElement.remove()" class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors shrink-0">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        // --- 6. 렌더링 로직 ---
         window.renderAll = function() {
             const container = document.getElementById('timeline-container');
             if (!container) return;
@@ -342,14 +376,19 @@
                     const start = timeArr[0] ? timeArr[0].trim() : "00:00";
                     const end = timeArr[1] ? timeArr[1].trim() : "";
                     
+                    let tireInfo = "-";
+                    if (s.tires && Array.isArray(s.tires) && s.tires.length > 0) {
+                        tireInfo = s.tires.map(t => `${i18n[currentCar].tires[t.type] || t.type}:${t.set}`).join(", ");
+                    }
+
+                    const firstTire = (s.tires && s.tires[0]) ? s.tires[0].type : 'default';
                     const colors = { 
                         new_dry: 'border-green-500', 
                         used_dry: 'border-yellow-500', 
                         new_wet: 'border-blue-500',
                         used_wet: 'border-indigo-400'
                     };
-                    const borderColor = colors[s.tireType] || 'border-slate-500';
-                    const tireLabel = i18n[currentCar].tires[s.tireType] || s.tireType;
+                    const borderColor = colors[firstTire] || 'border-blue-500';
 
                     html += `
                     <div class="flex flex-col border-b border-slate-800/60 last:border-none">
@@ -362,7 +401,7 @@
                                 <div class="w-full bg-[#20232a] rounded-lg p-3 border-l-4 ${borderColor} flex justify-between items-center shadow-sm">
                                     <div class="min-w-0 pr-2">
                                         <h4 class="text-sm font-bold text-slate-100 truncate">${s.name}</h4>
-                                        <p class="text-[11px] text-slate-400 truncate">${s.fuel}L • ${tireLabel}</p>
+                                        <p class="text-[11px] text-slate-400 truncate">${s.fuel}L • ${tireInfo}</p>
                                     </div>
                                     <svg id="icon-${s.id}" class="transition-transform duration-200 text-slate-600" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 9l6 6 6-6"/></svg>
                                 </div>
@@ -450,7 +489,7 @@
             ui.innerHTML = html;
         }
 
-        // --- 6. 전역 이벤트 핸들러 ---
+        // --- 7. 전역 핸들러 ---
         window.toggleDetail = function(id) {
             const el = document.getElementById(`detail-${id}`);
             const icon = document.getElementById(`icon-${id}`);
@@ -523,9 +562,15 @@
             document.getElementById('in-fuel').value = s.fuel;
             document.getElementById('in-purpose').value = s.purpose;
             document.getElementById('in-detail').value = s.detail;
-            document.getElementById('in-tire-type').value = s.tireType;
-            document.getElementById('in-tire').value = s.tire;
             document.getElementById('in-note').value = s.note || "";
+            
+            document.getElementById('tire-rows-container').innerHTML = '';
+            if (s.tires && Array.isArray(s.tires)) {
+                s.tires.forEach(t => window.addTireRow(t.type, t.set));
+            } else {
+                window.addTireRow();
+            }
+            
             document.getElementById('modal').classList.remove('hidden');
         }
 
@@ -534,11 +579,22 @@
             document.getElementById('session-form').reset();
             document.getElementById('edit-id').value = "";
             document.getElementById('in-name').value = currentCar === "#87" ? "New Session" : "새 세션";
+            document.getElementById('tire-rows-container').innerHTML = '';
+            window.addTireRow();
             document.getElementById('modal').classList.remove('hidden');
         }
 
         window.saveSession = function() {
             const id = document.getElementById('edit-id').value;
+            const tireRows = document.querySelectorAll('.tire-row');
+            const tires = [];
+            tireRows.forEach(row => {
+                tires.push({
+                    type: row.querySelector('.tire-type-select').value,
+                    set: row.querySelector('.tire-set-select').value
+                });
+            });
+
             const data = {
                 id: id || Date.now().toString(),
                 name: document.getElementById('in-name').value || (currentCar === "#87" ? "New Session" : "새 세션"),
@@ -546,10 +602,10 @@
                 fuel: parseInt(document.getElementById('in-fuel').value) || 0,
                 purpose: document.getElementById('in-purpose').value,
                 detail: document.getElementById('in-detail').value,
-                tireType: document.getElementById('in-tire-type').value,
-                tire: document.getElementById('in-tire').value,
+                tires: tires,
                 note: document.getElementById('in-note').value
             };
+            
             if (!window.appState.days[editingDayId]) window.appState.days[editingDayId] = [];
             if (id) {
                 const idx = window.appState.days[editingDayId].findIndex(x => x.id === id);
