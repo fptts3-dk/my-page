@@ -11,15 +11,10 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, setDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- FIREBASE CONFIG & INIT ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "", authDomain: "", projectId: "", storageBucket: "", messagingSenderId: "", appId: ""
-        };
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'race-engineer-default';
-        
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // --- ENVIRONMENT CHECK ---
+        // Gemini 환경인지 외부(GitHub) 환경인지 확인합니다.
+        const isCanvasEnv = typeof __firebase_config !== 'undefined';
+        const appId = isCanvasEnv ? (__app_id || 'race-engineer-default') : 'race-engineer-local';
 
         // --- GLOBAL STATE ---
         let appState = {
@@ -40,9 +35,37 @@
         let user = null;
         let isSaving = false;
         let editingDay = 1;
+        let db, auth;
 
-        // --- AUTHENTICATION ---
-        async function initAuth() {
+        // --- INITIALIZATION ---
+        async function initApp() {
+            if (isCanvasEnv) {
+                try {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    auth = getAuth(app);
+                    db = getFirestore(app);
+
+                    onAuthStateChanged(auth, (u) => {
+                        user = u;
+                        if (user) {
+                            startRealtimeSync();
+                        } else {
+                            authenticate();
+                        }
+                    });
+                } catch (e) {
+                    console.error("Firebase Init Error", e);
+                    loadLocalData();
+                }
+            } else {
+                // GitHub Pages 등 외부 환경일 경우 로컬 모드로 작동
+                console.log("Running in Local Mode (GitHub Pages)");
+                loadLocalData();
+            }
+        }
+
+        async function authenticate() {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
@@ -51,29 +74,29 @@
                 }
             } catch (error) {
                 console.error("Auth Error:", error);
-                renderAll(); // 실패해도 로컬 상태로 렌더링
+                loadLocalData();
             }
         }
 
-        onAuthStateChanged(auth, (u) => {
-            user = u;
-            if (user) {
-                startRealtimeSync();
-            } else {
-                renderAll();
+        function loadLocalData() {
+            const saved = localStorage.getItem('raceAppState');
+            if (saved) {
+                try {
+                    appState = JSON.parse(saved);
+                } catch (e) { console.error("Parse error", e); }
             }
-        });
+            renderAll();
+        }
 
-        // --- REALTIME SYNC ---
+        // --- REALTIME SYNC (Canvas Only) ---
         function startRealtimeSync() {
-            if (!user) return;
+            if (!db || !user) return;
             const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'plan_master', 'current');
 
             onSnapshot(docRef, (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.data();
                     if (!isSaving) {
-                        // 데이터 구조 보전 (서버 데이터가 불완전할 경우 대비)
                         appState = {
                             ...appState,
                             ...data,
@@ -87,19 +110,22 @@
                     saveData();
                 }
             }, (error) => {
-                console.error("Firestore Sync Error:", error);
-                renderAll(); // 오류 시에도 기존 화면 유지
+                console.warn("Sync Error (Access Denied on GitHub is Normal):", error);
+                loadLocalData();
             });
         }
 
         window.saveData = async function() {
-            if (!user) return;
             isSaving = true;
             try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'plan_master', 'current');
-                await setDoc(docRef, appState);
+                if (isCanvasEnv && user && db) {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'plan_master', 'current');
+                    await setDoc(docRef, appState);
+                }
+                // 외부 환경이든 캔버스든 로컬에도 백업 저장
+                localStorage.setItem('raceAppState', JSON.stringify(appState));
             } catch (error) {
-                console.error("Firestore Save Error:", error);
+                console.error("Save Error:", error);
             } finally {
                 setTimeout(() => { isSaving = false; }, 1000);
             }
@@ -108,11 +134,8 @@
         // --- UI RENDERING ---
         window.renderAll = () => {
             try {
-                // 상단 헤더 등 필수 요소 존재 확인
-                const header = document.getElementById('header-title');
-                if (!header) return;
+                if (!document.getElementById('header-title')) return;
 
-                // 데이터 기본값 보장 (렌더링 에러 방지)
                 if (!appState.days) appState.days = {};
                 if (!appState.dayTitles) appState.dayTitles = {};
                 if (!appState.checklist) appState.checklist = [];
@@ -376,7 +399,7 @@
         // 초기 실행
         document.addEventListener('DOMContentLoaded', () => {
             renderAll(); // 즉시 기본 화면 렌더링
-            initAuth();  // 백그라운드에서 인증 및 동기화 시작
+            initApp();   // 백그라운드에서 환경 확인 후 동기화 시도
         });
     </script>
     <style>
