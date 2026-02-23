@@ -5,25 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Race Engineer App</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- 1. ENVIRONMENT CHECK (CRITICAL FOR GITHUB PAGES) ---
-        const getGlobal = (key) => {
-            try { return eval(key); } catch(e) { return undefined; }
-        };
-
-        const configStr = getGlobal('__firebase_config');
-        const canvasAppId = getGlobal('__app_id');
-        const authToken = getGlobal('__initial_auth_token');
-
-        const isCanvas = !!configStr;
-        const appId = canvasAppId || 'race-engineer-standalone';
-
-        // --- 2. GLOBAL STATE ---
+    <script>
+        // --- 1. GLOBAL STATE & DEFAULT DATA ---
         let appState = {
             car: "CAR #001 TEST",
             date: "202X-XX-XX",
@@ -35,71 +18,38 @@
             checklist: [{ text: "브레이크 패드 잔량 확인", checked: false }]
         };
 
-        let user = null;
-        let isSaving = false;
         let editingDay = 1;
-        let db, auth;
 
-        // --- 3. DATA PERSISTENCE (LOCAL) ---
-        function loadLocal() {
+        // --- 2. DATA PERSISTENCE (LOCAL STORAGE ONLY) ---
+        function loadLocalData() {
             const saved = localStorage.getItem('raceAppState');
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
                     if (parsed && typeof parsed === 'object') {
+                        // 기존 데이터와 병합하여 구조 유지
                         appState = { ...appState, ...parsed };
                     }
-                } catch (e) { console.error("Local load fail", e); }
+                } catch (e) { 
+                    console.error("데이터 로드 실패:", e); 
+                }
             }
-            window.renderAll();
+            renderAll();
         }
 
-        window.saveData = async function() {
-            isSaving = true;
+        window.saveData = function() {
             try {
-                // Always save to localStorage
                 localStorage.setItem('raceAppState', JSON.stringify(appState));
-
-                // Save to Cloud if in Canvas
-                if (isCanvas && user && db) {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'plan_master', 'current');
-                    await setDoc(docRef, appState);
-                }
-            } catch (e) { console.error("Save failed", e); }
-            finally { setTimeout(() => { isSaving = false; }, 800); }
+            } catch (e) { 
+                console.error("저장 실패:", e); 
+            }
         };
 
-        // --- 4. FIREBASE SYNC (OPTIONAL ENHANCEMENT) ---
-        async function setupFirebase() {
-            if (!isCanvas) return;
-            try {
-                const app = initializeApp(JSON.parse(configStr));
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                if (authToken) { await signInWithCustomToken(auth, authToken); }
-                else { await signInAnonymously(auth); }
-
-                onAuthStateChanged(auth, (u) => {
-                    user = u;
-                    if (user) {
-                        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'plan_master', 'current');
-                        onSnapshot(docRef, (snap) => {
-                            if (snap.exists() && !isSaving) {
-                                appState = snap.data();
-                                window.renderAll();
-                            }
-                        });
-                    }
-                });
-            } catch (e) { console.warn("Firebase sync disabled."); }
-        }
-
-        // --- 5. UI RENDERING (PURE LOGIC) ---
+        // --- 3. UI RENDERING LOGIC ---
         window.renderAll = () => {
             if (!document.getElementById('timeline-container')) return;
 
-            // Ensure data integrity
+            // 데이터 무결성 보장
             appState.days = appState.days || {};
             appState.dayTitles = appState.dayTitles || {};
             appState.checklist = Array.isArray(appState.checklist) ? appState.checklist : [];
@@ -223,14 +173,14 @@
             html += `
                     <div class="flex items-center gap-3 py-1.5 px-3">
                         <span class="text-slate-500 text-lg leading-none">+</span>
-                        <input type="text" placeholder="Add task..." onkeydown="if(event.key==='Enter') addCheck(this)" class="bg-transparent text-sm text-slate-300 placeholder:text-slate-600 focus:outline-none w-full border-none!">
+                        <input type="text" placeholder="Add task..." onkeydown="if(event.key==='Enter') addCheck(this)" class="bg-transparent text-sm text-slate-300 placeholder:text-slate-600 focus:outline-none w-full">
                     </div>
                 </div>
             </div>`;
             ui.innerHTML = html;
         }
 
-        // --- HANDLERS ---
+        // --- 4. INTERACTION HANDLERS ---
         window.toggleDetail = (id) => {
             const el = document.getElementById(`detail-${id}`);
             const icon = document.getElementById(`icon-${id}`);
@@ -322,18 +272,18 @@
 
         window.closeModal = () => document.getElementById('modal').classList.add('hidden');
 
-        // --- STARTUP ---
+        // --- 5. INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
-            loadLocal();
-            setupFirebase();
+            loadLocalData();
         });
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #0b0c10; color: #e2e8f0; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         input, select, textarea { background-color: #1e2128 !important; color: #f1f5f9 !important; border: 1px solid #334155 !important; }
         input:focus, select:focus, textarea:focus { outline: none !important; border-color: #6366f1 !important; }
-        .border-none\! { border: none !important; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
@@ -347,7 +297,7 @@
             <div id="checklist-ui" class="mt-4"></div>
         </main>
 
-        <!-- Modals -->
+        <!-- Session Editor Modal -->
         <div id="modal" class="fixed inset-0 z-50 hidden flex flex-col items-center justify-end sm:justify-center">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeModal()"></div>
             <div class="w-full max-w-[480px] bg-[#16181d] rounded-t-3xl sm:rounded-3xl z-10 flex flex-col max-h-[90vh] border border-slate-700/50 shadow-2xl transition-transform">
@@ -383,6 +333,7 @@
             </div>
         </div>
 
+        <!-- Day Title Modal -->
         <div id="day-title-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeDayTitleModal()"></div>
             <div class="bg-[#16181d] max-w-sm w-full rounded-3xl p-6 shadow-2xl z-10 border border-slate-700/50">
