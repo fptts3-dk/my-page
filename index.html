@@ -19,7 +19,7 @@
             background-color: #1e2128 !important; 
             color: #f1f5f9 !important;
             border: 1px solid #334155 !important;
-            appearance: none; /* 기본 화살표 제거 */
+            appearance: none; 
         }
         
         /* 커스텀 화살표 아이콘 적용 */
@@ -168,7 +168,7 @@
         let currentCar = "#97";
         let currentDataRef = null;
 
-        // --- 2. 다국어 사전 (Internationalization) ---
+        // --- 2. 다국어 사전 ---
         const i18n = {
             "#97": {
                 header: "Session Plan",
@@ -199,6 +199,9 @@
                 phStint: "스틴트 계획 입력...",
                 phLaps: "랩 수",
                 stintPrefix: "스틴트",
+                timerWait: "대기",
+                timerEnd: "종료",
+                timerLeft: "남음",
                 tires: {
                     new_dry: "신품(Dry)",
                     used_dry: "중고(Dry)",
@@ -235,6 +238,9 @@
                 phStint: "Enter stint plan...",
                 phLaps: "Laps",
                 stintPrefix: "Stint",
+                timerWait: "Wait",
+                timerEnd: "End",
+                timerLeft: "Left",
                 tires: {
                     new_dry: "New(Dry)",
                     used_dry: "Used(Dry)",
@@ -309,16 +315,18 @@
         };
 
         // --- 5. Stint 로우 관리 ---
-        window.addStintRow = function(content = '', type = 'new_dry', setNum = 'Set1', laps = '') {
+        window.addStintRow = function(content = '', t1Type = 'new_dry', t1Set = 'Set1', t2Type = 'new_dry', t2Set = 'Set2', laps = '') {
             const container = document.getElementById('stint-rows-container');
             const stintCount = container.querySelectorAll('.stint-row').length;
             if (stintCount >= 4) return;
 
             const rowId = 'stint-row-' + Date.now() + Math.random().toString(36).substr(2, 5);
             
-            let tireOptions = "";
+            let t1Options = "";
+            let t2Options = "";
             for (const [val, label] of Object.entries(i18n[currentCar].tires)) {
-                tireOptions += `<option value="${val}" ${val === type ? 'selected' : ''}>${label}</option>`;
+                t1Options += `<option value="${val}" ${val === t1Type ? 'selected' : ''}>${label}</option>`;
+                t2Options += `<option value="${val}" ${val === t2Type ? 'selected' : ''}>${label}</option>`;
             }
 
             const html = `
@@ -327,23 +335,46 @@
                         <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">${getTxt('stintPrefix')} ${stintCount + 1}</span>
                         <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-slate-500 hover:text-red-400 transition-colors">✕</button>
                     </div>
+                    
                     <input type="text" class="stint-content w-full bg-transparent border-none p-0 text-sm focus:ring-0" placeholder="${getTxt('phStint')}" value="${content}">
-                    <div class="flex gap-2">
-                        <div class="flex-1">
-                            <select class="stint-tire-type w-full text-[12px]">
-                                ${tireOptions}
-                            </select>
+                    
+                    <div class="space-y-1.5">
+                        <div class="flex gap-2 items-center">
+                            <div class="flex-1">
+                                <select class="stint-tire1-type w-full text-[11px]">
+                                    ${t1Options}
+                                </select>
+                            </div>
+                            <div class="w-[70px]">
+                                <select class="stint-tire1-set w-full font-mono text-[11px]">
+                                    <option value="Set1" ${t1Set === 'Set1' ? 'selected' : ''}>Set1</option>
+                                    <option value="Set2" ${t1Set === 'Set2' ? 'selected' : ''}>Set2</option>
+                                    <option value="Set3" ${t1Set === 'Set3' ? 'selected' : ''}>Set3</option>
+                                    <option value="Set4" ${t1Set === 'Set4' ? 'selected' : ''}>Set4</option>
+                                </select>
+                            </div>
+                            <div class="w-[50px] shrink-0">
+                                <input type="number" class="stint-laps w-full text-[11px] font-bold text-center h-[32px]" placeholder="${getTxt('phLaps')}" value="${laps}">
+                            </div>
                         </div>
-                        <div class="w-[75px]">
-                            <select class="stint-tire-set w-full font-mono text-[12px]">
-                                <option value="Set1" ${setNum === 'Set1' ? 'selected' : ''}>Set1</option>
-                                <option value="Set2" ${setNum === 'Set2' ? 'selected' : ''}>Set2</option>
-                                <option value="Set3" ${setNum === 'Set3' ? 'selected' : ''}>Set3</option>
-                                <option value="Set4" ${setNum === 'Set4' ? 'selected' : ''}>Set4</option>
-                            </select>
-                        </div>
-                        <div class="w-[65px]">
-                            <input type="number" class="stint-laps w-full text-[12px] font-bold text-center h-full" placeholder="${getTxt('phLaps')}" value="${laps}">
+
+                        <div class="flex gap-2 items-center">
+                            <div class="flex-1">
+                                <select class="stint-tire2-type w-full text-[11px]">
+                                    ${t2Options}
+                                </select>
+                            </div>
+                            <div class="w-[70px]">
+                                <select class="stint-tire2-set w-full font-mono text-[11px]">
+                                    <option value="Set1" ${t2Set === 'Set1' ? 'selected' : ''}>Set1</option>
+                                    <option value="Set2" ${t2Set === 'Set2' ? 'selected' : ''}>Set2</option>
+                                    <option value="Set3" ${t2Set === 'Set3' ? 'selected' : ''}>Set3</option>
+                                    <option value="Set4" ${t2Set === 'Set4' ? 'selected' : ''}>Set4</option>
+                                </select>
+                            </div>
+                            <div class="w-[50px] opacity-0 pointer-events-none">
+                                <input type="number" class="w-full">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -351,7 +382,62 @@
             container.insertAdjacentHTML('beforeend', html);
         }
 
-        // --- 6. 렌더링 로직 ---
+        // --- 6. 실시간 타이머 및 시간 도구 ---
+        function parseTimeToDate(timeStr) {
+            if (!timeStr) return null;
+            const parts = timeStr.trim().split(':');
+            if (parts.length < 2) return null;
+            const [hours, minutes] = parts.map(Number);
+            const date = new Date();
+            date.setHours(hours, minutes, 0, 0);
+            return date;
+        }
+
+        function formatDuration(ms) {
+            const totalSecs = Math.floor(Math.abs(ms) / 1000);
+            const mins = Math.floor(totalSecs / 60);
+            const secs = totalSecs % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateTimers() {
+            const now = new Date();
+            const daysMap = window.appState.days || {};
+            
+            Object.keys(daysMap).forEach(dayKey => {
+                const sessions = daysMap[dayKey] || [];
+                sessions.forEach(s => {
+                    const timerEl = document.getElementById(`live-timer-${s.id}`);
+                    if (!timerEl) return;
+
+                    const timeArr = (s.time || "").split(/[-~]/);
+                    const startTime = parseTimeToDate(timeArr[0]);
+                    const endTime = parseTimeToDate(timeArr[1]);
+
+                    if (!startTime || !endTime) {
+                        timerEl.textContent = "";
+                        return;
+                    }
+
+                    if (now < startTime) {
+                        const diff = startTime - now;
+                        timerEl.textContent = `-${formatDuration(diff)}`;
+                        timerEl.className = "text-[11px] font-bold mt-1 text-slate-500 font-mono";
+                    } else if (now > endTime) {
+                        timerEl.textContent = "00:00";
+                        timerEl.className = "text-[11px] font-bold mt-1 text-red-500/60 font-mono";
+                    } else {
+                        const diff = endTime - now;
+                        timerEl.textContent = formatDuration(diff);
+                        timerEl.className = "text-[11px] font-bold mt-1 text-indigo-400 font-mono animate-pulse";
+                    }
+                });
+            });
+        }
+
+        setInterval(updateTimers, 1000);
+
+        // --- 7. 렌더링 로직 ---
         window.renderAll = function() {
             const container = document.getElementById('timeline-container');
             if (!container) return;
@@ -379,15 +465,28 @@
 
                 sessions.forEach(s => {
                     const timeArr = (s.time || "").split(/[-~]/);
-                    const start = timeArr[0] ? timeArr[0].trim() : "00:00";
-                    const end = timeArr[1] ? timeArr[1].trim() : "";
+                    const startStr = timeArr[0] ? timeArr[0].trim() : "00:00";
+                    const endStr = timeArr[1] ? timeArr[1].trim() : "";
                     
-                    let tireSummary = "-";
-                    if (s.stints && Array.isArray(s.stints) && s.stints.length > 0) {
-                        tireSummary = s.stints.map(st => `${i18n[currentCar].tires[st.tireType] || st.tireType}:${st.tireSet}`).join(", ");
+                    let durationText = "";
+                    const startDate = parseTimeToDate(startStr);
+                    const endDate = parseTimeToDate(endStr);
+                    if (startDate && endDate) {
+                        const diffMins = Math.round((endDate - startDate) / 60000);
+                        durationText = `${diffMins}'`;
                     }
 
-                    const firstTire = (s.stints && s.stints[0]) ? s.stints[0].tireType : 'default';
+                    // 타이어 정보 요약
+                    let tireSummary = "-";
+                    if (s.stints && Array.isArray(s.stints) && s.stints.length > 0) {
+                        tireSummary = s.stints.map(st => {
+                            const t1Set = st.tire1Set || 'Set1';
+                            const t2Set = st.tire2Set || 'Set2';
+                            return `${t1Set}, ${t2Set}`;
+                        }).join(" | ");
+                    }
+
+                    const firstTire = (s.stints && s.stints[0]) ? s.stints[0].tire1Type : 'default';
                     const colors = { 
                         new_dry: 'border-green-500', 
                         used_dry: 'border-yellow-500', 
@@ -399,15 +498,17 @@
                     html += `
                     <div class="flex flex-col border-b border-slate-800/60 last:border-none">
                         <div class="flex min-h-[4.5rem] group cursor-pointer hover:bg-white/[0.02] transition-colors" onclick="toggleDetail('${s.id}')">
-                            <div class="w-16 flex flex-col items-center justify-center shrink-0">
-                                <span class="text-sm font-bold text-slate-200">${start}</span>
-                                ${end ? `<span class="text-[10px] text-slate-500 mt-0.5">~ ${end}</span>` : ''}
+                            <div class="w-16 flex flex-col items-center justify-center shrink-0 pt-1">
+                                <span class="text-[13px] font-bold text-slate-200 -mb-1">${startStr}</span>
+                                <span class="text-[10px] text-slate-500 font-medium">${durationText}</span>
+                                <div id="live-timer-${s.id}" class="font-mono"></div>
                             </div>
                             <div class="flex-1 py-3 pr-4 flex items-center">
                                 <div class="w-full bg-[#20232a] rounded-lg p-3 border-l-4 ${borderColor} flex justify-between items-center shadow-sm">
                                     <div class="min-w-0 pr-2">
                                         <h4 class="text-sm font-bold text-slate-100 truncate">${s.name}</h4>
-                                        <p class="text-[11px] text-slate-400 truncate">${s.fuel}L • ${tireSummary}</p>
+                                        <p class="text-[11px] text-slate-300 font-semibold truncate mt-0.5">${s.fuel}L • ${s.purpose || '-'}</p>
+                                        <p class="text-[10px] text-slate-500 truncate mt-0.5">${tireSummary}</p>
                                     </div>
                                     <svg id="icon-${s.id}" class="transition-transform duration-200 text-slate-600" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 9l6 6 6-6"/></svg>
                                 </div>
@@ -424,11 +525,23 @@
                                     <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('stintListTitle')}</p>
                                     <div class="flex flex-col gap-2 mt-1">
                                         ${(s.stints || []).map((st, idx) => {
-                                            const isNew = st.tireType.startsWith('new');
-                                            const tireColorClass = isNew 
-                                                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
-                                                : 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-                                            
+                                            const renderTireBadge = (type, set) => {
+                                                const isNew = (type || '').startsWith('new');
+                                                if (isNew) {
+                                                    return `
+                                                    <span class="text-[11px] px-2.5 py-0.5 rounded-full border font-bold bg-emerald-500/10 border-emerald-500/30 shadow-sm">
+                                                        <span class="text-emerald-600">${i18n[currentCar].tires[type] || type}</span> 
+                                                        <span class="text-emerald-100 font-mono text-[10px] ml-1">(${set})</span>
+                                                    </span>`;
+                                                } else {
+                                                    return `
+                                                    <span class="text-[11px] px-2.5 py-0.5 rounded-full border font-bold bg-slate-900 border-slate-700 shadow-sm">
+                                                        <span class="text-slate-500">${i18n[currentCar].tires[type] || type}</span> 
+                                                        <span class="text-slate-100 font-mono text-[10px] ml-1">(${set})</span>
+                                                    </span>`;
+                                                }
+                                            };
+
                                             return `
                                             <div class="bg-black/20 p-3 rounded-xl border border-slate-800 flex flex-col gap-2 transition-all hover:bg-black/30">
                                                 <div class="flex justify-between items-center">
@@ -436,9 +549,10 @@
                                                         <span class="text-[10px] font-bold text-indigo-400 uppercase shrink-0">${getTxt('stintPrefix')} ${idx + 1}</span>
                                                         ${st.laps ? `<span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30 font-bold">${st.laps} Laps</span>` : ''}
                                                     </div>
-                                                    <span class="text-[11px] px-2.5 py-0.5 rounded-full border font-bold ${tireColorClass} shadow-sm">
-                                                        ${i18n[currentCar].tires[st.tireType]} (${st.tireSet})
-                                                    </span>
+                                                    <div class="flex gap-1.5">
+                                                        ${renderTireBadge(st.tire1Type, st.tire1Set)}
+                                                        ${renderTireBadge(st.tire2Type, st.tire2Set)}
+                                                    </div>
                                                 </div>
                                                 <p class="text-slate-300 text-[13px] leading-relaxed whitespace-pre-wrap">${st.content || '-'}</p>
                                             </div>
@@ -479,6 +593,7 @@
                 </button>`);
             
             renderChecklist();
+            updateTimers();
         };
 
         function renderChecklist() {
@@ -510,7 +625,7 @@
                             <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${item.checked ? 'bg-indigo-500 border-indigo-500' : 'border-slate-500 bg-slate-800/50'}">
                                 ${item.checked ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><path d="M20 6L9 17l-5-5"/></svg>' : ''}
                             </div>
-                            <span class="text-sm ${item.checked ? 'text-slate-500 line-through' : 'text-slate-300'}">${item.text}</span>
+                            <span class="text-xs ${item.checked ? 'text-slate-500 line-through' : 'text-slate-300'}">${item.text}</span>
                         </div>
                         <button onclick="deleteCheck(${i})" class="text-slate-600 hover:text-red-400 px-2 transition-colors">✕</button>
                     </div>`;
@@ -523,7 +638,7 @@
                             <div class="w-full bg-[#1c1e24] rounded-lg p-2 border border-dashed border-slate-700/50 flex items-center shadow-inner">
                                 <input type="text" id="new-task-input" placeholder="${getTxt('phTask')}" 
                                     onkeydown="if(event.key==='Enter') { addCheck(this); event.preventDefault(); }" 
-                                    class="bg-transparent text-xs font-bold text-slate-400 placeholder:text-slate-600 focus:outline-none w-full border-none p-0 ml-1">
+                                    class="bg-transparent text-[11px] font-bold text-slate-400 placeholder:text-slate-600 focus:outline-none w-full border-none p-0 ml-1">
                             </div>
                         </div>
                     </div>
@@ -532,7 +647,6 @@
             ui.innerHTML = html;
         }
 
-        // --- 7. 전역 핸들러 ---
         window.toggleDetail = function(id) {
             const el = document.getElementById(`detail-${id}`);
             const icon = document.getElementById(`icon-${id}`);
@@ -608,7 +722,12 @@
             
             document.getElementById('stint-rows-container').innerHTML = '';
             if (s.stints && Array.isArray(s.stints)) {
-                s.stints.forEach(st => window.addStintRow(st.content, st.tireType, st.tireSet, st.laps || ''));
+                s.stints.forEach(st => window.addStintRow(
+                    st.content, 
+                    st.tire1Type, st.tire1Set, 
+                    st.tire2Type, st.tire2Set, 
+                    st.laps || ''
+                ));
             } else {
                 window.addStintRow();
             }
@@ -633,8 +752,10 @@
             stintRows.forEach(row => {
                 stints.push({
                     content: row.querySelector('.stint-content').value,
-                    tireType: row.querySelector('.stint-tire-type').value,
-                    tireSet: row.querySelector('.stint-tire-set').value,
+                    tire1Type: row.querySelector('.stint-tire1-type').value,
+                    tire1Set: row.querySelector('.stint-tire1-set').value,
+                    tire2Type: row.querySelector('.stint-tire2-type').value,
+                    tire2Set: row.querySelector('.stint-tire2-set').value,
                     laps: row.querySelector('.stint-laps').value
                 });
             });
@@ -672,7 +793,6 @@
         window.closeModal = () => document.getElementById('modal').classList.add('hidden');
         window.closeDayTitleModal = () => document.getElementById('day-title-modal').classList.add('hidden');
 
-        // 초기 실행: 첫 번째 차량(#97) 로드
         window.switchCar("#97");
     </script>
 </body>
