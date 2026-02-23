@@ -10,7 +10,7 @@
         body { font-family: 'Inter', sans-serif; background-color: #0b0c10; color: #e2e8f0; }
         
         /* 스크롤바 커스텀 */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         
@@ -45,6 +45,25 @@
             padding: 0.65rem 0.75rem !important;
             border-radius: 0.75rem !important;
         }
+
+        /* Tire Plan Grid Styles */
+        .tire-grid-cell {
+            min-width: 20px;
+            height: 20px;
+            border: 1px solid #2d333d;
+            font-size: 8px; 
+            font-weight: 400; /* 볼드체 해제: 일반 굵기로 수정 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f8fafc; 
+        }
+        /* 새 타이어: 녹색 */
+        .tire-new { background-color: #10b981; border-color: #059669; }
+        /* 중고 타이어: 회색 */
+        .tire-used { background-color: #64748b; border-color: #475569; }
+        /* 앞뒤 스왑: 진한 회색 */
+        .tire-swap { background-color: #1e293b; border-color: #0f172a; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
@@ -206,7 +225,8 @@
                     new_dry: "신품(Dry)",
                     used_dry: "중고(Dry)",
                     new_wet: "신품(Wet)",
-                    used_wet: "중고(Wet)"
+                    used_wet: "중고(Wet)",
+                    swap: "앞뒤 스왑(Swap)"
                 }
             },
             "#87": {
@@ -245,7 +265,8 @@
                     new_dry: "New(Dry)",
                     used_dry: "Used(Dry)",
                     new_wet: "New(Wet)",
-                    used_wet: "Used(Wet)"
+                    used_wet: "Used(Wet)",
+                    swap: "Swap"
                 }
             }
         };
@@ -325,7 +346,7 @@
             set(currentDataRef, window.appState).catch(error => console.error("Firebase Sync Error:", error));
         };
 
-        // --- 5. Stint 로우 관리 (모바일 겹침 방지를 위해 flex-wrap 적용) ---
+        // --- 5. Stint 로우 관리 ---
         window.addStintRow = function(content = '', t1Type = 'new_dry', t1Set = 'Set1', t2Type = 'new_dry', t2Set = 'Set2', laps = '') {
             const container = document.getElementById('stint-rows-container');
             const stintCount = container.querySelectorAll('.stint-row').length;
@@ -349,7 +370,6 @@
                     <input type="text" class="stint-content w-full bg-transparent border-none p-0 text-sm focus:ring-0" placeholder="${getTxt('phStint')}" value="${content}">
                     
                     <div class="space-y-2">
-                        <!-- 타이어 세트 1 + Laps -->
                         <div class="flex gap-2 items-center flex-wrap sm:flex-nowrap">
                             <div class="flex-1 min-w-[120px]">
                                 <select class="stint-tire1-type w-full text-[11px]">
@@ -369,7 +389,6 @@
                             </div>
                         </div>
 
-                        <!-- 타이어 세트 2 -->
                         <div class="flex gap-2 items-center flex-wrap sm:flex-nowrap">
                             <div class="flex-1 min-w-[120px]">
                                 <select class="stint-tire2-type w-full text-[11px]">
@@ -384,7 +403,6 @@
                                     <option value="Set4" ${t2Set === 'Set4' ? 'selected' : ''}>Set4</option>
                                 </select>
                             </div>
-                            <!-- 하단 정렬용 여백 -->
                             <div class="w-[50px] opacity-0 pointer-events-none hidden sm:block">
                                 <input type="number" class="w-full">
                             </div>
@@ -394,6 +412,105 @@
             `;
             container.insertAdjacentHTML('beforeend', html);
         }
+
+        // --- Tire Plan Graph Function ---
+        const generateTirePlanHTML = (stints) => {
+            if (!stints || stints.length === 0) return '';
+            
+            let totalLaps = 0;
+            const lapConfig = [];
+            stints.forEach((st, idx) => {
+                const count = parseInt(st.laps) || 0;
+                if (count > 0) {
+                    // 자동 스왑 로직 감지
+                    let stintIsSwap = (st.tire1Type === 'swap' || st.tire2Type === 'swap');
+                    if (idx > 0 && !stintIsSwap) {
+                        const prev = stints[idx - 1];
+                        if (st.tire1Set === prev.tire2Set && st.tire2Set === prev.tire1Set) {
+                            stintIsSwap = true;
+                        }
+                    }
+                    lapConfig.push({ 
+                        t1: st.tire1Type, 
+                        t1Set: st.tire1Set,
+                        t2: st.tire2Type, 
+                        t2Set: st.tire2Set,
+                        laps: count, 
+                        isSwap: stintIsSwap 
+                    });
+                    totalLaps += count;
+                }
+            });
+
+            if (totalLaps === 0) return '';
+            
+            // 기본 15랩 표시
+            const displayLaps = Math.max(totalLaps, 15);
+
+            const getTireClass = (type, forcedSwap) => {
+                if (forcedSwap) return 'tire-swap';
+                if (!type) return '';
+                if (type.startsWith('new')) return 'tire-new';
+                if (type.startsWith('used')) return 'tire-used';
+                if (type === 'swap') return 'tire-swap';
+                return '';
+            };
+
+            const renderRow = (label, typeKey, setKey) => {
+                let cells = '';
+                for (let i = 1; i <= displayLaps; i++) {
+                    let tireClass = '';
+                    let setLabel = '';
+                    let tempTotal = 0;
+                    for (const config of lapConfig) {
+                        if (i > tempTotal && i <= tempTotal + config.laps) {
+                            tireClass = getTireClass(config[typeKey], config.isSwap);
+                            // Set 번호 추출 (Set1 -> S1)
+                            const rawSet = config[setKey] || '';
+                            setLabel = rawSet.replace('Set', 'S');
+                            break;
+                        }
+                        tempTotal += config.laps;
+                    }
+                    cells += `<div class="tire-grid-cell ${tireClass}">${setLabel}</div>`;
+                }
+
+                return `
+                    <div class="flex items-center">
+                        <div class="w-10 text-[10px] font-bold text-slate-500 shrink-0 uppercase tracking-tighter">${label}</div>
+                        <div class="flex">${cells}</div>
+                    </div>
+                `;
+            };
+
+            let headerCells = '';
+            for (let i = 1; i <= displayLaps; i++) {
+                headerCells += `<div class="tire-grid-cell border-none text-[8px] font-medium">${i}</div>`;
+            }
+
+            return `
+                <div class="mt-4 pt-4 border-t border-slate-800/50">
+                    <div class="text-[10px] font-black text-slate-600 uppercase mb-2 tracking-widest flex justify-between items-center">
+                        <span>Tire Usage Plan (Laps)</span>
+                        <div class="flex gap-2 text-[8px] font-normal uppercase italic text-slate-500">
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-[#10b981] rounded-sm"></span>New</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-[#64748b] rounded-sm"></span>Used</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-[#1e293b] rounded-sm"></span>Swap</span>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto pb-2 scrollbar-thin">
+                        <div class="inline-block min-w-full">
+                            <div class="flex items-center">
+                                <div class="w-10 text-[9px] font-bold text-slate-600 shrink-0 uppercase tracking-tighter">Lap</div>
+                                <div class="flex">${headerCells}</div>
+                            </div>
+                            ${renderRow('Front', 't1', 't1Set')}
+                            ${renderRow('Rear', 't2', 't2Set')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
 
         function parseTimeToDate(timeStr) {
             if (!timeStr) return null;
@@ -501,7 +618,8 @@
                         new_dry: 'border-green-500', 
                         used_dry: 'border-yellow-500', 
                         new_wet: 'border-blue-500',
-                        used_wet: 'border-indigo-400'
+                        used_wet: 'border-indigo-400',
+                        swap: 'border-slate-900'
                     };
                     const borderColor = colors[firstTire] || 'border-blue-500';
 
@@ -535,21 +653,37 @@
                                     <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('stintListTitle')}</p>
                                     <div class="flex flex-col gap-3 mt-1">
                                         ${(s.stints || []).map((st, idx) => {
+                                            // 자동 스왑 배지 로직
+                                            let isAutoSwap = false;
+                                            if (idx > 0) {
+                                                const prev = s.stints[idx - 1];
+                                                if (st.tire1Set === prev.tire2Set && st.tire2Set === prev.tire1Set) {
+                                                    isAutoSwap = true;
+                                                }
+                                            }
+
                                             const renderTireBadge = (type, set) => {
                                                 const isNew = (type || '').startsWith('new');
+                                                const isSwap = type === 'swap' || isAutoSwap;
+                                                
+                                                let classes = "text-[11px] px-2 py-0.5 rounded-full border font-bold shadow-sm whitespace-nowrap ";
+                                                let textClass = "";
                                                 if (isNew) {
-                                                    return `
-                                                    <span class="text-[11px] px-2 py-0.5 rounded-full border font-bold bg-emerald-500/10 border-emerald-500/30 shadow-sm whitespace-nowrap">
-                                                        <span class="text-emerald-600">${i18n[currentCar].tires[type] || type}</span> 
-                                                        <span class="text-emerald-100 font-mono text-[9px] ml-0.5">(${set})</span>
-                                                    </span>`;
+                                                    classes += "bg-emerald-500/10 border-emerald-500/30";
+                                                    textClass = "text-emerald-500";
+                                                } else if (isSwap) {
+                                                    classes += "bg-slate-900 border-slate-900";
+                                                    textClass = "text-slate-400";
                                                 } else {
-                                                    return `
-                                                    <span class="text-[11px] px-2 py-0.5 rounded-full border font-bold bg-slate-900 border-slate-700 shadow-sm whitespace-nowrap">
-                                                        <span class="text-slate-500">${i18n[currentCar].tires[type] || type}</span> 
-                                                        <span class="text-slate-100 font-mono text-[9px] ml-0.5">(${set})</span>
-                                                    </span>`;
+                                                    classes += "bg-slate-800 border-slate-700";
+                                                    textClass = "text-slate-500";
                                                 }
+
+                                                return `
+                                                <span class="${classes}">
+                                                    <span class="${textClass}">${i18n[currentCar].tires[type] || type}</span> 
+                                                    <span class="text-slate-100 font-mono text-[9px] ml-0.5">(${set})</span>
+                                                </span>`;
                                             };
 
                                             return `
@@ -558,6 +692,7 @@
                                                     <div class="flex items-center gap-2 flex-wrap">
                                                         <span class="text-[10px] font-bold text-indigo-400 uppercase shrink-0">${getTxt('stintPrefix')} ${idx + 1}</span>
                                                         ${st.laps ? `<span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30 font-bold">${st.laps} Laps</span>` : ''}
+                                                        ${isAutoSwap ? `<span class="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/30 font-bold tracking-tighter">Swap</span>` : ''}
                                                     </div>
                                                     <div class="flex gap-1 flex-wrap justify-end">
                                                         ${renderTireBadge(st.tire1Type, st.tire1Set)}
@@ -569,6 +704,9 @@
                                         `}).join('')}
                                     </div>
                                 </div>
+                                
+                                ${generateTirePlanHTML(s.stints)}
+
                                 ${s.note ? `
                                 <div>
                                     <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('noteTitle')}</p>
@@ -603,7 +741,6 @@
                 </button>`);
             
             renderChecklist();
-            updateTimers();
         };
 
         function renderChecklist() {
