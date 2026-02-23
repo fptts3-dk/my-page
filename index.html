@@ -13,7 +13,6 @@
 
         // --- FIREBASE CONFIG & INIT ---
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            // 외부(GitHub 등)에서 사용 시 본인의 Firebase Config를 여기에 넣어야 합니다.
             apiKey: "", authDomain: "", projectId: "", storageBucket: "", messagingSenderId: "", appId: ""
         };
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'race-engineer-default';
@@ -52,8 +51,7 @@
                 }
             } catch (error) {
                 console.error("Auth Error:", error);
-                // Auth 실패 시에도 로컬 데이터로 우선 렌더링
-                renderAll();
+                renderAll(); // 실패해도 로컬 상태로 렌더링
             }
         }
 
@@ -61,28 +59,36 @@
             user = u;
             if (user) {
                 startRealtimeSync();
+            } else {
+                renderAll();
             }
         });
 
-        // --- REALTIME SYNC (The "Collaboration" part) ---
+        // --- REALTIME SYNC ---
         function startRealtimeSync() {
             if (!user) return;
-            // RULE 1: Strict Paths for public data
             const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'plan_master', 'current');
 
             onSnapshot(docRef, (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.data();
-                    if (!isSaving) { // 내가 저장 중일 때는 덮어씌우지 않음
-                        appState = data;
+                    if (!isSaving) {
+                        // 데이터 구조 보전 (서버 데이터가 불완전할 경우 대비)
+                        appState = {
+                            ...appState,
+                            ...data,
+                            days: data.days || {},
+                            dayTitles: data.dayTitles || {},
+                            checklist: data.checklist || []
+                        };
                         renderAll();
                     }
                 } else {
-                    // 서버에 데이터가 없으면 현재 상태를 서버에 최초 저장
                     saveData();
                 }
             }, (error) => {
                 console.error("Firestore Sync Error:", error);
+                renderAll(); // 오류 시에도 기존 화면 유지
             });
         }
 
@@ -95,30 +101,38 @@
             } catch (error) {
                 console.error("Firestore Save Error:", error);
             } finally {
-                // 저장 후 즉시 snapshot이 오기 때문에 잠시 대기 후 플래그 해제
                 setTimeout(() => { isSaving = false; }, 1000);
             }
         }
 
         // --- UI RENDERING ---
         window.renderAll = () => {
-            if (!appState) return;
-            // 기본 구조 보장
-            if (!appState.days) appState.days = {};
-            if (!appState.dayTitles) appState.dayTitles = {};
-            if (!appState.checklist) appState.checklist = [];
+            try {
+                // 상단 헤더 등 필수 요소 존재 확인
+                const header = document.getElementById('header-title');
+                if (!header) return;
 
-            renderHeader();
-            renderTimeline();
-            renderChecklist();
+                // 데이터 기본값 보장 (렌더링 에러 방지)
+                if (!appState.days) appState.days = {};
+                if (!appState.dayTitles) appState.dayTitles = {};
+                if (!appState.checklist) appState.checklist = [];
+
+                renderHeader();
+                renderTimeline();
+                renderChecklist();
+            } catch (err) {
+                console.error("Render Error:", err);
+            }
         };
 
         function renderHeader() {
-            document.getElementById('header-title').textContent = "Session Plan";
+            const el = document.getElementById('header-title');
+            if (el) el.textContent = "Session Plan";
         }
 
         function renderTimeline() {
             const list = document.getElementById('timeline-container');
+            if (!list) return;
             list.innerHTML = '';
             
             const activeDays = Object.keys(appState.days).map(Number).sort((a,b) => a-b);
@@ -212,6 +226,7 @@
 
         function renderChecklist() {
             const ui = document.getElementById('checklist-ui');
+            if (!ui) return;
             const checked = appState.checklist.filter(i => i.checked).length;
             const total = appState.checklist.length;
             const perc = total === 0 ? 0 : Math.round((checked/total)*100);
@@ -318,7 +333,7 @@
             if (!appState.days[editingDay]) appState.days[editingDay] = [];
             if (id) {
                 const idx = appState.days[editingDay].findIndex(x => x.id === id);
-                appState.days[editingDay][idx] = data;
+                if (idx !== -1) appState.days[editingDay][idx] = data;
             } else {
                 appState.days[editingDay].push(data);
             }
@@ -327,13 +342,16 @@
 
         window.deleteSessionFromModal = () => {
             const id = document.getElementById('edit-id').value;
-            appState.days[editingDay] = appState.days[editingDay].filter(x => x.id !== id);
+            if (appState.days[editingDay]) {
+                appState.days[editingDay] = appState.days[editingDay].filter(x => x.id !== id);
+            }
             closeModal(); renderAll(); saveData();
         };
 
         window.openEditor = (id, day) => {
             editingDay = day;
             const s = appState.days[day].find(x => x.id === id);
+            if (!s) return;
             document.getElementById('edit-id').value = id;
             document.getElementById('in-name').value = s.name;
             document.getElementById('in-time').value = s.time;
@@ -342,7 +360,7 @@
             document.getElementById('in-detail').value = s.detail;
             document.getElementById('in-tire-type').value = s.tireType;
             document.getElementById('in-tire').value = s.tire;
-            document.getElementById('in-note').value = s.note;
+            document.getElementById('in-note').value = s.note || "";
             document.getElementById('modal').classList.remove('hidden');
         };
 
@@ -355,9 +373,10 @@
 
         window.closeModal = () => document.getElementById('modal').classList.add('hidden');
 
+        // 초기 실행
         document.addEventListener('DOMContentLoaded', () => {
-            initAuth();
-            renderAll();
+            renderAll(); // 즉시 기본 화면 렌더링
+            initAuth();  // 백그라운드에서 인증 및 동기화 시작
         });
     </script>
     <style>
@@ -386,9 +405,9 @@
             <div class="w-full max-w-[480px] bg-[#16181d] rounded-t-3xl sm:rounded-3xl shadow-2xl z-10 flex flex-col max-h-[90vh] sm:max-h-[85vh] border border-slate-700/50">
                 <div class="p-5 border-b border-slate-800 flex justify-between items-center shrink-0">
                     <h3 class="text-lg font-bold text-white">Edit Session</h3>
-                    <button onclick="closeModal()" class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center text-slate-300">✕</button>
+                    <button type="button" onclick="closeModal()" class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center text-slate-300">✕</button>
                 </div>
-                <form id="session-form" class="p-5 space-y-4 overflow-y-auto">
+                <form id="session-form" class="p-5 space-y-4 overflow-y-auto" onsubmit="event.preventDefault(); saveSession();">
                     <input type="hidden" id="edit-id">
                     <div class="space-y-4">
                         <div><label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">Session Title</label><input type="text" id="in-name" class="w-full rounded-xl p-3.5 text-sm font-semibold"></div>
@@ -410,8 +429,8 @@
                     </div>
                 </form>
                 <div class="p-5 border-t border-slate-800 flex gap-3 bg-[#16181d] rounded-b-3xl">
-                    <button onclick="deleteSessionFromModal()" class="px-5 py-3.5 bg-red-500/10 text-red-500 rounded-xl text-sm font-bold hover:bg-red-500/20 transition-all">Delete</button>
-                    <button onclick="saveSession()" class="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-indigo-500 transition-all">Save Changes</button>
+                    <button type="button" onclick="deleteSessionFromModal()" class="px-5 py-3.5 bg-red-500/10 text-red-500 rounded-xl text-sm font-bold hover:bg-red-500/20 transition-all">Delete</button>
+                    <button type="button" onclick="saveSession()" class="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-indigo-500 transition-all">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -426,8 +445,8 @@
                     <div><label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">제목 (Title)</label><input type="text" id="in-day-title" class="w-full rounded-xl p-3.5 text-sm"></div>
                 </div>
                 <div class="flex gap-3 mt-6">
-                    <button onclick="deleteDay()" class="px-5 bg-red-500/10 text-red-500 py-3.5 rounded-xl text-sm font-bold hover:bg-red-500/20">Delete Day</button>
-                    <button onclick="saveDayTitle()" class="flex-1 bg-slate-100 text-slate-900 py-3.5 rounded-xl text-sm font-bold">Apply</button>
+                    <button type="button" onclick="deleteDay()" class="px-5 bg-red-500/10 text-red-500 py-3.5 rounded-xl text-sm font-bold hover:bg-red-500/20">Delete Day</button>
+                    <button type="button" onclick="saveDayTitle()" class="flex-1 bg-slate-100 text-slate-900 py-3.5 rounded-xl text-sm font-bold">Apply</button>
                 </div>
             </div>
         </div>
