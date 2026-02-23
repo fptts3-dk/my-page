@@ -100,7 +100,7 @@
                             <input type="text" id="in-purpose" class="w-full rounded-xl p-3.5 text-sm">
                         </div>
 
-                        <!-- Stint 관리 영역 -->
+                        <!-- Stint 관리 영역 (제한 없음) -->
                         <div class="space-y-3">
                             <div class="flex justify-between items-end mb-1 px-1">
                                 <label id="lbl-stint-list" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Stint Strategy</label>
@@ -326,11 +326,11 @@
             set(currentDataRef, window.appState).catch(error => console.error("Firebase Sync Error:", error));
         };
 
-        // --- 5. Stint 로우 관리 ---
+        // --- 5. Stint 로우 관리 (무한대 추가 가능하도록 수정) ---
         window.addStintRow = function(content = '', t1Type = 'new_dry', t1Set = 'Set1', t2Type = 'new_dry', t2Set = 'Set2', laps = '') {
             const container = document.getElementById('stint-rows-container');
+            // stintCount는 화면에 표시되는 번호 매기기용으로 사용
             const stintCount = container.querySelectorAll('.stint-row').length;
-            if (stintCount >= 4) return;
 
             const rowId = 'stint-row-' + Date.now() + Math.random().toString(36).substr(2, 5);
             
