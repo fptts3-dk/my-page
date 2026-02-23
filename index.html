@@ -52,7 +52,7 @@
             height: 20px;
             border: 1px solid #2d333d;
             font-size: 8px; 
-            font-weight: 400; /* 볼드체 해제: 일반 굵기로 수정 */
+            font-weight: 400; 
             display: flex;
             align-items: center;
             justify-content: center;
@@ -422,7 +422,6 @@
             stints.forEach((st, idx) => {
                 const count = parseInt(st.laps) || 0;
                 if (count > 0) {
-                    // 자동 스왑 로직 감지
                     let stintIsSwap = (st.tire1Type === 'swap' || st.tire2Type === 'swap');
                     if (idx > 0 && !stintIsSwap) {
                         const prev = stints[idx - 1];
@@ -444,7 +443,6 @@
 
             if (totalLaps === 0) return '';
             
-            // 수정: 기본 10랩 표시 (10랩 넘으면 스크롤)
             const displayLaps = Math.max(totalLaps, 10);
 
             const getTireClass = (type, forcedSwap) => {
@@ -465,7 +463,6 @@
                     for (const config of lapConfig) {
                         if (i > tempTotal && i <= tempTotal + config.laps) {
                             tireClass = getTireClass(config[typeKey], config.isSwap);
-                            // Set 번호 추출 (Set1 -> S1)
                             const rawSet = config[setKey] || '';
                             setLabel = rawSet.replace('Set', 'S');
                             break;
@@ -523,10 +520,10 @@
         }
 
         function formatDuration(ms) {
-            const totalSecs = Math.floor(Math.abs(ms) / 1000);
-            const mins = Math.floor(totalSecs / 60);
-            const secs = totalSecs % 60;
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
+            const totalMins = Math.floor(Math.abs(ms) / 60000);
+            const hours = Math.floor(totalMins / 60);
+            const mins = totalMins % 60;
+            return `${hours}:${mins.toString().padStart(2, '0')}`;
         }
 
         function updateTimers() {
@@ -553,7 +550,7 @@
                         timerEl.textContent = `-${formatDuration(diff)}`;
                         timerEl.className = "text-[11px] font-bold mt-1 text-slate-500 font-mono";
                     } else if (now > endTime) {
-                        timerEl.textContent = "00:00";
+                        timerEl.textContent = "0:00";
                         timerEl.className = "text-[11px] font-bold mt-1 text-red-500/60 font-mono";
                     } else {
                         const diff = endTime - now;
@@ -634,7 +631,7 @@
                             <div class="flex-1 py-3 pr-4 flex items-center">
                                 <div class="w-full bg-[#20232a] rounded-lg p-3 border-l-4 ${borderColor} flex justify-between items-center shadow-sm">
                                     <div class="min-w-0 pr-2">
-                                        <h4 class="text-sm font-bold text-slate-100 truncate">${s.name}</h4>
+                                        <h4 class="text-[13px] font-bold text-slate-100 truncate">${s.name}</h4>
                                         <p class="text-[11px] text-slate-300 font-semibold truncate mt-0.5">${s.fuel}L • ${s.purpose || '-'}</p>
                                         <p class="text-[10px] text-slate-500 truncate mt-0.5">${tireSummary}</p>
                                     </div>
@@ -647,13 +644,12 @@
                             <div class="bg-[#1c1e24] border border-slate-700/50 rounded-lg p-4 space-y-4 shadow-inner text-sm">
                                 <div>
                                     <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('purposeTitle')}</p>
-                                    <p class="text-slate-200 bg-black/20 p-2.5 rounded-lg border border-slate-800/50">${s.purpose || '-'}</p>
+                                    <p class="text-slate-200 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.purpose || '-'}</p>
                                 </div>
                                 <div>
                                     <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('stintListTitle')}</p>
                                     <div class="flex flex-col gap-3 mt-1">
                                         ${(s.stints || []).map((st, idx) => {
-                                            // 자동 스왑 배지 로직
                                             let isAutoSwap = false;
                                             if (idx > 0) {
                                                 const prev = s.stints[idx - 1];
@@ -666,21 +662,22 @@
                                                 const isNew = (type || '').startsWith('new');
                                                 const isSwap = type === 'swap' || isAutoSwap;
                                                 
-                                                let classes = "text-[11px] px-2 py-0.5 rounded-full border font-bold shadow-sm whitespace-nowrap ";
+                                                let badgeClasses = "text-[11px] px-2 py-0.5 rounded-full border font-bold shadow-sm whitespace-nowrap ";
                                                 let textClass = "";
+
                                                 if (isNew) {
-                                                    classes += "bg-emerald-500/10 border-emerald-500/30";
-                                                    textClass = "text-emerald-500";
+                                                    badgeClasses += "bg-emerald-500/20 border-emerald-500/30";
+                                                    textClass = "text-emerald-400";
                                                 } else if (isSwap) {
-                                                    classes += "bg-slate-900 border-slate-900";
+                                                    badgeClasses += "bg-slate-900 border-slate-800";
                                                     textClass = "text-slate-400";
                                                 } else {
-                                                    classes += "bg-slate-800 border-slate-700";
-                                                    textClass = "text-slate-500";
+                                                    badgeClasses += "bg-slate-500/20 border-slate-500/30";
+                                                    textClass = "text-slate-300";
                                                 }
 
                                                 return `
-                                                <span class="${classes}">
+                                                <span class="${badgeClasses}">
                                                     <span class="${textClass}">${i18n[currentCar].tires[type] || type}</span> 
                                                     <span class="text-slate-100 font-mono text-[9px] ml-0.5">(${set})</span>
                                                 </span>`;
@@ -710,7 +707,7 @@
                                 ${s.note ? `
                                 <div>
                                     <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('noteTitle')}</p>
-                                    <p class="text-slate-300 bg-black/20 p-2.5 rounded-lg border border-slate-800/50">${s.note}</p>
+                                    <p class="text-slate-300 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.note}</p>
                                 </div>` : ''}
                                 <div class="pt-2 border-t border-slate-700/50 flex justify-end">
                                     <button onclick="openEditor('${s.id}', ${day})" class="px-3.5 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold rounded-lg transition-colors border border-slate-600/50">${getTxt('edit')}</button>
