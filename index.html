@@ -5,19 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Race Engineer App</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase Libraries -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- CLOUD SYNC CONFIG & RULES ---
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'race-session-plan-v3';
-
+    <script>
         // --- GLOBAL STATE ---
         let appState = {
             car: "CAR #001 TEST",
@@ -38,61 +26,31 @@
             ]
         };
 
-        let user = null;
-        let isSaving = false;
         let editingDay = 1;
 
-        // --- AUTHENTICATION ---
-        async function initAuth() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) { console.error("Auth Error", error); }
+        // --- DATA LOADING & SAVING (Local Storage) ---
+        function loadData() {
+            const savedData = localStorage.getItem('raceAppState');
+            if (savedData) {
+                try {
+                    appState = JSON.parse(savedData);
+                } catch (e) { console.error("Local data parse error", e); }
+            }
+            renderAll();
         }
 
-        onAuthStateChanged(auth, (u) => {
-            user = u;
-            if (user) startRealtimeSync();
-        });
-
-        // --- REALTIME SYNC ---
-        function startRealtimeSync() {
-            if (!user) return;
-            const planDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'plan_data', 'master');
-
-            onSnapshot(planDocRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.data();
-                    if (!isSaving) {
-                        appState = data;
-                        renderAll();
-                    }
-                } else { saveToCloud(); }
-            }, (error) => { console.error("Sync Error", error); });
-        }
-
-        window.saveToCloud = async function() {
-            if (!user) return;
-            isSaving = true;
-            try {
-                const planDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'plan_data', 'master');
-                await setDoc(planDocRef, appState);
-                
-                // Show save indicator
-                const saveBtn = document.getElementById('btn-save');
-                const origText = saveBtn.innerText;
-                saveBtn.innerText = "Saved";
-                saveBtn.classList.add('text-green-400');
-                setTimeout(() => {
-                    saveBtn.innerText = origText;
-                    saveBtn.classList.remove('text-green-400');
-                }, 1500);
-
-            } catch (error) { console.error("Save Error", error); }
-            finally { setTimeout(() => { isSaving = false; }, 500); }
+        window.saveData = function() {
+            localStorage.setItem('raceAppState', JSON.stringify(appState));
+            
+            // Show save indicator
+            const saveBtn = document.getElementById('btn-save');
+            const origText = saveBtn.innerText;
+            saveBtn.innerText = "Saved";
+            saveBtn.classList.add('text-green-400');
+            setTimeout(() => {
+                saveBtn.innerText = origText;
+                saveBtn.classList.remove('text-green-400');
+            }, 1500);
         }
 
         // --- UI & LOGIC ---
@@ -281,9 +239,9 @@
             }
         };
 
-        window.toggleCheck = (i) => { appState.checklist[i].checked = !appState.checklist[i].checked; renderChecklist(); saveToCloud(); };
-        window.addCheck = (input) => { if (!input.value.trim()) return; appState.checklist.push({ text: input.value, checked: false }); input.value = ''; renderChecklist(); saveToCloud(); };
-        window.deleteCheck = (i) => { appState.checklist.splice(i, 1); renderChecklist(); saveToCloud(); };
+        window.toggleCheck = (i) => { appState.checklist[i].checked = !appState.checklist[i].checked; renderChecklist(); saveData(); };
+        window.addCheck = (input) => { if (!input.value.trim()) return; appState.checklist.push({ text: input.value, checked: false }); input.value = ''; renderChecklist(); saveData(); };
+        window.deleteCheck = (i) => { appState.checklist.splice(i, 1); renderChecklist(); saveData(); };
 
         window.saveSession = () => {
             const id = document.getElementById('edit-id').value;
@@ -309,7 +267,7 @@
                 dayList.push(data); 
             }
             
-            closeModal(); renderAll(); saveToCloud();
+            closeModal(); renderAll(); saveData();
         };
 
         window.deleteSessionFromModal = () => {
@@ -317,14 +275,14 @@
             if(appState.days[editingDay]) {
                 appState.days[editingDay] = appState.days[editingDay].filter(x => x.id !== id);
             }
-            closeModal(); renderAll(); saveToCloud();
+            closeModal(); renderAll(); saveData();
         };
 
         window.saveConfig = () => {
             appState.car = document.getElementById('cfg-car').value;
             appState.date = document.getElementById('cfg-date').value;
             document.getElementById('config-modal').classList.add('hidden');
-            saveToCloud();
+            saveData();
         };
 
         window.openEditor = (id, day) => {
@@ -358,11 +316,8 @@
             document.getElementById('config-modal').classList.remove('hidden');
         };
 
-        // 화면 로딩이 멈추는 것을 방지하기 위해 즉시 렌더링 먼저 실행
-        window.renderAll();
-
-        // 그 다음 백그라운드에서 동기화 연결
-        initAuth();
+        // Initialize App (화면(DOM) 로딩이 완료된 후 실행)
+        document.addEventListener('DOMContentLoaded', loadData);
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -397,7 +352,7 @@
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
             <h1 id="header-title" class="text-base font-bold text-slate-100 tracking-wide">Session Plan</h1>
-            <button id="btn-save" onclick="saveToCloud()" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors px-2">
+            <button id="btn-save" onclick="saveData()" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors px-2">
                 Save
             </button>
         </header>
