@@ -22,7 +22,6 @@
             appearance: none; 
         }
         
-        /* 커스텀 화살표 아이콘 적용 */
         select {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
@@ -37,7 +36,6 @@
             box-shadow: 0 0 0 1px #6366f1 !important;
         }
 
-        /* 공통 행 내부의 드롭다운 특수 스타일 */
         .row-item select, .row-item input {
             background-color: #262932 !important;
             border: 1px solid #3f4451 !important;
@@ -52,19 +50,15 @@
             height: 20px;
             border: 1px solid #2d333d;
             font-size: 8px; 
-            font-weight: 400; 
+            font-weight: 400; /* 볼드체 해제 */
             display: flex;
             align-items: center;
             justify-content: center;
             color: #f8fafc; 
         }
-        /* 새 타이어: 녹색 */
         .tire-new { background-color: #10b981; border-color: #059669; }
-        /* 중고 타이어: 회색 */
         .tire-used { background-color: #64748b; border-color: #475569; }
-        /* 앞뒤 스왑: 진한 회색 */
         .tire-swap { background-color: #1e293b; border-color: #0f172a; }
-        /* 신품이었던 타이어 재사용: 진한 주황색 */
         .tire-reused { background-color: #ea580c; border-color: #9a3412; }
     </style>
 </head>
@@ -72,9 +66,7 @@
 
     <div class="w-full max-w-[480px] min-h-screen flex flex-col bg-[#0b0c10] relative shadow-2xl">
         
-        <!-- 앱 헤더 -->
         <header class="sticky top-0 z-40 bg-[#0b0c10]/95 backdrop-blur-md px-4 pt-5 pb-3 flex items-center">
-            <!-- 차량 선택 드롭다운 -->
             <div class="absolute left-4 top-1/2 -translate-y-1/2 mt-1">
                 <select id="car-selector" onchange="window.switchCar(this.value)" class="bg-[#1e2128] text-slate-100 text-[13px] font-bold px-2 py-1.5 rounded-lg border border-slate-700 outline-none focus:border-indigo-500 transition-colors cursor-pointer">
                     <option value="#97">#97</option>
@@ -84,14 +76,13 @@
             <h1 id="header-title" class="text-base font-bold text-slate-100 tracking-wide w-full text-center">Session Plan</h1>
         </header>
 
-        <!-- 메인 콘텐츠 영역 -->
         <main class="flex-grow w-full px-4 pt-2 pb-10 overflow-x-hidden">
             <div id="timeline-container"></div>
             <div id="checklist-ui" class="mt-4"></div>
             <div class="h-10"></div>
         </main>
 
-        <!-- 세션 편집 모달 -->
+        <!-- Edit Modal -->
         <div id="modal" class="fixed inset-0 z-50 hidden flex flex-col items-center justify-end sm:justify-center">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeModal()"></div>
             <div class="w-full max-w-[480px] bg-[#16181d] rounded-t-3xl sm:rounded-3xl z-10 flex flex-col max-h-[90vh] border border-slate-700/50 shadow-2xl transition-transform">
@@ -120,19 +111,15 @@
                             <label id="lbl-session-purpose" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">목표/목적</label>
                             <input type="text" id="in-purpose" class="w-full rounded-xl p-3.5 text-sm">
                         </div>
-
-                        <!-- Stint 관리 영역 -->
                         <div class="space-y-3">
                             <div class="flex justify-between items-end mb-1 px-1">
                                 <label id="lbl-stint-list" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Stint Strategy</label>
-                                <button type="button" onclick="window.addStintRow()" class="text-[10px] bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 px-2.5 py-1.5 rounded-lg font-bold transition-all border border-indigo-500/30 shadow-sm">
+                                <button type="button" onclick="window.addStintRow()" class="text-[10px] bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 px-2.5 py-1.5 rounded-lg font-bold border border-indigo-500/30">
                                     + Add Stint
                                 </button>
                             </div>
-                            <div id="stint-rows-container" class="space-y-3 bg-black/20 p-2.5 rounded-2xl border border-slate-800/50">
-                            </div>
+                            <div id="stint-rows-container" class="space-y-3 bg-black/20 p-2.5 rounded-2xl border border-slate-800/50"></div>
                         </div>
-                        
                         <div>
                             <label id="lbl-session-note" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">기타</label>
                             <input type="text" id="in-note" class="w-full rounded-xl p-3.5 text-sm">
@@ -140,13 +127,13 @@
                     </div>
                 </form>
                 <div class="p-5 border-t border-slate-800 flex gap-3 bg-[#16181d] rounded-b-3xl">
-                    <button id="btn-session-delete" onclick="deleteSessionFromModal()" class="px-5 py-3.5 bg-red-500/10 text-red-500 rounded-xl text-sm font-bold hover:bg-red-500/20 transition-all">Delete</button>
-                    <button id="btn-session-save" onclick="saveSession()" class="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-indigo-500 transition-all">Save Changes</button>
+                    <button id="btn-session-delete" onclick="deleteSessionFromModal()" class="px-5 py-3.5 bg-red-500/10 text-red-500 rounded-xl text-sm font-bold">Delete</button>
+                    <button id="btn-session-save" onclick="saveSession()" class="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg">Save Changes</button>
                 </div>
             </div>
         </div>
 
-        <!-- 일정 제목 수정 모달 -->
+        <!-- Day Title Modal -->
         <div id="day-title-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeDayTitleModal()"></div>
             <div class="bg-[#16181d] max-w-sm w-full rounded-3xl p-6 shadow-2xl z-10 border border-slate-700/50">
@@ -160,19 +147,17 @@
                     <input type="text" id="in-day-title" class="w-full rounded-xl p-3.5 text-sm">
                 </div>
                 <div class="flex gap-3 mt-6">
-                    <button id="btn-day-delete" onclick="deleteDay()" class="px-5 bg-red-500/10 text-red-500 py-3.5 rounded-xl text-sm font-bold hover:bg-red-500/20">Delete Day</button>
+                    <button id="btn-day-delete" onclick="deleteDay()" class="px-5 bg-red-500/10 text-red-500 py-3.5 rounded-xl text-sm font-bold">Delete Day</button>
                     <button id="btn-day-apply" onclick="saveDayTitle()" class="flex-1 bg-slate-100 text-slate-900 py-3.5 rounded-xl text-sm font-bold">Apply</button>
                 </div>
             </div>
         </div>
-
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, off } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // --- 1. Firebase 설정 ---
         const firebaseConfig = {
             apiKey: "AIzaSyAGZxvxd-bBsv81xHek_PD4R7U14mw5chE",
             authDomain: "race-engineer-app-1cb35.firebaseapp.com",
@@ -189,106 +174,40 @@
         let currentCar = "#97";
         let currentDataRef = null;
 
-        // --- 2. 다국어 사전 ---
         const i18n = {
             "#97": {
-                header: "Session Plan",
-                maintenance: "Checklist",
-                noSessions: "등록된 세션이 없습니다.",
-                addDay: "일정 추가",
-                addSession: "세션 추가",
-                edit: "수정하기",
-                loading: "데이터 로딩 중...",
-                purposeTitle: "목표/목적",
-                stintListTitle: "스틴트별 계획",
-                noteTitle: "기타",
-                modalSession: "세션 편집",
-                modalDay: "일정 제목 수정",
-                lblTitle: "세션 제목",
-                lblTime: "시간",
-                lblFuel: "연료 (L)",
-                lblPurpose: "목표/목적",
-                lblStintStrategy: "스틴트 전략",
-                lblAttackLaps: "어택 랩",
-                lblNote: "기타 메모",
-                lblDayTitle: "제목",
-                btnDelete: "삭제",
-                btnSave: "저장하기",
-                btnApply: "적용하기",
-                btnDeleteDay: "일정 삭제",
-                phTask: "새 작업 추가...",
-                phStint: "스틴트 계획 입력...",
-                phLaps: "랩 수",
-                stintPrefix: "스틴트",
-                timerWait: "대기",
-                timerEnd: "종료",
-                timerLeft: "남음",
-                tires: {
-                    new_dry: "신품(Dry)",
-                    used_dry: "중고(Dry)",
-                    new_wet: "신품(Wet)",
-                    used_wet: "중고(Wet)",
-                    swap: "앞뒤 스왑(Swap)"
-                }
+                header: "Session Plan", maintenance: "Checklist", noSessions: "등록된 세션이 없습니다.",
+                addDay: "일정 추가", addSession: "세션 추가", edit: "수정하기", loading: "데이터 로딩 중...",
+                purposeTitle: "목표/목적", stintListTitle: "스틴트별 계획", noteTitle: "기타", modalSession: "세션 편집",
+                modalDay: "일정 제목 수정", lblTitle: "세션 제목", lblTime: "시간", lblFuel: "연료 (L)",
+                lblPurpose: "목표/목적", lblStintStrategy: "스틴트 전략", lblAttackLaps: "어택 랩", lblNote: "기타 메모",
+                lblDayTitle: "제목", btnDelete: "삭제", btnSave: "저장하기", btnApply: "적용하기", btnDeleteDay: "일정 삭제",
+                phTask: "새 작업 추가...", phStint: "스틴트 계획 입력...", phLaps: "랩 수", stintPrefix: "스틴트",
+                timerWait: "대기", timerEnd: "종료", timerLeft: "남음",
+                tires: { new_dry: "신품(Dry)", used_dry: "중고(Dry)", new_wet: "신품(Wet)", used_wet: "중고(Wet)", swap: "앞뒤 스왑(Swap)" }
             },
             "#87": {
-                header: "Session Plan",
-                maintenance: "Checklist",
-                noSessions: "No sessions scheduled.",
-                addDay: "Add Day",
-                addSession: "Add Session",
-                edit: "Edit",
-                loading: "Loading car data...",
-                purposeTitle: "Purpose / Goal",
-                stintListTitle: "Stint Plans",
-                noteTitle: "Note / Misc",
-                modalSession: "Edit Session",
-                modalDay: "Edit Day Title",
-                lblTitle: "Session Title",
-                lblTime: "Time Slot",
-                lblFuel: "Fuel (L)",
-                lblPurpose: "Purpose / Goal",
-                lblStintStrategy: "Stint Strategy",
-                lblAttackLaps: "Attack Laps",
-                lblNote: "Notes",
-                lblDayTitle: "Title",
-                btnDelete: "Delete",
-                btnSave: "Save Changes",
-                btnApply: "Apply",
-                btnDeleteDay: "Delete Day",
-                phTask: "Add task...",
-                phStint: "Enter stint plan...",
-                phLaps: "Laps",
-                stintPrefix: "Stint",
-                timerWait: "Wait",
-                timerEnd: "End",
-                timerLeft: "Left",
-                tires: {
-                    new_dry: "New(Dry)",
-                    used_dry: "Used(Dry)",
-                    new_wet: "New(Wet)",
-                    used_wet: "Used(Wet)",
-                    swap: "Swap"
-                }
+                header: "Session Plan", maintenance: "Checklist", noSessions: "No sessions scheduled.",
+                addDay: "Add Day", addSession: "Add Session", edit: "Edit", loading: "Loading car data...",
+                purposeTitle: "Purpose / Goal", stintListTitle: "Stint Plans", noteTitle: "Note / Misc", modalSession: "Edit Session",
+                modalDay: "Edit Day Title", lblTitle: "Session Title", lblTime: "Time Slot", lblFuel: "Fuel (L)",
+                lblPurpose: "Purpose / Goal", lblStintStrategy: "Stint Strategy", lblAttackLaps: "Attack Laps", lblNote: "Notes",
+                lblDayTitle: "Title", btnDelete: "Delete", btnSave: "Save Changes", btnApply: "Apply", btnDeleteDay: "Delete Day",
+                phTask: "Add task...", phStint: "Enter stint plan...", phLaps: "Laps", stintPrefix: "Stint",
+                timerWait: "Wait", timerEnd: "End", timerLeft: "Left",
+                tires: { new_dry: "New(Dry)", used_dry: "Used(Dry)", new_wet: "New(Wet)", used_wet: "Used(Wet)", swap: "Swap" }
             }
         };
 
         const getTxt = (key) => i18n[currentCar][key] || key;
 
-        // --- 3. 전역 상태 관리 ---
-        window.appState = {
-            dayTitles: { 1: "Day 1 Schedule", 2: "Day 2 Schedule" },
-            days: { 1: [], 2: [] },
-            checklist: []
-        };
+        window.appState = { dayTitles: { 1: "Day 1 Schedule" }, days: { 1: [] }, checklist: [] };
         let editingDayId = 1;
 
-        // --- 4. 실시간 동기화 및 차량 전환 ---
         window.switchCar = function(carValue) {
             currentCar = carValue;
             if (currentDataRef) off(currentDataRef);
-            const carId = carValue.replace('#', 'car');
-            currentDataRef = ref(db, `raceData/${carId}`);
+            currentDataRef = ref(db, `raceData/${carValue.replace('#', 'car')}`);
             
             const container = document.getElementById('timeline-container');
             if(container) container.innerHTML = `<div class="p-10 text-center text-slate-500 italic text-sm">${getTxt('loading')}</div>`;
@@ -296,30 +215,7 @@
             onValue(currentDataRef, (snapshot) => {
                 let data = snapshot.val();
                 if (data) {
-                    if (Array.isArray(data.days)) {
-                        const daysObj = {};
-                        data.days.forEach((v, i) => { if(v !== null) daysObj[i] = v; });
-                        data.days = daysObj;
-                    }
-                    if (Array.isArray(data.dayTitles)) {
-                        const titlesObj = {};
-                        data.dayTitles.forEach((v, i) => { if(v !== null) titlesObj[i] = v; });
-                        data.dayTitles = titlesObj;
-                    }
-
-                    window.appState = {
-                        ...window.appState,
-                        ...data,
-                        days: data.days || {},
-                        dayTitles: data.dayTitles || {},
-                        checklist: data.checklist || []
-                    };
-                } else {
-                    window.appState = {
-                        dayTitles: { 1: "Day 1 Schedule", 2: "Day 2 Schedule" },
-                        days: { 1: [], 2: [] },
-                        checklist: []
-                    };
+                    window.appState = { ...window.appState, ...data, days: data.days || {}, dayTitles: data.dayTitles || {}, checklist: data.checklist || [] };
                 }
                 updateUIStrings();
                 renderAll();
@@ -343,87 +239,55 @@
             document.getElementById('btn-day-apply').textContent = getTxt('btnApply');
         }
 
-        window.saveData = function() {
-            if (!currentDataRef) return;
-            set(currentDataRef, window.appState).catch(error => console.error("Firebase Sync Error:", error));
-        };
+        window.saveData = () => { if (currentDataRef) set(currentDataRef, window.appState); };
 
-        // --- 5. Stint 로우 관리 ---
         window.addStintRow = function(content = '', t1Type = 'new_dry', t1Set = 'Set1', t2Type = 'new_dry', t2Set = 'Set2', laps = '') {
             const container = document.getElementById('stint-rows-container');
-            const stintCount = container.querySelectorAll('.stint-row').length;
-
             const rowId = 'stint-row-' + Date.now() + Math.random().toString(36).substr(2, 5);
-            
-            let t1Options = "";
-            let t2Options = "";
+            let t1Opt = "", t2Opt = "";
             for (const [val, label] of Object.entries(i18n[currentCar].tires)) {
-                t1Options += `<option value="${val}" ${val === t1Type ? 'selected' : ''}>${label}</option>`;
-                t2Options += `<option value="${val}" ${val === t2Type ? 'selected' : ''}>${label}</option>`;
+                t1Opt += `<option value="${val}" ${val === t1Type ? 'selected' : ''}>${label}</option>`;
+                t2Opt += `<option value="${val}" ${val === t2Type ? 'selected' : ''}>${label}</option>`;
             }
-
             const html = `
-                <div id="${rowId}" class="stint-row space-y-2 p-3 bg-[#1e2128] rounded-xl border border-slate-700/50 row-item shadow-sm transition-all">
+                <div id="${rowId}" class="stint-row space-y-2 p-3 bg-[#1e2128] rounded-xl border border-slate-700/50 row-item shadow-sm">
                     <div class="flex justify-between items-center">
-                        <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">${getTxt('stintPrefix')} ${stintCount + 1}</span>
-                        <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-slate-500 hover:text-red-400 transition-colors">✕</button>
+                        <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">${getTxt('stintPrefix')}</span>
+                        <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-slate-500">✕</button>
                     </div>
-                    
                     <input type="text" class="stint-content w-full bg-transparent border-none p-0 text-sm focus:ring-0" placeholder="${getTxt('phStint')}" value="${content}">
-                    
                     <div class="space-y-2">
-                        <div class="flex gap-2 items-center flex-wrap sm:flex-nowrap">
-                            <div class="flex-1 min-w-[120px]">
-                                <select class="stint-tire1-type w-full text-[11px]">
-                                    ${t1Options}
-                                </select>
-                            </div>
-                            <div class="w-[70px]">
-                                <select class="stint-tire1-set w-full font-mono text-[11px]">
-                                    <option value="Set1" ${t1Set === 'Set1' ? 'selected' : ''}>Set1</option>
-                                    <option value="Set2" ${t1Set === 'Set2' ? 'selected' : ''}>Set2</option>
-                                    <option value="Set3" ${t1Set === 'Set3' ? 'selected' : ''}>Set3</option>
-                                    <option value="Set4" ${t1Set === 'Set4' ? 'selected' : ''}>Set4</option>
-                                </select>
-                            </div>
-                            <div class="w-[50px] shrink-0">
-                                <input type="number" class="stint-laps w-full text-[11px] font-bold text-center h-[32px]" placeholder="${getTxt('phLaps')}" value="${laps}">
-                            </div>
+                        <div class="flex gap-2 items-center">
+                            <select class="stint-tire1-type flex-1 text-[11px]">${t1Opt}</select>
+                            <select class="stint-tire1-set w-[70px] font-mono text-[11px]">
+                                <option value="Set1" ${t1Set === 'Set1' ? 'selected' : ''}>Set1</option>
+                                <option value="Set2" ${t1Set === 'Set2' ? 'selected' : ''}>Set2</option>
+                                <option value="Set3" ${t1Set === 'Set3' ? 'selected' : ''}>Set3</option>
+                                <option value="Set4" ${t1Set === 'Set4' ? 'selected' : ''}>Set4</option>
+                            </select>
+                            <input type="number" class="stint-laps w-[50px] text-[11px] font-bold text-center h-[32px]" placeholder="${getTxt('phLaps')}" value="${laps}">
                         </div>
-
-                        <div class="flex gap-2 items-center flex-wrap sm:flex-nowrap">
-                            <div class="flex-1 min-w-[120px]">
-                                <select class="stint-tire2-type w-full text-[11px]">
-                                    ${t2Options}
-                                </select>
-                            </div>
-                            <div class="w-[70px]">
-                                <select class="stint-tire2-set w-full font-mono text-[11px]">
-                                    <option value="Set1" ${t2Set === 'Set1' ? 'selected' : ''}>Set1</option>
-                                    <option value="Set2" ${t2Set === 'Set2' ? 'selected' : ''}>Set2</option>
-                                    <option value="Set3" ${t2Set === 'Set3' ? 'selected' : ''}>Set3</option>
-                                    <option value="Set4" ${t2Set === 'Set4' ? 'selected' : ''}>Set4</option>
-                                </select>
-                            </div>
-                            <div class="w-[50px] opacity-0 pointer-events-none hidden sm:block">
-                                <input type="number" class="w-full">
-                            </div>
+                        <div class="flex gap-2 items-center">
+                            <select class="stint-tire2-type flex-1 text-[11px]">${t2Opt}</select>
+                            <select class="stint-tire2-set w-[70px] font-mono text-[11px]">
+                                <option value="Set1" ${t2Set === 'Set1' ? 'selected' : ''}>Set1</option>
+                                <option value="Set2" ${t2Set === 'Set2' ? 'selected' : ''}>Set2</option>
+                                <option value="Set3" ${t2Set === 'Set3' ? 'selected' : ''}>Set3</option>
+                                <option value="Set4" ${t2Set === 'Set4' ? 'selected' : ''}>Set4</option>
+                            </select>
+                            <div class="w-[50px]"></div>
                         </div>
                     </div>
-                </div>
-            `;
+                </div>`;
             container.insertAdjacentHTML('beforeend', html);
-        }
+        };
 
-        // --- Tire Plan Graph Function ---
         const generateTirePlanHTML = (stints) => {
             if (!stints || stints.length === 0) return '';
-            
             let totalLaps = 0;
             const lapConfig = [];
-            
-            const sessionSetOrigins = new Map(); 
-            const sessionSetsSeen = new Set();
+            const originIsNew = new Map(); 
+            const setsSeen = new Set();
 
             stints.forEach((st, idx) => {
                 const count = parseInt(st.laps) || 0;
@@ -431,79 +295,36 @@
                     let stintIsSwap = (st.tire1Type === 'swap' || st.tire2Type === 'swap');
                     if (idx > 0 && !stintIsSwap) {
                         const prev = stints[idx - 1];
-                        if (st.tire1Set === prev.tire2Set && st.tire2Set === prev.tire1Set) {
-                            stintIsSwap = true;
-                        }
+                        if (st.tire1Set === prev.tire2Set && st.tire2Set === prev.tire1Set) stintIsSwap = true;
                     }
-
                     const checkReuse = (type, setID) => {
-                        const alreadySeen = sessionSetsSeen.has(setID);
-                        if (!alreadySeen) {
-                            sessionSetsSeen.add(setID);
-                            sessionSetOrigins.set(setID, type.startsWith('new'));
-                            return false; 
-                        }
-                        return sessionSetOrigins.get(setID) === true;
+                        if (!setsSeen.has(setID)) { setsSeen.add(setID); originIsNew.set(setID, type.startsWith('new')); return false; }
+                        return originIsNew.get(setID) === true;
                     };
-
-                    const t1IsReusedNew = checkReuse(st.tire1Type, st.tire1Set);
-                    const t2IsReusedNew = checkReuse(st.tire2Type, st.tire2Set);
-
-                    lapConfig.push({ 
-                        t1: st.tire1Type, 
-                        t1Set: st.tire1Set,
-                        t1ReusedNew: t1IsReusedNew,
-                        t2: st.tire2Type, 
-                        t2Set: st.tire2Set,
-                        t2ReusedNew: t2IsReusedNew,
-                        laps: count, 
-                        isSwap: stintIsSwap 
-                    });
+                    lapConfig.push({ t1: st.tire1Type, t1Set: st.tire1Set, t1RN: checkReuse(st.tire1Type, st.tire1Set), t2: st.tire2Type, t2Set: st.tire2Set, t2RN: checkReuse(st.tire2Type, st.tire2Set), laps: count, isSwap: stintIsSwap });
                     totalLaps += count;
                 }
             });
 
             if (totalLaps === 0) return '';
             const displayLaps = Math.max(totalLaps, 10);
+            const getTCls = (type, swap, reused) => reused ? 'tire-reused' : (swap ? 'tire-swap' : (type.startsWith('new') ? 'tire-new' : 'tire-used'));
 
-            const getTireClass = (type, isSwap, isReusedNew) => {
-                if (isReusedNew) return 'tire-reused';
-                if (isSwap) return 'tire-swap';
-                if (!type) return '';
-                if (type.startsWith('new')) return 'tire-new';
-                return 'tire-used';
-            };
-
-            const renderRow = (label, typeKey, setKey, reuseKey) => {
+            const renderRow = (label, tKey, sKey, rKey) => {
                 let cells = '';
                 for (let i = 1; i <= displayLaps; i++) {
-                    let tireClass = '';
-                    let setLabel = '';
-                    let tempTotal = 0;
-                    for (const config of lapConfig) {
-                        if (i > tempTotal && i <= tempTotal + config.laps) {
-                            tireClass = getTireClass(config[typeKey], config.isSwap, config[reuseKey]);
-                            const rawSet = config[setKey] || '';
-                            setLabel = rawSet.replace('Set', 'S');
-                            break;
-                        }
-                        tempTotal += config.laps;
+                    let cls = '', lbl = '', temp = 0;
+                    for (const cfg of lapConfig) {
+                        if (i > temp && i <= temp + cfg.laps) { cls = getTCls(cfg[tKey], cfg.isSwap, cfg[rKey]); lbl = cfg[sKey].replace('Set', 'S'); break; }
+                        temp += cfg.laps;
                     }
-                    cells += `<div class="tire-grid-cell ${tireClass}">${setLabel}</div>`;
+                    cells += `<div class="tire-grid-cell ${cls}">${lbl}</div>`;
                 }
-
-                return `
-                    <div class="flex items-center">
-                        <div class="w-10 text-[10px] font-bold text-slate-500 shrink-0 uppercase tracking-tighter">${label}</div>
-                        <div class="flex">${cells}</div>
-                    </div>
-                `;
+                return `<div class="flex items-center"><div class="w-10 text-[10px] font-bold text-slate-500 shrink-0 uppercase">${label}</div><div class="flex">${cells}</div></div>`;
             };
 
-            let headerCells = '';
-            for (let i = 1; i <= displayLaps; i++) {
-                headerCells += `<div class="tire-grid-cell border-none text-[8px] font-medium">${i}</div>`;
-            }
+            let hdr = '';
+            for (let i = 1; i <= displayLaps; i++) hdr += `<div class="tire-grid-cell border-none text-[8px] font-medium">${i}</div>`;
 
             return `
                 <div class="mt-4 pt-4 border-t border-slate-800/50">
@@ -517,267 +338,142 @@
                     </div>
                     <div class="overflow-x-auto pb-2 scrollbar-thin">
                         <div class="inline-block min-w-full">
-                            <div class="flex items-center">
-                                <div class="w-10 text-[9px] font-bold text-slate-600 shrink-0 uppercase tracking-tighter">Lap</div>
-                                <div class="flex">${headerCells}</div>
-                            </div>
-                            ${renderRow('Front', 't1', 't1Set', 't1ReusedNew')}
-                            ${renderRow('Rear', 't2', 't2Set', 't2ReusedNew')}
+                            <div class="flex items-center"><div class="w-10 text-[9px] font-bold text-slate-600 shrink-0 uppercase">Lap</div><div class="flex">${hdr}</div></div>
+                            ${renderRow('Front', 't1', 't1Set', 't1RN')}
+                            ${renderRow('Rear', 't2', 't2Set', 't2RN')}
                         </div>
                     </div>
-                </div>
-            `;
+                </div>`;
         };
 
         function parseTimeToDate(timeStr) {
             if (!timeStr) return null;
             const parts = timeStr.trim().split(':');
             if (parts.length < 2) return null;
-            const [hours, minutes] = parts.map(Number);
             const date = new Date();
-            date.setHours(hours, minutes, 0, 0);
+            date.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
             return date;
         }
 
         function formatDuration(ms) {
             const totalMins = Math.floor(Math.abs(ms) / 60000);
-            const hours = Math.floor(totalMins / 60);
-            const mins = totalMins % 60;
-            return `${hours}:${mins.toString().padStart(2, '0')}`;
+            return `${Math.floor(totalMins / 60)}:${(totalMins % 60).toString().padStart(2, '0')}`;
         }
 
         function updateTimers() {
             const now = new Date();
-            const daysMap = window.appState.days || {};
-            
-            Object.keys(daysMap).forEach(dayKey => {
-                const sessions = daysMap[dayKey] || [];
-                sessions.forEach(s => {
+            Object.keys(window.appState.days).forEach(dayKey => {
+                (window.appState.days[dayKey] || []).forEach(s => {
                     const timerEl = document.getElementById(`live-timer-${s.id}`);
                     if (!timerEl) return;
-
-                    const timeArr = (s.time || "").split(/[-~]/);
-                    const startTime = parseTimeToDate(timeArr[0]);
-                    const endTime = parseTimeToDate(timeArr[1]);
-
-                    if (!startTime || !endTime) {
-                        timerEl.textContent = "";
-                        return;
-                    }
-
-                    if (now < startTime) {
-                        const diff = startTime - now;
-                        timerEl.textContent = `-${formatDuration(diff)}`;
-                        timerEl.className = "text-[11px] font-bold mt-1 text-slate-500 font-mono";
-                    } else if (now > endTime) {
-                        timerEl.textContent = "0:00";
-                        timerEl.className = "text-[11px] font-bold mt-1 text-red-500/60 font-mono";
-                    } else {
-                        const diff = endTime - now;
-                        timerEl.textContent = formatDuration(diff);
-                        timerEl.className = "text-[11px] font-bold mt-1 text-indigo-400 font-mono animate-pulse";
-                    }
+                    const tArr = (s.time || "").split(/[-~]/);
+                    const start = parseTimeToDate(tArr[0]), end = parseTimeToDate(tArr[1]);
+                    if (!start || !end) return;
+                    if (now < start) { timerEl.textContent = `-${formatDuration(start - now)}`; timerEl.className = "text-[11px] font-bold mt-1 text-slate-500 font-mono"; }
+                    else if (now > end) { timerEl.textContent = "0:00"; timerEl.className = "text-[11px] font-bold mt-1 text-red-500/60 font-mono"; }
+                    else { timerEl.textContent = formatDuration(end - now); timerEl.className = "text-[11px] font-bold mt-1 text-indigo-400 font-mono animate-pulse"; }
                 });
             });
         }
-
         setInterval(updateTimers, 1000);
 
         window.renderAll = function() {
             const container = document.getElementById('timeline-container');
             if (!container) return;
             container.innerHTML = '';
-
-            const daysMap = window.appState.days || {};
-            const titlesMap = window.appState.dayTitles || {};
-            const daysKeys = Object.keys(daysMap).map(Number).sort((a, b) => a - b);
+            const daysMap = window.appState.days || {}, titlesMap = window.appState.dayTitles || {};
             
-            daysKeys.forEach(day => {
+            Object.keys(daysMap).map(Number).sort((a,b)=>a-b).forEach(day => {
                 const sessions = daysMap[day] || [];
-                const title = titlesMap[day] || `Day ${day} Schedule`;
-                
                 let html = `
                 <div class="mb-6 border border-slate-700/60 rounded-xl overflow-hidden bg-[#16181d] shadow-lg">
                     <div class="p-4 border-b border-slate-700/60 flex justify-between items-center bg-[#1c1e24]">
-                        <h2 class="text-base font-bold text-slate-100">${title}</h2>
-                        <button onclick="openDayTitleEditor(${day})" class="text-slate-400 hover:text-white p-1 transition-colors">⚙️</button>
+                        <h2 class="text-base font-bold text-slate-100">${titlesMap[day] || `Day ${day}`}</h2>
+                        <button onclick="openDayTitleEditor(${day})" class="text-slate-400">⚙️</button>
                     </div>
                     <div class="flex flex-col">`;
 
-                if (sessions.length === 0) {
-                    html += `<div class="p-6 text-center text-xs text-slate-500 italic">${getTxt('noSessions')}</div>`;
-                }
+                if (sessions.length === 0) html += `<div class="p-6 text-center text-xs text-slate-500 italic">${getTxt('noSessions')}</div>`;
 
                 sessions.forEach(s => {
-                    const timeArr = (s.time || "").split(/[-~]/);
-                    const startStr = timeArr[0] ? timeArr[0].trim() : "00:00";
-                    const endStr = timeArr[1] ? timeArr[1].trim() : "";
+                    const tArr = (s.time || "").split(/[-~]/);
+                    const startStr = tArr[0]?.trim() || "00:00";
+                    const start = parseTimeToDate(startStr), end = parseTimeToDate(tArr[1]);
+                    const dur = (start && end) ? `${Math.round((end - start) / 60000)}'` : "";
+                    const summary = (s.stints || []).map(st => `${(st.tire1Set || 'Set1').replace('Set','S')}, ${(st.tire2Set || 'Set2').replace('Set','S')}`).join(" | ");
+                    const firstTire = s.stints?.[0]?.tire1Type || 'default';
+                    const colors = { new_dry: 'border-green-500', used_dry: 'border-yellow-500', new_wet: 'border-blue-500', used_wet: 'border-indigo-400', swap: 'border-slate-900' };
                     
-                    let durationText = "";
-                    const startDate = parseTimeToDate(startStr);
-                    const endDate = parseTimeToDate(endStr);
-                    if (startDate && endDate) {
-                        const diffMins = Math.round((endDate - startDate) / 60000);
-                        durationText = `${diffMins}'`;
-                    }
-
-                    let tireSummary = "-";
-                    if (s.stints && Array.isArray(s.stints) && s.stints.length > 0) {
-                        tireSummary = s.stints.map(st => {
-                            const t1Set = st.tire1Set || 'Set1';
-                            const t2Set = st.tire2Set || 'Set2';
-                            return `${t1Set}, ${t2Set}`;
-                        }).join(" | ");
-                    }
-
-                    const firstTire = (s.stints && s.stints[0]) ? s.stints[0].tire1Type : 'default';
-                    const colors = { 
-                        new_dry: 'border-green-500', 
-                        used_dry: 'border-yellow-500', 
-                        new_wet: 'border-blue-500',
-                        used_wet: 'border-indigo-400',
-                        swap: 'border-slate-900'
-                    };
-                    const borderColor = colors[firstTire] || 'border-blue-500';
-
                     html += `
                     <div class="flex flex-col border-b border-slate-800/60 last:border-none">
-                        <div class="flex min-h-[4.5rem] group cursor-pointer hover:bg-white/[0.02] transition-colors" onclick="toggleDetail('${s.id}')">
+                        <div class="flex min-h-[4.5rem] group cursor-pointer hover:bg-white/[0.02]" onclick="toggleDetail('${s.id}')">
                             <div class="w-16 flex flex-col items-center justify-center shrink-0 pt-1">
                                 <span class="text-[13px] font-bold text-slate-200 -mb-1">${startStr}</span>
-                                <span class="text-[10px] text-slate-500 font-medium">${durationText}</span>
+                                <span class="text-[10px] text-slate-500 font-medium">${dur}</span>
                                 <div id="live-timer-${s.id}" class="font-mono"></div>
                             </div>
                             <div class="flex-1 py-3 pr-4 flex items-center">
-                                <div class="w-full bg-[#20232a] rounded-lg p-3 border-l-4 ${borderColor} flex justify-between items-center shadow-sm">
+                                <div class="w-full bg-[#20232a] rounded-lg p-3 border-l-4 ${colors[firstTire] || 'border-blue-500'} flex justify-between items-center shadow-sm">
                                     <div class="min-w-0 pr-2">
                                         <h4 class="text-[13px] font-bold text-slate-100 truncate">${s.name}</h4>
                                         <p class="text-[11px] text-slate-300 font-semibold truncate mt-0.5">${s.fuel}L • ${s.purpose || '-'}</p>
-                                        <p class="text-[10px] text-slate-500 truncate mt-0.5">${tireSummary}</p>
+                                        <p class="text-[10px] text-slate-500 truncate mt-0.5">${summary}</p>
                                     </div>
                                     <svg id="icon-${s.id}" class="transition-transform duration-200 text-slate-600" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 9l6 6 6-6"/></svg>
                                 </div>
                             </div>
                         </div>
-                        
                         <div id="detail-${s.id}" class="hidden px-4 pb-4">
                             <div class="bg-[#1c1e24] border border-slate-700/50 rounded-lg p-4 space-y-4 shadow-inner text-sm">
-                                <div>
-                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('purposeTitle')}</p>
-                                    <p class="text-slate-200 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.purpose || '-'}</p>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('stintListTitle')}</p>
-                                    <div class="flex flex-col gap-3 mt-1">
-                                        ${(() => {
-                                            const globalSetsSeen = new Set();
-                                            const globalSetsOrigin = new Map();
-
-                                            return (s.stints || []).map((st, idx) => {
-                                                let isAutoSwap = false;
-                                                if (idx > 0) {
-                                                    const prev = s.stints[idx - 1];
-                                                    if (st.tire1Set === prev.tire2Set && st.tire2Set === prev.tire1Set) {
-                                                        isAutoSwap = true;
-                                                    }
-                                                }
-
-                                                const checkBadgeReuse = (type, setID) => {
-                                                    const seen = globalSetsSeen.has(setID);
-                                                    if (!seen) {
-                                                        globalSetsSeen.add(setID);
-                                                        globalSetsOrigin.set(setID, type.startsWith('new'));
-                                                        return false;
-                                                    }
-                                                    return globalSetsOrigin.get(setID) === true;
-                                                };
-
-                                                const t1ReusedNew = checkBadgeReuse(st.tire1Type, st.tire1Set);
-                                                const t2ReusedNew = checkBadgeReuse(st.tire2Type, st.tire2Set);
-
-                                                const renderTireBadge = (type, set, isReusedNew) => {
-                                                    const isNew = type.startsWith('new');
-                                                    const isSwap = type === 'swap' || isAutoSwap;
-                                                    
-                                                    let badgeClasses = "text-[11px] px-2 py-0.5 rounded-full border font-bold shadow-sm whitespace-nowrap ";
-                                                    let textClass = "";
-
-                                                    if (isReusedNew) {
-                                                        badgeClasses += "bg-orange-600/20 border-orange-600/50";
-                                                        textClass = "text-orange-400";
-                                                    } else if (isNew) {
-                                                        badgeClasses += "bg-emerald-500/20 border-emerald-500/30";
-                                                        textClass = "text-emerald-400";
-                                                    } else if (isSwap) {
-                                                        badgeClasses += "bg-slate-900 border-slate-800";
-                                                        textClass = "text-slate-400";
-                                                    } else {
-                                                        badgeClasses += "bg-slate-500/20 border-slate-500/30";
-                                                        textClass = "text-slate-300";
-                                                    }
-
-                                                    return `
-                                                    <span class="${badgeClasses}">
-                                                        <span class="${textClass}">${i18n[currentCar].tires[type] || type}</span> 
-                                                        <span class="text-slate-100 font-mono text-[9px] ml-0.5">(${set})</span>
-                                                    </span>`;
-                                                };
-
-                                                return `
-                                                <div class="bg-black/20 p-3 rounded-xl border border-slate-800 flex flex-col gap-2 transition-all hover:bg-black/30">
-                                                    <div class="flex justify-between items-start gap-2 flex-wrap">
-                                                        <div class="flex items-center gap-2 flex-wrap">
-                                                            <span class="text-[10px] font-bold text-indigo-400 uppercase shrink-0">${getTxt('stintPrefix')} ${idx + 1}</span>
-                                                            ${st.laps ? `<span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30 font-bold">${st.laps} Laps</span>` : ''}
-                                                            ${isAutoSwap && !(t1ReusedNew || t2ReusedNew) ? `<span class="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/30 font-bold tracking-tighter">Swap</span>` : ''}
-                                                        </div>
-                                                        <div class="flex gap-1 flex-wrap justify-end">
-                                                            ${renderTireBadge(st.tire1Type, st.tire1Set, t1ReusedNew)}
-                                                            ${renderTireBadge(st.tire2Type, st.tire2Set, t2ReusedNew)}
-                                                        </div>
+                                <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('purposeTitle')}</p><p class="text-slate-200 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.purpose || '-'}</p></div>
+                                <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('stintListTitle')}</p><div class="flex flex-col gap-3 mt-1">
+                                    ${(() => {
+                                        const seen = new Set(), origins = new Map();
+                                        return (s.stints || []).map((st, idx) => {
+                                            let autoSwap = (idx > 0 && st.tire1Set === s.stints[idx-1].tire2Set && st.tire2Set === s.stints[idx-1].tire1Set);
+                                            const ck = (t, sid) => { if(!seen.has(sid)){ seen.add(sid); origins.set(sid, t.startsWith('new')); return false; } return origins.get(sid) === true; };
+                                            const r1 = ck(st.tire1Type, st.tire1Set), r2 = ck(st.tire2Type, st.tire2Set);
+                                            const badge = (t, s, r) => {
+                                                let cls = "text-[11px] px-2 py-0.5 rounded-full border font-bold shadow-sm whitespace-nowrap ", txt = "";
+                                                if(r){ cls += "bg-orange-600/20 border-orange-600/50"; txt = "text-orange-400"; }
+                                                else if(t.startsWith('new')){ cls += "bg-emerald-500/20 border-emerald-500/30"; txt = "text-emerald-400"; }
+                                                else if(t === 'swap' || autoSwap){ cls += "bg-slate-900 border-slate-800"; txt = "text-slate-400"; }
+                                                else { cls += "bg-slate-500/20 border-slate-500/30"; txt = "text-slate-300"; }
+                                                return `<span class="${cls}"><span class="${txt}">${i18n[currentCar].tires[t] || t}</span> <span class="text-slate-100 font-mono text-[9px] ml-0.5">(${s})</span></span>`;
+                                            };
+                                            return `
+                                            <div class="bg-black/20 p-3 rounded-xl border border-slate-800 flex flex-col gap-2 transition-all">
+                                                <div class="flex justify-between items-start flex-wrap gap-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-[10px] font-bold text-indigo-400 uppercase">${getTxt('stintPrefix')} ${idx + 1}</span>
+                                                        ${st.laps ? `<span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30 font-bold">${st.laps} Laps</span>` : ''}
+                                                        ${autoSwap && !(r1 || r2) ? `<span class="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/30 font-bold">Swap</span>` : ''}
                                                     </div>
-                                                    <p class="text-slate-300 text-[13px] leading-relaxed whitespace-pre-wrap">${st.content || '-'}</p>
-                                                </div>`;
-                                            }).join('');
-                                        })()}
-                                    </div>
-                                </div>
-                                
+                                                    <div class="flex gap-1 flex-wrap justify-end">${badge(st.tire1Type, st.tire1Set, r1)}${badge(st.tire2Type, st.tire2Set, r2)}</div>
+                                                </div>
+                                                <p class="text-slate-300 text-[13px] leading-relaxed whitespace-pre-wrap">${st.content || '-'}</p>
+                                            </div>`;
+                                        }).join('');
+                                    })()}
+                                </div></div>
                                 ${generateTirePlanHTML(s.stints)}
-
-                                ${s.note ? `
-                                <div>
-                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('noteTitle')}</p>
-                                    <p class="text-slate-300 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.note}</p>
-                                </div>` : ''}
-                                <div class="pt-2 border-t border-slate-700/50 flex justify-end">
-                                    <button onclick="openEditor('${s.id}', ${day})" class="px-3.5 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold rounded-lg transition-colors border border-slate-600/50">${getTxt('edit')}</button>
-                                </div>
+                                ${s.note ? `<div><p class="text-[10px] font-bold text-slate-500 uppercase mb-1.5 ml-1">${getTxt('noteTitle')}</p><p class="text-slate-300 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.note}</p></div>` : ''}
+                                <div class="pt-2 border-t border-slate-700/50 flex justify-end"><button onclick="openEditor('${s.id}', ${day})" class="px-3.5 py-2 bg-slate-700 text-slate-200 text-[11px] font-bold rounded-lg border border-slate-600/50">${getTxt('edit')}</button></div>
                             </div>
                         </div>
                     </div>`;
                 });
-
                 html += `
-                    <div class="flex min-h-[3.2rem] group cursor-pointer hover:bg-white/[0.01] transition-colors" onclick="addNewSession(${day})">
+                    <div class="flex min-h-[3.2rem] group cursor-pointer hover:bg-white/[0.01]" onclick="addNewSession(${day})">
                         <div class="w-16 flex items-center justify-center shrink-0"><span class="text-slate-600 text-lg font-light">+</span></div>
                         <div class="flex-1 py-2 pr-4 flex items-center">
-                            <div class="w-full bg-[#1c1e24] rounded-lg p-2 border border-dashed border-slate-700/50 flex justify-between items-center">
-                                <h4 class="text-xs font-bold text-slate-600">${getTxt('addSession')}</h4>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="text-slate-700"><path d="M6 9l6 6 6-6"/></svg>
-                            </div>
+                            <div class="w-full bg-[#1c1e24] rounded-lg p-2 border border-dashed border-slate-700/50 flex justify-between items-center"><h4 class="text-xs font-bold text-slate-600">${getTxt('addSession')}</h4></div>
                         </div>
-                    </div>`;
-                
-                html += `</div></div>`;
+                    </div></div></div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
 
-            container.insertAdjacentHTML('beforeend', `
-                <button onclick="addDay()" class="w-full mb-6 py-1.5 border-2 border-dashed border-slate-700/60 rounded-xl text-slate-500 font-bold hover:text-slate-300 hover:border-slate-500 transition-all flex items-center justify-center gap-2">
-                    <span class="text-xl leading-none">+</span> ${getTxt('addDay')}
-                </button>`);
-            
+            container.insertAdjacentHTML('beforeend', `<button onclick="addDay()" class="w-full mb-6 py-1.5 border-2 border-dashed border-slate-700/60 rounded-xl text-slate-500 font-bold flex items-center justify-center gap-2">+ ${getTxt('addDay')}</button>`);
             renderChecklist();
         };
 
@@ -785,121 +481,43 @@
             const ui = document.getElementById('checklist-ui');
             if (!ui) return;
             const list = window.appState.checklist || [];
-            const total = list.length;
-            const checked = list.filter(i => i && i.checked).length;
-            const perc = total === 0 ? 0 : Math.round((checked/total)*100);
-            
+            const done = list.filter(i => i && i.checked).length;
+            const perc = list.length === 0 ? 0 : Math.round((done/list.length)*100);
             let html = `
             <div class="mb-8 border border-slate-700/60 rounded-xl overflow-hidden bg-[#16181d] shadow-lg">
                 <div class="p-4 border-b border-slate-700/60 bg-[#1c1e24]">
-                    <div class="flex justify-between items-center mb-3">
-                        <h2 class="text-base font-bold text-slate-100">${getTxt('maintenance')}</h2>
-                        <span class="text-xs font-bold ${perc === 100 ? 'text-green-400' : 'text-indigo-400'}">${perc}%</span>
-                    </div>
-                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                        <div class="${perc === 100 ? 'bg-green-500' : 'bg-indigo-500'} h-1.5 transition-all duration-500" style="width: ${perc}%"></div>
-                    </div>
+                    <div class="flex justify-between items-center mb-3"><h2 class="text-base font-bold text-slate-100">${getTxt('maintenance')}</h2><span class="text-xs font-bold text-indigo-400">${perc}%</span></div>
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden"><div class="${perc === 100 ? 'bg-green-500' : 'bg-indigo-500'} h-1.5 transition-all" style="width: ${perc}%"></div></div>
                 </div>
                 <div class="p-2 flex flex-col">`;
-
             list.forEach((item, i) => {
                 if (!item) return;
                 html += `
                     <div class="flex items-center justify-between py-1.5 px-3 border-b border-slate-800/60 last:border-none group">
                         <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="toggleCheck(${i})">
-                            <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${item.checked ? 'bg-indigo-500 border-indigo-500' : 'border-slate-500 bg-slate-800/50'}">
-                                ${item.checked ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><path d="M20 6L9 17l-5-5"/></svg>' : ''}
-                            </div>
+                            <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center ${item.checked ? 'bg-indigo-500 border-indigo-500' : 'border-slate-500'}">${item.checked ? '✓' : ''}</div>
                             <span class="text-xs ${item.checked ? 'text-slate-500 line-through' : 'text-slate-300'}">${item.text}</span>
                         </div>
-                        <button onclick="deleteCheck(${i})" class="text-slate-600 hover:text-red-400 px-2 transition-colors">✕</button>
+                        <button onclick="deleteCheck(${i})" class="text-slate-600 px-2">✕</button>
                     </div>`;
             });
-
-            html += `
-                    <div class="flex min-h-[3.2rem] mt-2 group">
-                        <div class="w-16 flex items-center justify-center shrink-0"><span class="text-slate-600 text-lg font-light">+</span></div>
-                        <div class="flex-1 py-2 pr-4 flex items-center">
-                            <div class="w-full bg-[#1c1e24] rounded-lg p-2 border border-dashed border-slate-700/50 flex items-center shadow-inner">
-                                <input type="text" id="new-task-input" placeholder="${getTxt('phTask')}" 
-                                    onkeydown="if(event.key==='Enter') { addCheck(this); event.preventDefault(); }" 
-                                    class="bg-transparent text-[11px] font-bold text-slate-400 placeholder:text-slate-600 focus:outline-none w-full border-none p-0 ml-1">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
+            html += `<div class="p-2"><input type="text" onkeydown="if(event.key==='Enter'){addCheck(this);event.preventDefault();}" placeholder="${getTxt('phTask')}" class="bg-transparent text-[11px] font-bold text-slate-400 w-full border-none focus:outline-none"></div></div></div>`;
             ui.innerHTML = html;
         }
 
-        window.toggleDetail = function(id) {
-            const el = document.getElementById(`detail-${id}`);
-            const icon = document.getElementById(`icon-${id}`);
+        window.toggleDetail = (id) => {
+            const el = document.getElementById(`detail-${id}`), icon = document.getElementById(`icon-${id}`);
             if (el) el.classList.toggle('hidden');
             if (icon) icon.style.transform = el.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
-        }
+        };
 
-        window.toggleCheck = function(i) {
-            if (!window.appState.checklist) return;
-            window.appState.checklist[i].checked = !window.appState.checklist[i].checked;
-            window.saveData();
-        }
-
-        window.addCheck = function(input) {
-            const val = input.value.trim();
-            if (!val) return;
-            if (!window.appState.checklist) window.appState.checklist = [];
-            window.appState.checklist.push({ text: val, checked: false });
-            input.value = '';
-            renderChecklist();
-            window.saveData();
-        }
-
-        window.deleteCheck = function(i) {
-            if (!window.appState.checklist) return;
-            window.appState.checklist.splice(i, 1);
-            renderChecklist();
-            window.saveData();
-        }
-
-        window.addDay = function() {
-            const currentDays = window.appState.days || {};
-            const keys = Object.keys(currentDays).map(Number).filter(n => !isNaN(n));
-            const next = keys.length > 0 ? Math.max(...keys) + 1 : 1;
-            
-            if (!window.appState.days) window.appState.days = {};
-            if (!window.appState.dayTitles) window.appState.dayTitles = {};
-            
-            window.appState.days[next] = [];
-            window.appState.dayTitles[next] = currentCar === "#87" ? `Day ${next} Schedule` : `Day ${next} 일정`;
-            
-            renderAll(); 
-            window.saveData();
-        }
-
-        window.openDayTitleEditor = function(d) {
-            document.getElementById('editing-day-id').value = d;
-            document.getElementById('in-day-title').value = window.appState.dayTitles[d] || `Day ${d} Schedule`;
-            document.getElementById('day-title-modal').classList.remove('hidden');
-        }
-
-        window.saveDayTitle = function() {
-            const d = document.getElementById('editing-day-id').value;
-            if (!window.appState.dayTitles) window.appState.dayTitles = {};
-            window.appState.dayTitles[d] = document.getElementById('in-day-title').value;
-            closeDayTitleModal();
-            renderAll();
-            window.saveData();
-        }
-
-        window.deleteDay = function() {
-            const d = document.getElementById('editing-day-id').value;
-            if (window.appState.days) delete window.appState.days[d];
-            if (window.appState.dayTitles) delete window.appState.dayTitles[d];
-            closeDayTitleModal();
-            renderAll();
-            window.saveData();
-        }
+        window.toggleCheck = (i) => { window.appState.checklist[i].checked = !window.appState.checklist[i].checked; window.saveData(); };
+        window.addCheck = (input) => { const v = input.value.trim(); if (!v) return; window.appState.checklist.push({ text: v, checked: false }); input.value = ''; renderChecklist(); window.saveData(); };
+        window.deleteCheck = (i) => { window.appState.checklist.splice(i, 1); renderChecklist(); window.saveData(); };
+        window.addDay = () => { const keys = Object.keys(window.appState.days).map(Number); const n = keys.length > 0 ? Math.max(...keys) + 1 : 1; window.appState.days[n] = []; window.appState.dayTitles[n] = `Day ${n} 일정`; renderAll(); window.saveData(); };
+        window.openDayTitleEditor = (d) => { document.getElementById('editing-day-id').value = d; document.getElementById('in-day-title').value = window.appState.dayTitles[d] || ""; document.getElementById('day-title-modal').classList.remove('hidden'); };
+        window.saveDayTitle = () => { const d = document.getElementById('editing-day-id').value; window.appState.dayTitles[d] = document.getElementById('in-day-title').value; document.getElementById('day-title-modal').classList.add('hidden'); renderAll(); window.saveData(); };
+        window.deleteDay = () => { const d = document.getElementById('editing-day-id').value; delete window.appState.days[d]; delete window.appState.dayTitles[d]; document.getElementById('day-title-modal').classList.add('hidden'); renderAll(); window.saveData(); };
 
         window.openEditor = function(id, day) {
             editingDayId = day;
@@ -911,79 +529,31 @@
             document.getElementById('in-fuel').value = s.fuel;
             document.getElementById('in-purpose').value = s.purpose;
             document.getElementById('in-note').value = s.note || "";
-            
             document.getElementById('stint-rows-container').innerHTML = '';
-            if (s.stints && Array.isArray(s.stints)) {
-                s.stints.forEach(st => window.addStintRow(
-                    st.content, 
-                    st.tire1Type, st.tire1Set, 
-                    st.tire2Type, st.tire2Set, 
-                    st.laps || ''
-                ));
-            } else {
-                window.addStintRow();
-            }
-            
+            if (s.stints) s.stints.forEach(st => window.addStintRow(st.content, st.tire1Type, st.tire1Set, st.tire2Type, st.tire2Set, st.laps));
+            else window.addStintRow();
             document.getElementById('modal').classList.remove('hidden');
-        }
+        };
 
-        window.addNewSession = function(day) {
-            editingDayId = day;
-            document.getElementById('session-form').reset();
-            document.getElementById('edit-id').value = "";
-            document.getElementById('in-name').value = currentCar === "#87" ? "New Session" : "새 세션";
-            document.getElementById('stint-rows-container').innerHTML = '';
-            window.addStintRow();
-            document.getElementById('modal').classList.remove('hidden');
-        }
-
+        window.addNewSession = (day) => { editingDayId = day; document.getElementById('session-form').reset(); document.getElementById('edit-id').value = ""; document.getElementById('stint-rows-container').innerHTML = ''; window.addStintRow(); document.getElementById('modal').classList.remove('hidden'); };
         window.saveSession = function() {
-            const id = document.getElementById('edit-id').value;
-            const stintRows = document.querySelectorAll('.stint-row');
-            const stints = [];
-            stintRows.forEach(row => {
-                stints.push({
-                    content: row.querySelector('.stint-content').value,
-                    tire1Type: row.querySelector('.stint-tire1-type').value,
-                    tire1Set: row.querySelector('.stint-tire1-set').value,
-                    tire2Type: row.querySelector('.stint-tire2-type').value,
-                    tire2Set: row.querySelector('.stint-tire2-set').value,
-                    laps: row.querySelector('.stint-laps').value
-                });
-            });
-
-            const data = {
-                id: id || Date.now().toString(),
-                name: document.getElementById('in-name').value || (currentCar === "#87" ? "New Session" : "새 세션"),
-                time: document.getElementById('in-time').value || "00:00 - 00:00",
-                fuel: parseInt(document.getElementById('in-fuel').value) || 0,
-                purpose: document.getElementById('in-purpose').value,
-                stints: stints,
-                note: document.getElementById('in-note').value
-            };
-            
+            const sid = document.getElementById('edit-id').value || Date.now().toString();
+            const stints = Array.from(document.querySelectorAll('.stint-row')).map(r => ({
+                content: r.querySelector('.stint-content').value,
+                tire1Type: r.querySelector('.stint-tire1-type').value,
+                tire1Set: r.querySelector('.stint-tire1-set').value,
+                tire2Type: r.querySelector('.stint-tire2-type').value,
+                tire2Set: r.querySelector('.stint-tire2-set').value,
+                laps: r.querySelector('.stint-laps').value
+            }));
+            const data = { id: sid, name: document.getElementById('in-name').value, time: document.getElementById('in-time').value, fuel: parseInt(document.getElementById('in-fuel').value) || 0, purpose: document.getElementById('in-purpose').value, stints: stints, note: document.getElementById('in-note').value };
             if (!window.appState.days[editingDayId]) window.appState.days[editingDayId] = [];
-            if (id) {
-                const idx = window.appState.days[editingDayId].findIndex(x => x.id === id);
-                if (idx !== -1) window.appState.days[editingDayId][idx] = data;
-            } else {
-                window.appState.days[editingDayId].push(data);
-            }
-            closeModal();
-            renderAll();
-            window.saveData();
-        }
+            const idx = window.appState.days[editingDayId].findIndex(x => x.id === sid);
+            if (idx !== -1) window.appState.days[editingDayId][idx] = data; else window.appState.days[editingDayId].push(data);
+            document.getElementById('modal').classList.add('hidden'); renderAll(); window.saveData();
+        };
 
-        window.deleteSessionFromModal = function() {
-            const id = document.getElementById('edit-id').value;
-            if (window.appState.days[editingDayId]) {
-                window.appState.days[editingDayId] = window.appState.days[editingDayId].filter(x => x.id !== id);
-            }
-            closeModal();
-            renderAll();
-            window.saveData();
-        }
-
+        window.deleteSessionFromModal = () => { const sid = document.getElementById('edit-id').value; window.appState.days[editingDayId] = window.appState.days[editingDayId].filter(x => x.id !== sid); document.getElementById('modal').classList.add('hidden'); renderAll(); window.saveData(); };
         window.closeModal = () => document.getElementById('modal').classList.add('hidden');
         window.closeDayTitleModal = () => document.getElementById('day-title-modal').classList.add('hidden');
 
