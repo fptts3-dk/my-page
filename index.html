@@ -422,14 +422,12 @@
             let totalLaps = 0;
             const lapConfig = [];
             
-            // 세션 내 타이어 성분 추적 (핵심: 어떤 세트가 '신품'으로 시작했는가)
             const sessionSetOrigins = new Map(); 
             const sessionSetsSeen = new Set();
 
             stints.forEach((st, idx) => {
                 const count = parseInt(st.laps) || 0;
                 if (count > 0) {
-                    // 자동 스왑 감지
                     let stintIsSwap = (st.tire1Type === 'swap' || st.tire2Type === 'swap');
                     if (idx > 0 && !stintIsSwap) {
                         const prev = stints[idx - 1];
@@ -438,15 +436,13 @@
                         }
                     }
 
-                    // 재사용 판별 로직 (세션 시작부터 끝까지 추적)
                     const checkReuse = (type, setID) => {
                         const alreadySeen = sessionSetsSeen.has(setID);
                         if (!alreadySeen) {
                             sessionSetsSeen.add(setID);
-                            sessionSetOrigins.set(setID, type.startsWith('new')); // 첫 등장이 신품인지 저장
+                            sessionSetOrigins.set(setID, type.startsWith('new'));
                             return false; 
                         }
-                        // 이미 본 세트라면: 처음에 '신품'이었던 경우만 주황색(Reused New) 처리
                         return sessionSetOrigins.get(setID) === true;
                     };
 
@@ -471,7 +467,7 @@
             const displayLaps = Math.max(totalLaps, 10);
 
             const getTireClass = (type, isSwap, isReusedNew) => {
-                if (isReusedNew) return 'tire-reused'; // 주황색 최우선
+                if (isReusedNew) return 'tire-reused';
                 if (isSwap) return 'tire-swap';
                 if (!type) return '';
                 if (type.startsWith('new')) return 'tire-new';
@@ -511,8 +507,7 @@
 
             return `
                 <div class="mt-4 pt-4 border-t border-slate-800/50">
-                    <div class="text-[10px] font-black text-slate-600 uppercase mb-2 tracking-widest flex justify-between items-center">
-                        <span>Tire Usage Plan</span>
+                    <div class="text-[10px] font-black text-slate-600 uppercase mb-2 tracking-widest flex justify-center items-center">
                         <div class="flex gap-2 text-[8px] font-normal uppercase italic text-slate-500">
                             <span class="flex items-center gap-1"><span class="w-2 h-2 bg-[#10b981] rounded-sm"></span>New</span>
                             <span class="flex items-center gap-1"><span class="w-2 h-2 bg-[#64748b] rounded-sm"></span>Used</span>
@@ -675,12 +670,10 @@
                                     <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('stintListTitle')}</p>
                                     <div class="flex flex-col gap-3 mt-1">
                                         ${(() => {
-                                            // 상세 보기용 세션 단위 이력 추적
                                             const globalSetsSeen = new Set();
                                             const globalSetsOrigin = new Map();
 
                                             return (s.stints || []).map((st, idx) => {
-                                                // 자동 스왑 감지
                                                 let isAutoSwap = false;
                                                 if (idx > 0) {
                                                     const prev = s.stints[idx - 1];
@@ -689,7 +682,6 @@
                                                     }
                                                 }
 
-                                                // 재사용 판별
                                                 const checkBadgeReuse = (type, setID) => {
                                                     const seen = globalSetsSeen.has(setID);
                                                     if (!seen) {
@@ -711,7 +703,6 @@
                                                     let textClass = "";
 
                                                     if (isReusedNew) {
-                                                        // 신품 출신 재사용: 주황색 테마 (최우선)
                                                         badgeClasses += "bg-orange-600/20 border-orange-600/50";
                                                         textClass = "text-orange-400";
                                                     } else if (isNew) {
