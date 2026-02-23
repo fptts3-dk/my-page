@@ -148,7 +148,7 @@
         window.appState = {
             dayTitles: { 1: "Day 1 Schedule", 2: "Day 2 Schedule" },
             days: { 1: [], 2: [] },
-            checklist: [{ text: "브레이크 패드 잔량 확인", checked: false }]
+            checklist: []
         };
         let editingDayId = 1;
 
@@ -251,7 +251,6 @@
                 container.insertAdjacentHTML('beforeend', html);
             });
 
-            // Add Day 버튼 높이 축소 (py-4 -> py-1.5)
             container.insertAdjacentHTML('beforeend', `
                 <button onclick="addDay()" class="w-full mb-6 py-1.5 border-2 border-dashed border-slate-700/60 rounded-xl text-slate-500 font-bold hover:text-slate-300 hover:border-slate-500 transition-all flex items-center justify-center gap-2">
                     <span class="text-xl leading-none">+</span> Add Day
@@ -323,14 +322,19 @@
             const val = input.value.trim();
             if (!val) return;
             if (!window.appState.checklist) window.appState.checklist = [];
+            
+            // 로컬 상태에 즉시 반영 (반응성 강화)
             window.appState.checklist.push({ text: val, checked: false });
             input.value = '';
+            
+            renderChecklist();
             window.saveData();
         }
 
         window.deleteCheck = function(i) {
             if (!window.appState.checklist) return;
             window.appState.checklist.splice(i, 1);
+            renderChecklist();
             window.saveData();
         }
 
