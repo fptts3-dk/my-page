@@ -100,7 +100,7 @@
                             <input type="text" id="in-purpose" class="w-full rounded-xl p-3.5 text-sm">
                         </div>
 
-                        <!-- Stint 관리 영역 (제한 없음) -->
+                        <!-- Stint 관리 영역 -->
                         <div class="space-y-3">
                             <div class="flex justify-between items-end mb-1 px-1">
                                 <label id="lbl-stint-list" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Stint Strategy</label>
@@ -273,7 +273,6 @@
             onValue(currentDataRef, (snapshot) => {
                 let data = snapshot.val();
                 if (data) {
-                    // Firebase 자동 배열 변환 방어 로직
                     if (Array.isArray(data.days)) {
                         const daysObj = {};
                         data.days.forEach((v, i) => { if(v !== null) daysObj[i] = v; });
@@ -326,10 +325,9 @@
             set(currentDataRef, window.appState).catch(error => console.error("Firebase Sync Error:", error));
         };
 
-        // --- 5. Stint 로우 관리 (무한대 추가 가능하도록 수정) ---
+        // --- 5. Stint 로우 관리 (모바일 겹침 방지를 위해 flex-wrap 적용) ---
         window.addStintRow = function(content = '', t1Type = 'new_dry', t1Set = 'Set1', t2Type = 'new_dry', t2Set = 'Set2', laps = '') {
             const container = document.getElementById('stint-rows-container');
-            // stintCount는 화면에 표시되는 번호 매기기용으로 사용
             const stintCount = container.querySelectorAll('.stint-row').length;
 
             const rowId = 'stint-row-' + Date.now() + Math.random().toString(36).substr(2, 5);
@@ -350,9 +348,10 @@
                     
                     <input type="text" class="stint-content w-full bg-transparent border-none p-0 text-sm focus:ring-0" placeholder="${getTxt('phStint')}" value="${content}">
                     
-                    <div class="space-y-1.5">
-                        <div class="flex gap-2 items-center">
-                            <div class="flex-1">
+                    <div class="space-y-2">
+                        <!-- 타이어 세트 1 + Laps -->
+                        <div class="flex gap-2 items-center flex-wrap sm:flex-nowrap">
+                            <div class="flex-1 min-w-[120px]">
                                 <select class="stint-tire1-type w-full text-[11px]">
                                     ${t1Options}
                                 </select>
@@ -370,8 +369,9 @@
                             </div>
                         </div>
 
-                        <div class="flex gap-2 items-center">
-                            <div class="flex-1">
+                        <!-- 타이어 세트 2 -->
+                        <div class="flex gap-2 items-center flex-wrap sm:flex-nowrap">
+                            <div class="flex-1 min-w-[120px]">
                                 <select class="stint-tire2-type w-full text-[11px]">
                                     ${t2Options}
                                 </select>
@@ -384,7 +384,8 @@
                                     <option value="Set4" ${t2Set === 'Set4' ? 'selected' : ''}>Set4</option>
                                 </select>
                             </div>
-                            <div class="w-[50px] opacity-0 pointer-events-none">
+                            <!-- 하단 정렬용 여백 -->
+                            <div class="w-[50px] opacity-0 pointer-events-none hidden sm:block">
                                 <input type="number" class="w-full">
                             </div>
                         </div>
@@ -394,7 +395,6 @@
             container.insertAdjacentHTML('beforeend', html);
         }
 
-        // --- 6. 실시간 타이머 및 시간 도구 ---
         function parseTimeToDate(timeStr) {
             if (!timeStr) return null;
             const parts = timeStr.trim().split(':');
@@ -449,7 +449,6 @@
 
         setInterval(updateTimers, 1000);
 
-        // --- 7. 렌더링 로직 ---
         window.renderAll = function() {
             const container = document.getElementById('timeline-container');
             if (!container) return;
@@ -488,7 +487,6 @@
                         durationText = `${diffMins}'`;
                     }
 
-                    // 타이어 정보 요약
                     let tireSummary = "-";
                     if (s.stints && Array.isArray(s.stints) && s.stints.length > 0) {
                         tireSummary = s.stints.map(st => {
@@ -535,33 +533,33 @@
                                 </div>
                                 <div>
                                     <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('stintListTitle')}</p>
-                                    <div class="flex flex-col gap-2 mt-1">
+                                    <div class="flex flex-col gap-3 mt-1">
                                         ${(s.stints || []).map((st, idx) => {
                                             const renderTireBadge = (type, set) => {
                                                 const isNew = (type || '').startsWith('new');
                                                 if (isNew) {
                                                     return `
-                                                    <span class="text-[11px] px-2.5 py-0.5 rounded-full border font-bold bg-emerald-500/10 border-emerald-500/30 shadow-sm">
+                                                    <span class="text-[11px] px-2 py-0.5 rounded-full border font-bold bg-emerald-500/10 border-emerald-500/30 shadow-sm whitespace-nowrap">
                                                         <span class="text-emerald-600">${i18n[currentCar].tires[type] || type}</span> 
-                                                        <span class="text-emerald-100 font-mono text-[10px] ml-1">(${set})</span>
+                                                        <span class="text-emerald-100 font-mono text-[9px] ml-0.5">(${set})</span>
                                                     </span>`;
                                                 } else {
                                                     return `
-                                                    <span class="text-[11px] px-2.5 py-0.5 rounded-full border font-bold bg-slate-900 border-slate-700 shadow-sm">
+                                                    <span class="text-[11px] px-2 py-0.5 rounded-full border font-bold bg-slate-900 border-slate-700 shadow-sm whitespace-nowrap">
                                                         <span class="text-slate-500">${i18n[currentCar].tires[type] || type}</span> 
-                                                        <span class="text-slate-100 font-mono text-[10px] ml-1">(${set})</span>
+                                                        <span class="text-slate-100 font-mono text-[9px] ml-0.5">(${set})</span>
                                                     </span>`;
                                                 }
                                             };
 
                                             return `
                                             <div class="bg-black/20 p-3 rounded-xl border border-slate-800 flex flex-col gap-2 transition-all hover:bg-black/30">
-                                                <div class="flex justify-between items-center">
-                                                    <div class="flex items-center gap-2">
+                                                <div class="flex justify-between items-start gap-2 flex-wrap">
+                                                    <div class="flex items-center gap-2 flex-wrap">
                                                         <span class="text-[10px] font-bold text-indigo-400 uppercase shrink-0">${getTxt('stintPrefix')} ${idx + 1}</span>
                                                         ${st.laps ? `<span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30 font-bold">${st.laps} Laps</span>` : ''}
                                                     </div>
-                                                    <div class="flex gap-1.5">
+                                                    <div class="flex gap-1 flex-wrap justify-end">
                                                         ${renderTireBadge(st.tire1Type, st.tire1Set)}
                                                         ${renderTireBadge(st.tire2Type, st.tire2Set)}
                                                     </div>
@@ -700,7 +698,7 @@
             window.appState.days[next] = [];
             window.appState.dayTitles[next] = currentCar === "#87" ? `Day ${next} Schedule` : `Day ${next} 일정`;
             
-            renderAll(); // 즉각적인 로컬 렌더링
+            renderAll(); 
             window.saveData();
         }
 
