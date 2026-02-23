@@ -32,8 +32,15 @@
     <div class="w-full max-w-[480px] min-h-screen flex flex-col bg-[#0b0c10] relative shadow-2xl">
         
         <!-- 앱 헤더 -->
-        <header class="sticky top-0 z-40 bg-[#0b0c10]/95 backdrop-blur-md px-4 pt-5 pb-3 flex items-center justify-center">
-            <h1 id="header-title" class="text-base font-bold text-slate-100 tracking-wide text-center">Session Plan</h1>
+        <header class="sticky top-0 z-40 bg-[#0b0c10]/95 backdrop-blur-md px-4 pt-5 pb-3 flex items-center">
+            <!-- 차량 선택 드롭다운 -->
+            <div class="absolute left-4 top-1/2 -translate-y-1/2 mt-1">
+                <select id="car-selector" onchange="window.switchCar(this.value)" class="bg-[#1e2128] text-slate-100 text-[13px] font-bold px-2 py-1.5 rounded-lg border border-slate-700 outline-none focus:border-indigo-500 transition-colors cursor-pointer">
+                    <option value="#97">#97</option>
+                    <option value="#87">#87</option>
+                </select>
+            </div>
+            <h1 id="header-title" class="text-base font-bold text-slate-100 tracking-wide w-full text-center">Session Plan</h1>
         </header>
 
         <!-- 메인 콘텐츠 영역 -->
@@ -127,7 +134,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, onValue, off } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // --- 1. Firebase 설정 ---
         const firebaseConfig = {
@@ -142,7 +149,10 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const dataRef = ref(db, 'raceData');
+        
+        // 차량 정보 전역 상태
+        let currentCar = "#97";
+        let currentDataRef = null;
 
         // --- 2. 전역 상태 관리 ---
         window.appState = {
@@ -152,24 +162,48 @@
         };
         let editingDayId = 1;
 
-        // --- 3. 실시간 동기화 로직 ---
-        onValue(dataRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                // 데이터 무결성 보장
-                window.appState = {
-                    ...window.appState,
-                    ...data,
-                    days: data.days || {},
-                    dayTitles: data.dayTitles || {},
-                    checklist: data.checklist || []
-                };
-                renderAll();
+        // --- 3. 실시간 동기화 로직 및 차량 전환 ---
+        window.switchCar = function(carValue) {
+            currentCar = carValue;
+            
+            // 이전 리스너 해제
+            if (currentDataRef) {
+                off(currentDataRef);
             }
-        });
+            
+            // 새 차량 데이터 경로 설정
+            const carId = carValue.replace('#', 'car');
+            currentDataRef = ref(db, `raceData/${carId}`);
+            
+            // 로딩 상태 시각화 (선택적)
+            document.getElementById('timeline-container').innerHTML = '<div class="p-10 text-center text-slate-500 italic">Loading car data...</div>';
+
+            // 데이터 구독 시작
+            onValue(currentDataRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    window.appState = {
+                        ...window.appState,
+                        ...data,
+                        days: data.days || {},
+                        dayTitles: data.dayTitles || {},
+                        checklist: data.checklist || []
+                    };
+                } else {
+                    // 데이터가 없는 새 차량일 경우 기본값 초기화
+                    window.appState = {
+                        dayTitles: { 1: "Day 1 Schedule", 2: "Day 2 Schedule" },
+                        days: { 1: [], 2: [] },
+                        checklist: []
+                    };
+                }
+                renderAll();
+            });
+        };
 
         window.saveData = function() {
-            set(dataRef, window.appState).catch(error => console.error("Firebase Sync Error:", error));
+            if (!currentDataRef) return;
+            set(currentDataRef, window.appState).catch(error => console.error("Firebase Sync Error:", error));
         };
 
         // --- 4. 렌더링 로직 ---
@@ -322,11 +356,8 @@
             const val = input.value.trim();
             if (!val) return;
             if (!window.appState.checklist) window.appState.checklist = [];
-            
-            // 로컬 상태에 즉시 반영 (반응성 강화)
             window.appState.checklist.push({ text: val, checked: false });
             input.value = '';
-            
             renderChecklist();
             window.saveData();
         }
@@ -429,8 +460,8 @@
         window.closeModal = () => document.getElementById('modal').classList.add('hidden');
         window.closeDayTitleModal = () => document.getElementById('day-title-modal').classList.add('hidden');
 
-        // 초기 실행
-        renderAll();
+        // 초기 실행: 첫 번째 차량(#97) 로드
+        window.switchCar("#97");
     </script>
 </body>
 </html>
