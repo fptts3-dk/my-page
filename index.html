@@ -475,14 +475,21 @@
                             </div>
                             <span class="text-sm ${item.checked ? 'text-slate-500 line-through' : 'text-slate-300'}">${item.text}</span>
                         </div>
-                        <button onclick="deleteCheck(${i})" class="text-slate-600 hover:text-red-400 px-2">✕</button>
+                        <button onclick="deleteCheck(${i})" class="text-slate-600 hover:text-red-400 px-2 transition-colors">✕</button>
                     </div>`;
             });
 
+            // 체크리스트 입력 영역을 '세션 추가'와 동일한 레이아웃으로 변경
             html += `
-                    <div class="flex items-center gap-3 py-1.5 px-3">
-                        <span class="text-slate-500 text-lg leading-none">+</span>
-                        <input type="text" id="new-task-input" placeholder="${getTxt('phTask')}" onkeydown="if(event.key==='Enter') { addCheck(this); event.preventDefault(); }" class="bg-transparent text-sm text-slate-300 focus:outline-none w-full border-none">
+                    <div class="flex min-h-[3.2rem] mt-2 group">
+                        <div class="w-16 flex items-center justify-center shrink-0"><span class="text-slate-600 text-lg font-light">+</span></div>
+                        <div class="flex-1 py-2 pr-4 flex items-center">
+                            <div class="w-full bg-[#1c1e24] rounded-lg p-2 border border-dashed border-slate-700/50 flex items-center">
+                                <input type="text" id="new-task-input" placeholder="${getTxt('phTask')}" 
+                                    onkeydown="if(event.key==='Enter') { addCheck(this); event.preventDefault(); }" 
+                                    class="bg-transparent text-xs font-bold text-slate-400 placeholder:text-slate-600 focus:outline-none w-full border-none p-0 ml-1">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>`;
