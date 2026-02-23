@@ -11,10 +11,14 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, setDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- ENVIRONMENT CHECK ---
-        // Gemini 환경인지 외부(GitHub) 환경인지 확인합니다.
+        // --- ENVIRONMENT & VARIABLE SAFETY ---
+        // ReferenceError 방지를 위해 typeof 사용
         const isCanvasEnv = typeof __firebase_config !== 'undefined';
-        const appId = isCanvasEnv ? (__app_id || 'race-engineer-default') : 'race-engineer-local';
+        const getSafeAppId = () => {
+            if (typeof __app_id !== 'undefined') return __app_id;
+            return 'race-engineer-local-v1';
+        };
+        const appId = getSafeAppId();
 
         // --- GLOBAL STATE ---
         let appState = {
@@ -39,6 +43,9 @@
 
         // --- INITIALIZATION ---
         async function initApp() {
+            // 로컬 데이터 먼저 로드하여 즉시 표시
+            loadLocalData();
+
             if (isCanvasEnv) {
                 try {
                     const firebaseConfig = JSON.parse(__firebase_config);
@@ -55,13 +62,8 @@
                         }
                     });
                 } catch (e) {
-                    console.error("Firebase Init Error", e);
-                    loadLocalData();
+                    console.warn("Firebase Sync skipped: Running in standalone mode.");
                 }
-            } else {
-                // GitHub Pages 등 외부 환경일 경우 로컬 모드로 작동
-                console.log("Running in Local Mode (GitHub Pages)");
-                loadLocalData();
             }
         }
 
@@ -74,7 +76,6 @@
                 }
             } catch (error) {
                 console.error("Auth Error:", error);
-                loadLocalData();
             }
         }
 
@@ -82,8 +83,13 @@
             const saved = localStorage.getItem('raceAppState');
             if (saved) {
                 try {
-                    appState = JSON.parse(saved);
-                } catch (e) { console.error("Parse error", e); }
+                    const parsed = JSON.parse(saved);
+                    // 데이터 구조 보정 (구버전 데이터 호환성)
+                    if (parsed && typeof parsed === 'object') {
+                        appState = { ...appState, ...parsed };
+                        if (!appState.days || Array.isArray(appState.days)) appState.days = parsed.days || {};
+                    }
+                } catch (e) { console.error("Local data parse error", e); }
             }
             renderAll();
         }
@@ -105,25 +111,27 @@
                             checklist: data.checklist || []
                         };
                         renderAll();
+                        localStorage.setItem('raceAppState', JSON.stringify(appState));
                     }
                 } else {
                     saveData();
                 }
             }, (error) => {
-                console.warn("Sync Error (Access Denied on GitHub is Normal):", error);
-                loadLocalData();
+                console.warn("Realtime sync unavailable in this environment.");
             });
         }
 
         window.saveData = async function() {
             isSaving = true;
             try {
+                // 로컬 저장 (항상 수행)
+                localStorage.setItem('raceAppState', JSON.stringify(appState));
+
+                // 클라우드 저장 (Canvas 환경일 때만)
                 if (isCanvasEnv && user && db) {
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'plan_master', 'current');
                     await setDoc(docRef, appState);
                 }
-                // 외부 환경이든 캔버스든 로컬에도 백업 저장
-                localStorage.setItem('raceAppState', JSON.stringify(appState));
             } catch (error) {
                 console.error("Save Error:", error);
             } finally {
@@ -134,17 +142,19 @@
         // --- UI RENDERING ---
         window.renderAll = () => {
             try {
-                if (!document.getElementById('header-title')) return;
+                const header = document.getElementById('header-title');
+                if (!header) return;
 
-                if (!appState.days) appState.days = {};
-                if (!appState.dayTitles) appState.dayTitles = {};
-                if (!appState.checklist) appState.checklist = [];
+                // 데이터 무결성 체크
+                if (!appState.days || typeof appState.days !== 'object') appState.days = {};
+                if (!appState.dayTitles || typeof appState.dayTitles !== 'object') appState.dayTitles = {};
+                if (!appState.checklist || !Array.isArray(appState.checklist)) appState.checklist = [];
 
                 renderHeader();
                 renderTimeline();
                 renderChecklist();
             } catch (err) {
-                console.error("Render Error:", err);
+                console.error("Critical Render Error:", err);
             }
         };
 
@@ -161,6 +171,7 @@
             const activeDays = Object.keys(appState.days).map(Number).sort((a,b) => a-b);
             
             activeDays.forEach(day => {
+                if (isNaN(day)) return;
                 const sessions = appState.days[day] || [];
                 const title = appState.dayTitles[day] || `Day ${day} Schedule`;
                 
@@ -180,6 +191,7 @@
                 }
 
                 sessions.forEach((s) => {
+                    if (!s) return;
                     const timeStr = s.time || "00:00";
                     let startTime = timeStr, endTime = "";
                     if (timeStr.includes('-')) { [startTime, endTime] = timeStr.split('-').map(t => t.trim()); }
@@ -250,7 +262,7 @@
         function renderChecklist() {
             const ui = document.getElementById('checklist-ui');
             if (!ui) return;
-            const checked = appState.checklist.filter(i => i.checked).length;
+            const checked = appState.checklist.filter(i => i && i.checked).length;
             const total = appState.checklist.length;
             const perc = total === 0 ? 0 : Math.round((checked/total)*100);
             
@@ -269,6 +281,7 @@
             `;
 
             appState.checklist.forEach((item, i) => {
+                if (!item) return;
                 html += `
                     <div class="flex items-center justify-between py-1.5 px-3 border-b border-slate-800/60 last:border-none group">
                         <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="toggleCheck(${i})">
@@ -311,7 +324,7 @@
         window.deleteCheck = (i) => { appState.checklist.splice(i, 1); renderChecklist(); saveData(); };
 
         window.addDay = () => {
-            const activeDays = Object.keys(appState.days).map(Number);
+            const activeDays = Object.keys(appState.days).map(Number).filter(n => !isNaN(n));
             const newDay = activeDays.length > 0 ? Math.max(...activeDays) + 1 : 1;
             appState.days[newDay] = [];
             appState.dayTitles[newDay] = `Day ${newDay} Schedule`;
@@ -398,8 +411,7 @@
 
         // 초기 실행
         document.addEventListener('DOMContentLoaded', () => {
-            renderAll(); // 즉시 기본 화면 렌더링
-            initApp();   // 백그라운드에서 환경 확인 후 동기화 시도
+            initApp();
         });
     </script>
     <style>
