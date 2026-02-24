@@ -243,7 +243,6 @@
                     </div>
                     <textarea class="stint-content w-full bg-black/20 border border-slate-700/50 rounded-xl p-3 text-sm focus:ring-1 focus:ring-indigo-500 min-h-[60px]" placeholder="${getTxt('phStint')}">${content}</textarea>
                     
-                    <!-- 타이어 입력 그리드: 가로 순서로 배치하여 Tab 순서 보장 (FL -> FR -> RL -> RR) -->
                     <div class="grid grid-cols-2 gap-2">
                         <input type="text" class="stint-tire1-type w-full text-[11px] h-[34px]" placeholder="FL Tire No." value="${t1Type}">
                         <input type="text" class="stint-tire1-set w-full text-[11px] h-[34px]" placeholder="FR Tire No." value="${t1Set}">
@@ -289,7 +288,6 @@
                     if (!start || !end) return;
 
                     if (now < start) { 
-                        // 마이너스 표시 제거
                         timerEl.textContent = formatDuration(start - now); 
                         timerEl.className = "text-[11px] font-bold text-slate-500 font-mono leading-none"; 
                         const diff = start - now;
@@ -368,7 +366,7 @@
                                                 <div class="flex justify-between items-center">
                                                     <div class="flex items-center gap-2">
                                                         <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest px-2 py-0.5 rounded border border-indigo-500/30 bg-indigo-500/10">${getTxt('stintPrefix')} ${idx + 1}</span>
-                                                        ${st.laps ? `<span class="text-[10px] text-slate-400 font-bold ml-1">${st.laps} Laps</span>` : ''}
+                                                        ${st.laps ? `<span class="text-[10px] text-white font-bold ml-1">${st.laps} Laps</span>` : ''}
                                                     </div>
                                                 </div>
 
@@ -404,7 +402,6 @@
                     </div></div></div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
-            // 일정 추가 버튼 폰트 사이즈 줄임 (text-[11px])
             container.insertAdjacentHTML('beforeend', `<button onclick="addDay()" class="w-full mb-6 py-1.5 border-2 border-dashed border-slate-700/60 rounded-xl text-slate-500 font-bold text-[11px] flex items-center justify-center gap-2">+ ${getTxt('addDay')}</button>`);
             renderChecklist();
             updateTimers();
@@ -434,7 +431,18 @@
                         <button onclick="deleteCheck(${i})" class="text-slate-600 px-2">✕</button>
                     </div>`;
             });
-            html += `<div class="p-2"><input type="text" onkeydown="if(event.key==='Enter'){addCheck(this);event.preventDefault();}" placeholder="${getTxt('phTask')}" class="bg-transparent text-[11px] font-bold text-slate-400 w-full border-none focus:outline-none"></div></div></div>`;
+            // 입력창 배경 내에서 입력필드 높이를 폰트에 맞춰 자연스럽게 더 줄임 (py-1)
+            html += `
+                <div class="px-2 py-2">
+                    <div class="bg-[#1e2128] rounded-lg px-3 py-1.5 flex items-center gap-2 transition-all">
+                        <span class="text-slate-500 text-sm font-light leading-none">+</span>
+                        <input type="text" 
+                            onkeydown="if(event.key==='Enter'){addCheck(this);event.preventDefault();}" 
+                            placeholder="${getTxt('phTask')}" 
+                            class="bg-transparent py-0.5 text-[12px] font-medium text-slate-200 w-full border-none focus:outline-none focus:ring-0 p-0 placeholder-slate-600">
+                    </div>
+                </div>
+            </div></div>`;
             ui.innerHTML = html;
         }
 
@@ -442,7 +450,6 @@
             const el = document.getElementById(`detail-${id}`), icon = document.getElementById(`icon-${id}`);
             const isCurrentlyHidden = el.classList.contains('hidden');
 
-            // 다른 모든 세션 상세창을 닫음
             document.querySelectorAll('[id^="detail-"]').forEach(detail => {
                 detail.classList.add('hidden');
             });
@@ -450,7 +457,6 @@
                 ic.style.transform = 'rotate(0deg)';
             });
 
-            // 클릭한 세션이 닫혀있었다면 활성화
             if (isCurrentlyHidden) {
                 el.classList.remove('hidden');
                 if (icon) icon.style.transform = 'rotate(180deg)';
