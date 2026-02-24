@@ -437,8 +437,21 @@
 
         window.toggleDetail = (id) => {
             const el = document.getElementById(`detail-${id}`), icon = document.getElementById(`icon-${id}`);
-            if (el) el.classList.toggle('hidden');
-            if (icon) icon.style.transform = el.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            const isCurrentlyHidden = el.classList.contains('hidden');
+
+            // 다른 모든 세션 상세창을 닫음
+            document.querySelectorAll('[id^="detail-"]').forEach(detail => {
+                detail.classList.add('hidden');
+            });
+            document.querySelectorAll('[id^="icon-"]').forEach(ic => {
+                ic.style.transform = 'rotate(0deg)';
+            });
+
+            // 클릭한 세션이 닫혀있었다면 활성화
+            if (isCurrentlyHidden) {
+                el.classList.remove('hidden');
+                if (icon) icon.style.transform = 'rotate(180deg)';
+            }
         };
 
         window.toggleCheck = (i) => { window.appState.checklist[i].checked = !window.appState.checklist[i].checked; window.saveData(); };
