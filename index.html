@@ -7,61 +7,52 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0b0c10; color: #e2e8f0; }
+        body { font-family: 'Inter', sans-serif; background-color: #0b0c10; color: #e2e8f0; -webkit-font-smoothing: antialiased; }
         
-        /* 스크롤바 커스텀 */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        /* 스크롤바 최적화 */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         
-        /* 입력창 스타일 */
+        /* 입력 요소 통합 스타일 */
         input, select, textarea { 
             background-color: #1e2128 !important; 
-            color: #f1f5f9 !important;
+            color: #ffffff !important;
             border: 1px solid #334155 !important;
-            appearance: none; 
-        }
-
-        /* 숫자 입력창 화살표 제거 */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] { -moz-appearance: textfield; }
-
-        input:focus, select:focus, textarea:focus {
+            font-weight: 600 !important;
             outline: none !important;
-            border-color: #6366f1 !important;
-            box-shadow: 0 0 0 1px #6366f1 !important;
         }
+        input:focus, select:focus, textarea:focus { border-color: #6366f1 !important; box-shadow: 0 0 0 1px #6366f1 !important; }
+        input[type=number] { -moz-appearance: textfield; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
         .row-item input, .row-item textarea {
             background-color: #262932 !important;
             border: 1px solid #3f4451 !important;
-            font-size: 12px !important;
-            padding: 0.65rem 0.75rem !important;
+            font-size: 14px !important;
+            padding: 0.5rem 0.75rem !important;
             border-radius: 0.75rem !important;
         }
 
-        /* 스틴트 상세 카드 배경 */
-        .stint-detail-card {
-            background-color: #0d0f14 !important;
-        }
+        .stint-detail-card { background-color: #0d0f14 !important; }
+
+        /* 색상 선택기 스타일 */
+        .color-picker-item { width: 16px; height: 16px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+        .color-picker-group.active .color-picker-item { border-color: #ffffff; transform: scale(1.2); box-shadow: 0 0 10px rgba(255,255,255,0.4); }
+        .color-picker-group.active span { color: #ffffff; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
 
     <div class="w-full max-w-[480px] min-h-screen flex flex-col bg-[#0b0c10] relative shadow-2xl">
-        
         <header class="sticky top-0 z-40 bg-[#0b0c10]/95 backdrop-blur-md px-4 pt-5 pb-3 flex items-center">
             <div class="absolute left-4 top-1/2 -translate-y-1/2 mt-1">
-                <select id="car-selector" onchange="window.switchCar(this.value)" class="bg-[#1e2128] text-slate-100 text-[13px] font-bold px-2 py-1.5 rounded-lg border border-slate-700 outline-none cursor-pointer">
+                <select id="car-selector" onchange="window.switchCar(this.value)" class="bg-[#1e2128] text-slate-100 text-[13px] font-bold px-2 py-1.5 rounded-lg border border-slate-700 cursor-pointer">
                     <option value="#97">#97</option>
                     <option value="#87">#87</option>
                 </select>
             </div>
-            <h1 id="header-title" class="text-base font-bold text-slate-100 tracking-wide w-full text-center"> Session Plan</h1>
+            <h1 id="header-title" class="text-base font-bold text-slate-100 tracking-wide w-full text-center">Session Plan</h1>
         </header>
 
         <main class="flex-grow w-full px-4 pt-2 pb-10 overflow-x-hidden">
@@ -75,48 +66,72 @@
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeModal()"></div>
             <div class="w-full max-w-[480px] bg-[#16181d] rounded-t-3xl sm:rounded-3xl z-10 flex flex-col max-h-[90vh] border border-slate-700/50 shadow-2xl transition-transform">
                 <div class="p-5 border-b border-slate-800 flex justify-between items-center shrink-0">
-                    <h3 id="modal-session-title" class="font-bold text-white">Edit Session</h3>
+                    <h3 id="modal-session-title" class="text-lg font-extrabold text-white">Edit Session</h3>
                     <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center text-slate-400">✕</button>
                 </div>
-                <form id="session-form" class="p-5 space-y-5 overflow-y-auto" onsubmit="event.preventDefault();">
+                <form id="session-form" class="p-5 space-y-6 overflow-y-auto" onsubmit="event.preventDefault();">
                     <input type="hidden" id="edit-id">
-                    <div class="space-y-4">
+                    <div class="space-y-5">
                         <div>
-                            <label id="lbl-session-name" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">Session Title</label>
-                            <input type="text" id="in-name" class="w-full rounded-xl p-3.5 text-sm font-semibold">
+                            <label class="text-[12px] font-bold text-white uppercase tracking-widest block mb-2 ml-1">Session Title</label>
+                            <input type="text" id="in-name" class="w-full rounded-xl py-2 px-4 text-base font-bold">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label id="lbl-session-time" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">Time Slot</label>
-                                <input type="text" id="in-time" class="w-full rounded-xl p-3.5 text-sm font-mono" placeholder="09:00 - 09:30">
+                                <label class="text-[12px] font-bold text-white uppercase tracking-widest block mb-2 ml-1">Start Time</label>
+                                <input type="text" id="in-start-time" class="w-full rounded-xl py-2 px-4 text-sm font-bold font-mono" placeholder="09:00">
                             </div>
                             <div>
-                                <label id="lbl-session-fuel" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">Fuel (L)</label>
-                                <input type="number" id="in-fuel" class="w-full rounded-xl p-3.5 text-sm font-mono">
+                                <label class="text-[12px] font-bold text-white uppercase tracking-widest block mb-2 ml-1">End Time</label>
+                                <input type="text" id="in-end-time" class="w-full rounded-xl py-2 px-4 text-sm font-bold font-mono" placeholder="09:30">
                             </div>
                         </div>
-                        <div>
-                            <label id="lbl-session-purpose" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">목표/목적</label>
-                            <input type="text" id="in-purpose" class="w-full rounded-xl p-3.5 text-sm">
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[12px] font-bold text-white uppercase tracking-widest block mb-2 ml-1">Fuel (L)</label>
+                                <input type="number" id="in-fuel" class="w-full rounded-xl py-2 px-4 text-base font-bold font-mono">
+                            </div>
+                            <div class="flex flex-col">
+                                <label id="lbl-session-color" class="text-[12px] font-bold text-white uppercase tracking-widest block mb-3 ml-1">세션 타이어 색상</label>
+                                <div class="flex gap-4 px-1 mt-1" id="color-picker-container">
+                                    <div class="color-picker-group active flex items-center gap-1.5 cursor-pointer group" data-color="#22c55e" onclick="selectColor(this)">
+                                        <div class="color-picker-item" style="background-color: #22c55e;"></div>
+                                        <span class="text-[11px] font-black text-slate-400 group-hover:text-white">New</span>
+                                    </div>
+                                    <div class="color-picker-group flex items-center gap-1.5 cursor-pointer group" data-color="#eab308" onclick="selectColor(this)">
+                                        <div class="color-picker-item" style="background-color: #eab308;"></div>
+                                        <span class="text-[11px] font-black text-slate-400 group-hover:text-white">Used</span>
+                                    </div>
+                                    <div class="color-picker-group flex items-center gap-2 cursor-pointer group" data-color="#3b82f6" onclick="selectColor(this)">
+                                        <div class="color-picker-item" style="background-color: #3b82f6;"></div>
+                                        <span class="text-[11px] font-black text-slate-400 group-hover:text-white">Wet</span>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="in-color" value="#22c55e">
+                            </div>
                         </div>
-                        <div class="space-y-3">
+
+                        <div>
+                            <label class="text-[12px] font-bold text-white uppercase tracking-widest block mb-2 ml-1">목표/목적</label>
+                            <input type="text" id="in-purpose" class="w-full rounded-xl py-2 px-4 text-base font-bold">
+                        </div>
+                        <div class="space-y-4">
                             <div class="flex justify-between items-end mb-1 px-1">
-                                <label id="lbl-stint-list" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Stint Strategy</label>
-                                <button type="button" onclick="window.addStintRow()" class="text-[10px] bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 px-2.5 py-1.5 rounded-lg font-bold border border-indigo-500/30">
-                                    + Add Stint
-                                </button>
+                                <label class="text-[12px] font-bold text-white uppercase tracking-widest block">Stint Strategy</label>
+                                <button type="button" onclick="window.addStintRow()" class="text-[11px] bg-indigo-600/30 hover:bg-indigo-600/50 text-white px-3 py-2 rounded-lg font-black border border-indigo-500/50">+ Add Stint</button>
                             </div>
-                            <div id="stint-rows-container" class="space-y-3 bg-black/20 p-2.5 rounded-2xl border border-slate-800/50"></div>
+                            <div id="stint-rows-container" class="space-y-4 bg-black/20 p-3 rounded-2xl border border-slate-800/50"></div>
                         </div>
                         <div>
-                            <label id="lbl-session-note" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">기타</label>
-                            <input type="text" id="in-note" class="w-full rounded-xl p-3.5 text-sm">
+                            <label class="text-[12px] font-bold text-white uppercase tracking-widest block mb-2 ml-1">기타</label>
+                            <input type="text" id="in-note" class="w-full rounded-xl py-2 px-4 text-base font-bold">
                         </div>
                     </div>
                 </form>
-                <div class="p-5 border-t border-slate-800 flex gap-3 bg-[#16181d] rounded-b-3xl">
-                    <button id="btn-session-delete" onclick="deleteSessionFromModal()" class="px-5 py-3.5 bg-red-500/10 text-red-500 rounded-xl text-sm font-bold">Delete</button>
-                    <button id="btn-session-save" onclick="saveSession()" class="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg">Save Changes</button>
+                <div class="p-5 border-t border-slate-800 flex gap-3 bg-[#16181d] rounded-b-3xl shrink-0">
+                    <button id="btn-session-delete" onclick="deleteSessionFromModal()" class="px-6 py-3 bg-red-500/20 text-red-500 rounded-xl text-base font-black">Delete</button>
+                    <button id="btn-session-save" onclick="saveSession()" class="flex-1 py-3 bg-indigo-600 text-white rounded-xl text-base font-black shadow-lg">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -127,16 +142,16 @@
             <div class="bg-[#16181d] max-w-sm w-full rounded-3xl p-6 shadow-2xl z-10 border border-slate-700/50">
                 <input type="hidden" id="editing-day-id">
                 <div class="flex justify-between items-center mb-5">
-                    <h3 id="modal-day-title" class="font-bold text-white text-lg">일정 제목 수정</h3>
+                    <h3 id="modal-day-title" class="font-extrabold text-white text-lg">일정 제목 수정</h3>
                     <button onclick="closeDayTitleModal()" class="text-slate-400">✕</button>
                 </div>
                 <div>
-                    <label id="lbl-day-title" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5 ml-1">제목 (Title)</label>
-                    <input type="text" id="in-day-title" class="w-full rounded-xl p-3.5 text-sm">
+                    <label class="text-[12px] font-bold text-white uppercase tracking-widest block mb-2 ml-1">제목 (Title)</label>
+                    <input type="text" id="in-day-title" class="w-full rounded-xl py-2 px-4 text-base font-bold">
                 </div>
-                <div class="flex gap-3 mt-6">
-                    <button id="btn-day-delete" onclick="deleteDay()" class="px-5 bg-red-500/10 text-red-500 py-3.5 rounded-xl text-sm font-bold hover:bg-red-500/20">Delete Day</button>
-                    <button id="btn-day-apply" onclick="saveDayTitle()" class="flex-1 bg-slate-100 text-slate-900 py-3.5 rounded-xl text-sm font-bold">Apply</button>
+                <div class="flex gap-3 mt-8">
+                    <button onclick="deleteDay()" class="px-5 bg-red-500/20 text-red-500 py-4 rounded-xl text-sm font-black hover:bg-red-500/30">Delete Day</button>
+                    <button onclick="saveDayTitle()" class="flex-1 bg-slate-100 text-slate-900 py-4 rounded-xl text-sm font-black">Apply</button>
                 </div>
             </div>
         </div>
@@ -158,357 +173,234 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        
-        let currentCar = "#97";
-        let currentDataRef = null;
+        let currentCar = "#97", currentDataRef = null;
 
         const i18n = {
-            "#97": {
-                header: "Session Plan", maintenance: "Checklist", noSessions: "등록된 세션이 없습니다.",
-                addDay: "일정 추가", addSession: "세션 추가", edit: "수정하기", loading: "데이터 로딩 중...",
-                purposeTitle: "목표/목적", stintListTitle: "스틴트별 계획", noteTitle: "기타", modalSession: "세션 편집",
-                modalDay: "일정 제목 수정", lblTitle: "세션 제목", lblTime: "시간", lblFuel: "연료 (L)",
-                lblPurpose: "목표/목적", lblStintStrategy: "스틴트 전략", lblAttackLaps: "어택 랩", lblNote: "기타 메모",
-                lblDayTitle: "제목", btnDelete: "삭제", btnSave: "저장하기", btnApply: "적용하기", btnDeleteDay: "일정 삭제",
-                phTask: "새 작업 추가...", phStint: "스틴트 계획 입력...", phLaps: "Laps", stintPrefix: "Stint",
-                timerWait: "대기", timerEnd: "종료", timerLeft: "남음"
-            },
-            "#87": {
-                header: "Session Plan", maintenance: "Checklist", noSessions: "No sessions scheduled.",
-                addDay: "Add Day", addSession: "Add Session", edit: "Edit", loading: "Loading data...",
-                purposeTitle: "Purpose / Goal", stintListTitle: "Stint Plans", noteTitle: "Note / Misc", modalSession: "Edit Session",
-                modalDay: "Edit Day Title", lblTitle: "Session Title", lblTime: "Time Slot", lblFuel: "Fuel (L)",
-                lblPurpose: "Purpose / Goal", lblStintStrategy: "Stint Strategy", lblAttackLaps: "Attack Laps", lblNote: "Notes",
-                lblDayTitle: "Title", btnDelete: "Delete", btnSave: "Save Changes", btnApply: "Apply", btnDeleteDay: "Delete Day",
-                phTask: "Add task...", phStint: "Enter stint plan...", phLaps: "Laps", stintPrefix: "Stint",
-                timerWait: "Wait", timerEnd: "End", timerLeft: "Left"
-            }
+            "#97": { header: "Session Plan", maintenance: "Checklist", noSessions: "등록된 세션이 없습니다.", addDay: "일정 추가", addSession: "세션 추가", edit: "수정하기", loading: "데이터 로딩 중...", purposeTitle: "목표/목적", stintListTitle: "스틴트별 계획", noteTitle: "기타", stintPrefix: "Stint", lblColor: "세션 타이어 색상" },
+            "#87": { header: "Session Plan", maintenance: "Checklist", noSessions: "No sessions scheduled.", addDay: "Add Day", addSession: "Add Session", edit: "Edit", loading: "Loading data...", purposeTitle: "Purpose / Goal", stintListTitle: "Stint Plans", noteTitle: "Note / Misc", stintPrefix: "Stint", lblColor: "Session Tire Color" }
         };
 
         const getTxt = (key) => i18n[currentCar][key] || key;
-
         window.appState = { dayTitles: { 1: "Day 1 Schedule" }, days: { 1: [] }, checklist: [] };
         let editingDayId = 1;
 
-        window.switchCar = function(carValue) {
+        window.switchCar = (carValue) => {
             currentCar = carValue;
             if (currentDataRef) off(currentDataRef);
             currentDataRef = ref(db, `raceData/${carValue.replace('#', 'car')}`);
-            
-            const container = document.getElementById('timeline-container');
-            if(container) container.innerHTML = `<div class="p-10 text-center text-slate-500 italic text-sm">${getTxt('loading')}</div>`;
-
             onValue(currentDataRef, (snapshot) => {
-                let data = snapshot.val();
-                if (data) {
-                    window.appState = { ...window.appState, ...data, days: data.days || {}, dayTitles: data.dayTitles || {}, checklist: data.checklist || [] };
-                }
-                updateUIStrings();
+                const data = snapshot.val();
+                if (data) window.appState = { ...window.appState, ...data };
+                document.getElementById('header-title').textContent = getTxt('header');
+                document.getElementById('lbl-session-color').textContent = getTxt('lblColor');
                 renderAll();
             });
         };
 
-        function updateUIStrings() {
-            document.getElementById('header-title').textContent = getTxt('header');
-            document.getElementById('modal-session-title').textContent = getTxt('modalSession');
-            document.getElementById('lbl-session-name').textContent = getTxt('lblTitle');
-            document.getElementById('lbl-session-time').textContent = getTxt('lblTime');
-            document.getElementById('lbl-session-fuel').textContent = getTxt('lblFuel');
-            document.getElementById('lbl-session-purpose').textContent = getTxt('lblPurpose');
-            document.getElementById('lbl-stint-list').textContent = getTxt('lblStintStrategy');
-            document.getElementById('lbl-session-note').textContent = getTxt('lblNote');
-            document.getElementById('btn-session-delete').textContent = getTxt('btnDelete');
-            document.getElementById('btn-session-save').textContent = getTxt('btnSave');
-            document.getElementById('modal-day-title').textContent = getTxt('modalDay');
-            document.getElementById('lbl-day-title').textContent = getTxt('lblDayTitle');
-            document.getElementById('btn-day-delete').textContent = getTxt('btnDeleteDay');
-            document.getElementById('btn-day-apply').textContent = getTxt('btnApply');
-        }
+        window.saveData = () => currentDataRef && set(currentDataRef, window.appState);
 
-        window.saveData = () => { if (currentDataRef) set(currentDataRef, window.appState); };
-
-        window.addStintRow = function(content = '', t1Type = '', t1Set = '', t2Type = '', t2Set = '', laps = '') {
+        window.addStintRow = (content = '', t1Type = '', t1Set = '', t2Type = '', t2Set = '', laps = '') => {
             const container = document.getElementById('stint-rows-container');
-            const stintCount = container.querySelectorAll('.stint-row').length;
-            const rowId = 'stint-row-' + Date.now() + Math.random().toString(36).substr(2, 5);
-
+            const rowId = `stint-row-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
             const html = `
-                <div id="${rowId}" class="stint-row space-y-3 p-4 bg-[#1e2128] rounded-2xl border border-slate-700/50 row-item shadow-md">
+                <div id="${rowId}" class="stint-row space-y-4 p-5 bg-[#1e2128] rounded-2xl border border-slate-700/50 row-item shadow-md">
                     <div class="flex justify-between items-center">
-                        <!-- 수정된 부분: Stint와 Laps 입력창 사이 간격을 gap-1.5로 줄임 -->
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[11px] font-bold text-white tracking-tight px-2 py-0.5 rounded border border-white/30 bg-white/5">${getTxt('stintPrefix')} ${stintCount+1}</span>
-                            <input type="number" class="stint-laps w-[60px] bg-indigo-900/20 border-indigo-500/20 text-[11px] font-bold text-center h-[28px] rounded-lg" placeholder="${getTxt('phLaps')}" value="${laps}">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] font-bold text-white px-2 py-0.5 rounded border border-white/30 bg-white/5">${getTxt('stintPrefix')}</span>
+                            <input type="number" class="stint-laps w-[60px] bg-indigo-900/20 border-indigo-500/20 text-[11px] font-bold text-center h-[28px] rounded-lg" placeholder="Laps" value="${laps}">
                         </div>
-                        <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-slate-500 hover:text-red-400 transition-colors">✕</button>
+                        <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-slate-500 hover:text-red-400">✕</button>
                     </div>
-                    <textarea class="stint-content w-full bg-black/20 border border-slate-700/50 rounded-xl p-3 text-sm focus:ring-1 focus:ring-indigo-500 min-h-[60px]" placeholder="${getTxt('phStint')}">${content}</textarea>
-                    
+                    <textarea class="stint-content w-full bg-black/20 border border-slate-700/50 rounded-xl p-3 text-sm min-h-[60px]" placeholder="Enter plan...">${content}</textarea>
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="text" class="stint-tire1-type w-full text-[11px] h-[34px]" placeholder="FL Tire No." value="${t1Type}">
-                        <input type="text" class="stint-tire1-set w-full text-[11px] h-[34px]" placeholder="FR Tire No." value="${t1Set}">
-                        <input type="text" class="stint-tire2-type w-full text-[11px] h-[34px]" placeholder="RL Tire No." value="${t2Type}">
-                        <input type="text" class="stint-tire2-set w-full text-[11px] h-[34px]" placeholder="RR Tire No." value="${t2Set}">
+                        <input type="text" class="stint-tire1-type w-full text-[11px] h-[34px]" placeholder="FL No." value="${t1Type}">
+                        <input type="text" class="stint-tire1-set w-full text-[11px] h-[34px]" placeholder="FR No." value="${t1Set}">
+                        <input type="text" class="stint-tire2-type w-full text-[11px] h-[34px]" placeholder="RL No." value="${t2Type}">
+                        <input type="text" class="stint-tire2-set w-full text-[11px] h-[34px]" placeholder="RR No." value="${t2Set}">
                     </div>
                 </div>`;
             container.insertAdjacentHTML('beforeend', html);
         };
 
-        function parseTimeToDate(timeStr) {
-            if (!timeStr) return null;
-            const parts = timeStr.trim().split(':');
-            if (parts.length < 2) return null;
-            const date = new Date();
-            date.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
-            return date;
-        }
+        const parseTime = (str) => {
+            if (!str) return null;
+            const p = str.trim().split(':');
+            if (p.length < 2) return null;
+            const d = new Date(); d.setHours(parseInt(p[0]), parseInt(p[1]), 0, 0);
+            return d;
+        };
 
-        function formatDuration(ms) {
-            const totalMins = Math.floor(Math.abs(ms) / 60000);
-            return `${Math.floor(totalMins / 60)}:${(totalMins % 60).toString().padStart(2, '0')}`;
-        }
+        const formatDur = (ms) => {
+            const m = Math.floor(Math.abs(ms) / 60000);
+            return `${Math.floor(m / 60)}:${(m % 60).toString().padStart(2, '0')}`;
+        };
 
-        function updateTimers() {
+        setInterval(() => {
             const now = new Date();
-            let nextSId = null;
-            let minDiff = Infinity;
-
             Object.keys(window.appState.days).forEach(dayKey => {
                 (window.appState.days[dayKey] || []).forEach(s => {
                     const timerEl = document.getElementById(`live-timer-${s.id}`);
-                    const rowEl = document.getElementById(`session-row-${s.id}`);
                     if (!timerEl) return;
-                    const tArr = (s.time || "").split(/[-~]/);
-                    const start = parseTimeToDate(tArr[0]), end = parseTimeToDate(tArr[1]);
-                    
-                    if (rowEl) {
-                        rowEl.classList.remove('border-yellow-400', 'bg-white/[0.04]', 'border-solid');
-                        rowEl.classList.add('border-transparent');
-                    }
-
+                    const t = (s.time || "").split(/[-~]/);
+                    const start = parseTime(t[0]), end = parseTime(t[1]);
                     if (!start || !end) return;
-
-                    if (now < start) { 
-                        timerEl.textContent = formatDuration(start - now); 
-                        timerEl.className = "text-[11px] font-bold text-slate-500 font-mono leading-none"; 
-                        const diff = start - now;
-                        if (diff < minDiff) { minDiff = diff; nextSId = s.id; }
-                    } 
-                    else if (now > end) { timerEl.textContent = "0:00"; timerEl.className = "text-[11px] font-bold text-red-500/60 font-mono leading-none"; }
-                    else { timerEl.textContent = formatDuration(end - now); timerEl.className = "text-[11px] font-bold text-indigo-400 font-mono animate-pulse leading-none"; }
+                    if (now < start) { timerEl.textContent = formatDur(start - now); timerEl.className = "text-[11px] font-bold text-slate-500 font-mono"; }
+                    else if (now > end) { timerEl.textContent = "0:00"; timerEl.className = "text-[11px] font-bold text-red-500/60 font-mono"; }
+                    else { timerEl.textContent = formatDur(end - now); timerEl.className = "text-[11px] font-bold text-indigo-400 font-mono animate-pulse"; }
                 });
             });
+        }, 1000);
 
-            if (nextSId) {
-                const target = document.getElementById(`session-row-${nextSId}`);
-                if (target) {
-                    target.classList.remove('border-transparent');
-                    target.classList.add('border-solid', 'border-yellow-400', 'bg-white/[0.04]');
-                }
-            }
-        }
-        setInterval(updateTimers, 1000);
-
-        window.renderAll = function() {
+        window.renderAll = () => {
             const container = document.getElementById('timeline-container');
             if (!container) return;
             container.innerHTML = '';
-            const daysMap = window.appState.days || {}, titlesMap = window.appState.dayTitles || {};
-            
-            Object.keys(daysMap).map(Number).sort((a,b)=>a-b).forEach(day => {
-                const sessions = daysMap[day] || [];
-                let html = `
-                <div class="mb-6 border border-slate-700/60 rounded-xl overflow-hidden bg-[#16181d] shadow-lg">
+            Object.keys(window.appState.days).map(Number).sort((a,b)=>a-b).forEach(day => {
+                const sessions = window.appState.days[day] || [];
+                let html = `<div class="mb-6 border border-slate-700/60 rounded-xl overflow-hidden bg-[#16181d] shadow-lg">
                     <div class="p-4 border-b border-slate-700/60 flex justify-between items-center bg-[#1c1e24]">
-                        <h2 class="text-base font-bold text-slate-100">${titlesMap[day] || `Day ${day}`}</h2>
+                        <h2 class="text-base font-bold text-slate-100">${window.appState.dayTitles[day] || `Day ${day}`}</h2>
                         <button onclick="openDayTitleEditor(${day})" class="text-slate-400">⚙️</button>
-                    </div>
-                    <div class="flex flex-col py-1">`;
-
+                    </div><div class="flex flex-col py-1">`;
                 if (sessions.length === 0) html += `<div class="p-6 text-center text-xs text-slate-500 italic">${getTxt('noSessions')}</div>`;
-
                 sessions.forEach(s => {
-                    const tArr = (s.time || "").split(/[-~]/);
-                    const startStr = tArr[0]?.trim() || "00:00";
-                    const start = parseTimeToDate(startStr), end = parseTimeToDate(tArr[1]);
+                    const t = (s.time || "").split(/[-~]/);
+                    const start = parseTime(t[0]), end = parseTime(t[1]);
                     const dur = (start && end) ? `${Math.round((end - start) / 60000)}'` : "";
-                    
-                    html += `
-                    <div class="flex flex-col border-b border-slate-800/60 last:border-none">
-                        <div id="session-row-${s.id}" class="flex flex-col mx-1 rounded-xl border-2 border-transparent transition-all duration-300" onclick="toggleDetail('${s.id}')">
-                            <div class="flex min-h-[4.5rem] group cursor-pointer hover:bg-white/[0.02] rounded-t-xl">
-                                <div class="w-16 flex flex-col items-center justify-center shrink-0 space-y-1 py-3">
-                                    <span class="text-[13px] font-bold text-slate-200 leading-none">${startStr}</span>
-                                    <span class="text-[10px] text-slate-500 font-medium leading-none">${dur}</span>
-                                    <div id="live-timer-${s.id}" class="font-mono leading-none"></div>
-                                </div>
-                                <div class="flex-1 py-3 pr-4 flex items-center">
-                                    <div class="w-full bg-[#20232a] rounded-lg p-3 border-l-4 border-indigo-500 flex justify-between items-center shadow-sm">
-                                        <div class="min-w-0 pr-2">
-                                            <h4 class="text-[13px] font-bold text-slate-100 truncate">${s.name}</h4>
-                                            <p class="text-[11px] text-slate-300 font-semibold truncate mt-0.5">${s.fuel}L • ${s.purpose || '-'}</p>
-                                        </div>
-                                        <svg id="icon-${s.id}" class="transition-transform duration-200 text-slate-600" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 9l6 6 6-6"/></svg>
+                    html += `<div id="session-row-${s.id}" class="flex flex-col mx-1 rounded-xl border-2 border-transparent transition-all" onclick="toggleDetail('${s.id}')">
+                        <div class="flex min-h-[4.5rem] cursor-pointer hover:bg-white/[0.02]">
+                            <div class="w-16 flex flex-col items-center justify-center shrink-0 py-3">
+                                <span class="text-[13px] font-bold text-slate-200">${t[0] || "00:00"}</span>
+                                <span class="text-[10px] text-slate-500 font-medium">${dur}</span>
+                                <div id="live-timer-${s.id}"></div>
+                            </div>
+                            <div class="flex-1 py-3 pr-4 flex items-center">
+                                <div class="w-full bg-[#20232a] rounded-lg p-3 border-l-4 flex justify-between items-center" style="border-left-color: ${s.color || '#22c55e'}">
+                                    <div class="min-w-0 pr-2">
+                                        <h4 class="text-[13px] font-bold text-slate-100 truncate">${s.name}</h4>
+                                        <p class="text-[11px] text-slate-300 font-semibold truncate">${s.fuel}L • ${s.purpose || '-'}</p>
                                     </div>
-                                </div>
-                            </div>
-                            <div id="detail-${s.id}" class="hidden px-4 pb-4">
-                                <div class="bg-[#1c1e24] border border-slate-700/50 rounded-lg p-4 space-y-4 shadow-inner text-sm">
-                                    <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('purposeTitle')}</p><p class="text-slate-200 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.purpose || '-'}</p></div>
-                                    <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('stintListTitle')}</p><div class="flex flex-col gap-3 mt-1">
-                                        ${(s.stints || []).map((st, idx) => {
-                                            // 타이어 변경 감지 로직 (Stint 1 제외)
-                                            const prevStint = idx > 0 ? s.stints[idx - 1] : null;
-                                            
-                                            // 변경 확인 함수 (idx > 0 일 때만 활성화)
-                                            const isChanged = (curr, prev) => {
-                                                if (idx === 0) return false; // Stint 1은 무조건 색상 안바뀜
-                                                return prev !== undefined && curr !== "" && prev !== "" && curr !== prev;
-                                            };
-
-                                            const flChanged = isChanged(st.tire1Type, prevStint?.tire1Type);
-                                            const frChanged = isChanged(st.tire1Set, prevStint?.tire1Set);
-                                            const rlChanged = isChanged(st.tire2Type, prevStint?.tire2Type);
-                                            const rrChanged = isChanged(st.tire2Set, prevStint?.tire2Set);
-
-                                            const badge = (text, changed) => {
-                                                if (!text) return '<span class="text-[9px] text-slate-700">-</span>';
-                                                // 변경 시 Amber 색상으로 강조
-                                                const colorClass = changed 
-                                                    ? 'border-amber-500 bg-amber-500/20 text-amber-100 shadow-[0_0_8px_rgba(245,158,11,0.25)]' 
-                                                    : 'border-slate-600 bg-slate-800 text-slate-300';
-                                                return `<span class="text-[9px] px-1.5 py-0.5 rounded-full border ${colorClass} font-bold shadow-sm whitespace-nowrap transition-colors">${text}</span>`;
-                                            };
-
-                                            return `
-                                            <div class="stint-detail-card p-3 rounded-xl border border-slate-800/80 flex flex-col gap-3 transition-all">
-                                                <div class="flex justify-between items-center">
-                                                    <!-- 수정된 부분: gap-2 -> gap-1, ml-1 제거로 좌우 간격 축소 -->
-                                                    <div class="flex items-center gap-1">
-                                                        <span class="text-[11px] font-bold text-white tracking-tight px-2 py-0.5 rounded border border-white/30 bg-white/5">${getTxt('stintPrefix')} ${idx + 1}</span>
-                                                        ${st.laps ? `<span class="text-[11px] text-white font-bold px-2 py-0.5 rounded border border-white/30 bg-white/5">${st.laps} Laps</span>` : ''}
-                                                    </div>
-                                                </div>
-
-                                                <div class="flex gap-4 items-start">
-                                                    <div class="shrink-0 mt-1">
-                                                        <div class="grid grid-cols-2 gap-0 border border-slate-700 rounded-md overflow-hidden bg-black/40 shadow-lg">
-                                                            <div class="p-1 border-r border-b border-slate-700/50 flex items-center justify-center">${badge(st.tire1Type, flChanged)}</div>
-                                                            <div class="p-1 border-b border-slate-700/50 flex items-center justify-center">${badge(st.tire1Set, frChanged)}</div>
-                                                            <div class="p-1 border-r border-slate-700/50 flex items-center justify-center">${badge(st.tire2Type, rlChanged)}</div>
-                                                            <div class="p-1 border-slate-700/50 flex items-center justify-center">${badge(st.tire2Set, rrChanged)}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-1 min-w-0">
-                                                        <p class="text-slate-300 text-[11px] leading-relaxed whitespace-pre-wrap">${st.content || '-'}</p>
-                                                    </div>
-                                                </div>
-                                            </div>`;
-                                        }).join('')}
-                                    </div></div>
-                                    ${s.note ? `<div><p class="text-[10px] font-bold text-slate-500 uppercase mb-1.5 ml-1">${getTxt('noteTitle')}</p><p class="text-slate-300 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.note}</p></div>` : ''}
-                                    <div class="pt-2 border-t border-slate-700/50 flex justify-end"><button onclick="openEditor('${s.id}', ${day})" class="px-3 py-1.5 bg-slate-700 text-slate-200 text-[10px] font-bold rounded-lg border border-slate-600/50">${getTxt('edit')}</button></div>
+                                    <svg id="icon-${s.id}" class="transition-transform" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 9l6 6 6-6"/></svg>
                                 </div>
                             </div>
                         </div>
-                    </div>`;
+                        <div id="detail-${s.id}" class="hidden px-4 pb-4">
+                            <div class="bg-[#1c1e24] border border-slate-700/50 rounded-lg p-4 space-y-4 shadow-inner text-sm">
+                                <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('purposeTitle')}</p><p class="text-slate-200 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.purpose || '-'}</p></div>
+                                <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('stintListTitle')}</p><div class="flex flex-col gap-3 mt-1">
+                                    ${(s.stints || []).map((st, idx) => {
+                                        const prev = idx > 0 ? s.stints[idx-1] : null;
+                                        const check = (c, p) => idx > 0 && c && p && c !== p;
+                                        const badge = (txt, chg) => `<span class="text-[9px] px-1.5 py-0.5 rounded-full border ${chg ? 'border-amber-500 bg-amber-500/20 text-amber-100' : 'border-slate-600 bg-slate-800 text-slate-300'} font-bold whitespace-nowrap">${txt || '-'}</span>`;
+                                        return `<div class="stint-detail-card p-3 rounded-xl border border-slate-800/80 flex flex-col gap-3">
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-[11px] font-bold text-white tracking-tight px-2 py-0.5 rounded border border-white/30 bg-white/5">${getTxt('stintPrefix')} ${idx+1}</span>
+                                                ${st.laps ? `<span class="text-[11px] text-white font-bold px-2 py-0.5 rounded border border-white/30 bg-white/5">${st.laps} Laps</span>` : ''}
+                                            </div>
+                                            <div class="flex gap-4 items-start">
+                                                <div class="grid grid-cols-2 gap-0 border border-slate-700 rounded-md overflow-hidden bg-black/40">
+                                                    <div class="p-1 border-r border-b border-slate-700/50 flex items-center justify-center">${badge(st.tire1Type, check(st.tire1Type, prev?.tire1Type))}</div>
+                                                    <div class="p-1 border-b border-slate-700/50 flex items-center justify-center">${badge(st.tire1Set, check(st.tire1Set, prev?.tire1Set))}</div>
+                                                    <div class="p-1 border-r border-slate-700/50 flex items-center justify-center">${badge(st.tire2Type, check(st.tire2Type, prev?.tire2Type))}</div>
+                                                    <div class="p-1 border-slate-700/50 flex items-center justify-center">${badge(st.tire2Set, check(st.tire2Set, prev?.tire2Set))}</div>
+                                                </div>
+                                                <div class="flex-1 text-slate-300 text-[11px] whitespace-pre-wrap">${st.content || '-'}</div>
+                                            </div>
+                                        </div>`;
+                                    }).join('')}
+                                </div></div>
+                                ${s.note ? `<div><p class="text-[10px] font-bold text-slate-500 uppercase mb-1.5 ml-1">${getTxt('noteTitle')}</p><p class="text-slate-300 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.note}</p></div>` : ''}
+                                <div class="pt-2 border-t border-slate-700/50 flex justify-end"><button onclick="openEditor('${s.id}', ${day})" class="px-3 py-1.5 bg-slate-700 text-slate-200 text-[10px] font-bold rounded-lg border border-slate-600/50">${getTxt('edit')}</button></div>
+                            </div>
+                        </div></div>`;
                 });
-                html += `
-                    <div class="flex min-h-[3.2rem] group cursor-pointer hover:bg-white/[0.01]" onclick="addNewSession(${day})">
-                        <div class="w-16 flex items-center justify-center shrink-0"><span class="text-slate-600 text-lg font-light">+</span></div>
-                        <div class="flex-1 py-2 pr-4 flex items-center">
-                            <div class="w-full bg-[#1c1e24] rounded-lg p-2 border border-dashed border-slate-700/50 flex justify-between items-center"><h4 class="text-xs font-bold text-slate-600">${getTxt('addSession')}</h4></div>
-                        </div>
-                    </div></div></div>`;
+                html += `<div class="flex min-h-[3.2rem] group cursor-pointer hover:bg-white/[0.01]" onclick="addNewSession(${day})">
+                    <div class="w-16 flex items-center justify-center shrink-0"><span class="text-slate-600 text-lg font-light">+</span></div>
+                    <div class="flex-1 py-2 pr-4 flex items-center"><div class="w-full bg-[#1c1e24] rounded-lg p-2 border border-dashed border-slate-700/50 text-xs font-bold text-slate-600">${getTxt('addSession')}</div></div>
+                </div></div></div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
             container.insertAdjacentHTML('beforeend', `<button onclick="addDay()" class="w-full mb-6 py-1.5 border-2 border-dashed border-slate-700/60 rounded-xl text-slate-500 font-bold text-[11px] flex items-center justify-center gap-2">+ ${getTxt('addDay')}</button>`);
             renderChecklist();
-            updateTimers();
         };
 
-        function renderChecklist() {
+        window.renderChecklist = () => {
             const ui = document.getElementById('checklist-ui');
             if (!ui) return;
             const list = window.appState.checklist || [];
             const done = list.filter(i => i && i.checked).length;
             const perc = list.length === 0 ? 0 : Math.round((done/list.length)*100);
-            let html = `
-            <div class="mb-8 border border-slate-700/60 rounded-xl overflow-hidden bg-[#16181d] shadow-lg">
+            let html = `<div class="mb-8 border border-slate-700/60 rounded-xl overflow-hidden bg-[#16181d] shadow-lg">
                 <div class="p-4 border-b border-slate-700/60 bg-[#1c1e24]">
                     <div class="flex justify-between items-center mb-3"><h2 class="text-base font-bold text-slate-100">${getTxt('maintenance')}</h2><span class="text-xs font-bold text-indigo-400">${perc}%</span></div>
                     <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden"><div class="${perc === 100 ? 'bg-green-500' : 'bg-indigo-500'} h-1.5 transition-all" style="width: ${perc}%"></div></div>
-                </div>
-                <div class="p-2 flex flex-col">`;
+                </div><div class="p-2 flex flex-col">`;
             list.forEach((item, i) => {
                 if (!item) return;
-                html += `
-                    <div class="flex items-center justify-between py-1.5 px-3 border-b border-slate-800/60 last:border-none group">
-                        <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="toggleCheck(${i})">
-                            <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center ${item.checked ? 'bg-indigo-500 border-indigo-500' : 'border-slate-500'}">${item.checked ? '✓' : ''}</div>
-                            <span class="text-xs ${item.checked ? 'text-slate-500 line-through' : 'text-slate-300'}">${item.text}</span>
-                        </div>
-                        <button onclick="deleteCheck(${i})" class="text-slate-600 px-2">✕</button>
-                    </div>`;
+                html += `<div class="flex items-center justify-between py-1.5 px-3 border-b border-slate-800/60 last:border-none">
+                    <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="toggleCheck(${i})">
+                        <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center ${item.checked ? 'bg-indigo-500 border-indigo-500' : 'border-slate-500'}">${item.checked ? '✓' : ''}</div>
+                        <span class="text-xs ${item.checked ? 'text-slate-500 line-through' : 'text-slate-300'}">${item.text}</span>
+                    </div><button onclick="deleteCheck(${i})" class="text-slate-600 px-2">✕</button>
+                </div>`;
             });
-            html += `
-                <div class="px-2 py-2">
-                    <div class="bg-[#1e2128] rounded-lg px-3 py-1.5 flex items-center gap-2 transition-all">
-                        <span class="text-slate-500 text-sm font-light leading-none">+</span>
-                        <input type="text" 
-                            onkeydown="if(event.key==='Enter'){addCheck(this);event.preventDefault();}" 
-                            placeholder="${getTxt('phTask')}" 
-                            class="bg-transparent py-0.5 text-[12px] font-medium text-slate-200 w-full border-none focus:outline-none focus:ring-0 p-0 placeholder-slate-600">
-                    </div>
-                </div>
-            </div></div>`;
+            html += `<div class="px-2 py-2"><div class="bg-[#1e2128] rounded-lg px-3 py-1.5 flex items-center gap-2">
+                <span class="text-slate-500 text-sm leading-none">+</span>
+                <input type="text" onkeydown="if(event.key==='Enter'){addCheck(this);event.preventDefault();}" placeholder="Add task..." class="bg-transparent py-0.5 text-[12px] w-full placeholder-slate-600 border-none">
+            </div></div></div></div>`;
             ui.innerHTML = html;
-        }
+        };
 
         window.toggleDetail = (id) => {
-            const el = document.getElementById(`detail-${id}`), icon = document.getElementById(`icon-${id}`);
-            const isCurrentlyHidden = el.classList.contains('hidden');
-
-            document.querySelectorAll('[id^="detail-"]').forEach(detail => {
-                detail.classList.add('hidden');
-            });
-            document.querySelectorAll('[id^="icon-"]').forEach(ic => {
-                ic.style.transform = 'rotate(0deg)';
-            });
-
-            if (isCurrentlyHidden) {
-                el.classList.remove('hidden');
-                if (icon) icon.style.transform = 'rotate(180deg)';
-            }
+            const el = document.getElementById(`detail-${id}`), ic = document.getElementById(`icon-${id}`);
+            const hide = !el.classList.contains('hidden');
+            document.querySelectorAll('[id^="detail-"]').forEach(d => d.classList.add('hidden'));
+            document.querySelectorAll('[id^="icon-"]').forEach(i => i.style.transform = 'rotate(0deg)');
+            if (!hide) { el.classList.remove('hidden'); if (ic) ic.style.transform = 'rotate(180deg)'; }
         };
 
         window.toggleCheck = (i) => { window.appState.checklist[i].checked = !window.appState.checklist[i].checked; window.saveData(); };
-        window.addCheck = (input) => { const v = input.value.trim(); if (!v) return; window.appState.checklist.push({ text: v, checked: false }); input.value = ''; renderChecklist(); window.saveData(); };
-        window.deleteCheck = (i) => { window.appState.checklist.splice(i, 1); renderChecklist(); window.saveData(); };
-        window.addDay = () => { const keys = Object.keys(window.appState.days).map(Number); const n = keys.length > 0 ? Math.max(...keys) + 1 : 1; window.appState.days[n] = []; window.appState.dayTitles[n] = `Day ${n} 일정`; renderAll(); window.saveData(); };
+        window.addCheck = (input) => { const v = input.value.trim(); if (!v) return; window.appState.checklist.push({ text: v, checked: false }); input.value = ''; window.saveData(); };
+        window.deleteCheck = (i) => { window.appState.checklist.splice(i, 1); window.saveData(); };
+        window.addDay = () => { const k = Object.keys(window.appState.days).map(Number); const n = k.length > 0 ? Math.max(...k) + 1 : 1; window.appState.days[n] = []; window.appState.dayTitles[n] = `Day ${n} 일정`; window.saveData(); };
         window.openDayTitleEditor = (d) => { document.getElementById('editing-day-id').value = d; document.getElementById('in-day-title').value = window.appState.dayTitles[d] || ""; document.getElementById('day-title-modal').classList.remove('hidden'); };
-        window.saveDayTitle = () => { const d = document.getElementById('editing-day-id').value; window.appState.dayTitles[d] = document.getElementById('in-day-title').value; document.getElementById('day-title-modal').classList.add('hidden'); renderAll(); window.saveData(); };
-        window.deleteDay = () => { const d = document.getElementById('editing-day-id').value; delete window.appState.days[d]; delete window.appState.dayTitles[d]; document.getElementById('day-title-modal').classList.add('hidden'); renderAll(); window.saveData(); };
+        window.saveDayTitle = () => { const d = document.getElementById('editing-day-id').value; window.appState.dayTitles[d] = document.getElementById('in-day-title').value; document.getElementById('day-title-modal').classList.add('hidden'); window.saveData(); };
+        window.deleteDay = () => { const d = document.getElementById('editing-day-id').value; delete window.appState.days[d]; delete window.appState.dayTitles[d]; document.getElementById('day-title-modal').classList.add('hidden'); window.saveData(); };
 
-        window.openEditor = function(id, day) {
-            editingDayId = day;
-            const s = window.appState.days[day].find(x => x.id === id);
-            if (!s) return;
+        window.selectColor = (el) => {
+            document.querySelectorAll('.color-picker-group').forEach(i => i.classList.remove('active'));
+            el.classList.add('active'); document.getElementById('in-color').value = el.getAttribute('data-color');
+        };
+
+        window.openEditor = (id, day) => {
+            editingDayId = day; const s = window.appState.days[day].find(x => x.id === id); if (!s) return;
             document.getElementById('edit-id').value = id;
             document.getElementById('in-name').value = s.name;
-            document.getElementById('in-time').value = s.time;
+            const t = (s.time || "").split(/[-~]/);
+            document.getElementById('in-start-time').value = t[0]?.trim() || "";
+            document.getElementById('in-end-time').value = t[1]?.trim() || "";
             document.getElementById('in-fuel').value = s.fuel;
             document.getElementById('in-purpose').value = s.purpose;
             document.getElementById('in-note').value = s.note || "";
+            const col = s.color || '#22c55e'; document.getElementById('in-color').value = col;
+            document.querySelectorAll('.color-picker-group').forEach(i => i.classList.toggle('active', i.getAttribute('data-color') === col));
             document.getElementById('stint-rows-container').innerHTML = '';
             if (s.stints) s.stints.forEach(st => window.addStintRow(st.content, st.tire1Type, st.tire1Set, st.tire2Type, st.tire2Set, st.laps));
             else window.addStintRow();
             document.getElementById('modal').classList.remove('hidden');
         };
 
-        window.addNewSession = (day) => { editingDayId = day; document.getElementById('session-form').reset(); document.getElementById('edit-id').value = ""; document.getElementById('stint-rows-container').innerHTML = ''; window.addStintRow(); document.getElementById('modal').classList.remove('hidden'); };
-        window.saveSession = function() {
+        window.addNewSession = (day) => {
+            editingDayId = day; document.getElementById('session-form').reset(); document.getElementById('edit-id').value = "";
+            document.getElementById('in-color').value = "#22c55e";
+            document.querySelectorAll('.color-picker-group').forEach((i, idx) => i.classList.toggle('active', idx === 0));
+            document.getElementById('stint-rows-container').innerHTML = ''; window.addStintRow();
+            document.getElementById('modal').classList.remove('hidden');
+        };
+
+        window.saveSession = () => {
             const sid = document.getElementById('edit-id').value || Date.now().toString();
+            const start = document.getElementById('in-start-time').value.trim(), end = document.getElementById('in-end-time').value.trim();
             const stints = Array.from(document.querySelectorAll('.stint-row')).map(r => ({
                 content: r.querySelector('.stint-content').value,
                 tire1Type: r.querySelector('.stint-tire1-type').value,
@@ -517,17 +409,15 @@
                 tire2Set: r.querySelector('.stint-tire2-set').value,
                 laps: r.querySelector('.stint-laps').value
             }));
-            const data = { id: sid, name: document.getElementById('in-name').value, time: document.getElementById('in-time').value, fuel: parseInt(document.getElementById('in-fuel').value) || 0, purpose: document.getElementById('in-purpose').value, stints: stints, note: document.getElementById('in-note').value };
-            if (!window.appState.days[editingDayId]) window.appState.days[editingDayId] = [];
+            const data = { id: sid, name: document.getElementById('in-name').value, time: start && end ? `${start} - ${end}` : start, fuel: parseInt(document.getElementById('in-fuel').value) || 0, color: document.getElementById('in-color').value, purpose: document.getElementById('in-purpose').value, stints, note: document.getElementById('in-note').value };
             const idx = window.appState.days[editingDayId].findIndex(x => x.id === sid);
             if (idx !== -1) window.appState.days[editingDayId][idx] = data; else window.appState.days[editingDayId].push(data);
-            document.getElementById('modal').classList.add('hidden'); renderAll(); window.saveData();
+            document.getElementById('modal').classList.add('hidden'); window.saveData();
         };
 
-        window.deleteSessionFromModal = () => { const sid = document.getElementById('edit-id').value; window.appState.days[editingDayId] = window.appState.days[editingDayId].filter(x => x.id !== sid); document.getElementById('modal').classList.add('hidden'); renderAll(); window.saveData(); };
+        window.deleteSessionFromModal = () => { window.appState.days[editingDayId] = window.appState.days[editingDayId].filter(x => x.id !== document.getElementById('edit-id').value); document.getElementById('modal').classList.add('hidden'); window.saveData(); };
         window.closeModal = () => document.getElementById('modal').classList.add('hidden');
         window.closeDayTitleModal = () => document.getElementById('day-title-modal').classList.add('hidden');
-
         window.switchCar("#97");
     </script>
 </body>
