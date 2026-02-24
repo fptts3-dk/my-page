@@ -243,11 +243,12 @@
                     </div>
                     <textarea class="stint-content w-full bg-black/20 border border-slate-700/50 rounded-xl p-3 text-sm focus:ring-1 focus:ring-indigo-500 min-h-[60px]" placeholder="${getTxt('phStint')}">${content}</textarea>
                     
+                    <!-- 타이어 입력 그리드: 가로 순서로 배치하여 Tab 순서 보장 (FL -> FR -> RL -> RR) -->
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="text" class="stint-tire1-type w-full text-[11px] h-[34px]" placeholder="FL Tire" value="${t1Type}">
-                        <input type="text" class="stint-tire1-set w-full text-[11px] h-[34px]" placeholder="FR Tire" value="${t1Set}">
-                        <input type="text" class="stint-tire2-type w-full text-[11px] h-[34px]" placeholder="RL Tire" value="${t2Type}">
-                        <input type="text" class="stint-tire2-set w-full text-[11px] h-[34px]" placeholder="RR Tire" value="${t2Set}">
+                        <input type="text" class="stint-tire1-type w-full text-[11px] h-[34px]" placeholder="FL Tire No." value="${t1Type}">
+                        <input type="text" class="stint-tire1-set w-full text-[11px] h-[34px]" placeholder="FR Tire No." value="${t1Set}">
+                        <input type="text" class="stint-tire2-type w-full text-[11px] h-[34px]" placeholder="RL Tire No." value="${t2Type}">
+                        <input type="text" class="stint-tire2-set w-full text-[11px] h-[34px]" placeholder="RR Tire No." value="${t2Set}">
                     </div>
                 </div>`;
             container.insertAdjacentHTML('beforeend', html);
