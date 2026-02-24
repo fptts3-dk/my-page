@@ -391,7 +391,6 @@
                 const target = document.getElementById(`session-row-${nextSId}`);
                 if (target) {
                     target.classList.remove('border-transparent');
-                    // 점선에서 다시 실선(border-solid)으로 변경
                     target.classList.add('border-solid', 'border-yellow-400', 'bg-white/[0.04]');
                 }
             }
@@ -427,59 +426,61 @@
                     
                     html += `
                     <div class="flex flex-col border-b border-slate-800/60 last:border-none">
-                        <div id="session-row-${s.id}" class="flex min-h-[4.5rem] group cursor-pointer hover:bg-white/[0.02] transition-all duration-300 mx-1 rounded-xl border-2 border-transparent" onclick="toggleDetail('${s.id}')">
-                            <div class="w-16 flex flex-col items-center justify-center shrink-0 pt-1">
-                                <span class="text-[13px] font-bold text-slate-200 -mb-1">${startStr}</span>
-                                <span class="text-[10px] text-slate-500 font-medium">${dur}</span>
-                                <div id="live-timer-${s.id}" class="font-mono"></div>
-                            </div>
-                            <div class="flex-1 py-3 pr-4 flex items-center">
-                                <div class="w-full bg-[#20232a] rounded-lg p-3 border-l-4 ${colors[firstTire] || 'border-blue-500'} flex justify-between items-center shadow-sm">
-                                    <div class="min-w-0 pr-2">
-                                        <h4 class="text-[13px] font-bold text-slate-100 truncate">${s.name}</h4>
-                                        <p class="text-[11px] text-slate-300 font-semibold truncate mt-0.5">${s.fuel}L • ${s.purpose || '-'}</p>
-                                        <p class="text-[10px] text-slate-500 truncate mt-0.5">${summary}</p>
+                        <div id="session-row-${s.id}" class="flex flex-col mx-1 rounded-xl border-2 border-transparent transition-all duration-300">
+                            <div class="flex min-h-[4.5rem] group cursor-pointer hover:bg-white/[0.02] rounded-t-xl" onclick="toggleDetail('${s.id}')">
+                                <div class="w-16 flex flex-col items-center justify-center shrink-0 pt-1">
+                                    <span class="text-[13px] font-bold text-slate-200 -mb-1">${startStr}</span>
+                                    <span class="text-[10px] text-slate-500 font-medium">${dur}</span>
+                                    <div id="live-timer-${s.id}" class="font-mono"></div>
+                                </div>
+                                <div class="flex-1 py-3 pr-4 flex items-center">
+                                    <div class="w-full bg-[#20232a] rounded-lg p-3 border-l-4 ${colors[firstTire] || 'border-blue-500'} flex justify-between items-center shadow-sm">
+                                        <div class="min-w-0 pr-2">
+                                            <h4 class="text-[13px] font-bold text-slate-100 truncate">${s.name}</h4>
+                                            <p class="text-[11px] text-slate-300 font-semibold truncate mt-0.5">${s.fuel}L • ${s.purpose || '-'}</p>
+                                            <p class="text-[10px] text-slate-500 truncate mt-0.5">${summary}</p>
+                                        </div>
+                                        <svg id="icon-${s.id}" class="transition-transform duration-200 text-slate-600" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 9l6 6 6-6"/></svg>
                                     </div>
-                                    <svg id="icon-${s.id}" class="transition-transform duration-200 text-slate-600" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 9l6 6 6-6"/></svg>
                                 </div>
                             </div>
-                        </div>
-                        <div id="detail-${s.id}" class="hidden px-4 pb-4">
-                            <div class="bg-[#1c1e24] border border-slate-700/50 rounded-lg p-4 space-y-4 shadow-inner text-sm">
-                                <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('purposeTitle')}</p><p class="text-slate-200 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.purpose || '-'}</p></div>
-                                <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('stintListTitle')}</p><div class="flex flex-col gap-3 mt-1">
-                                    ${(() => {
-                                        const seen = new Set(), origins = new Map();
-                                        return (s.stints || []).map((st, idx) => {
-                                            let autoSwap = (idx > 0 && st.tire1Set === s.stints[idx-1].tire2Set && st.tire2Set === s.stints[idx-1].tire1Set);
-                                            const ck = (t, sid) => { if(!seen.has(sid)){ seen.add(sid); origins.set(sid, t.startsWith('new')); return false; } return origins.get(sid) === true; };
-                                            const r1 = ck(st.tire1Type, st.tire1Set), r2 = ck(st.tire2Type, st.tire2Set);
-                                            const badge = (t, s, r) => {
-                                                let cls = "text-[11px] px-2 py-0.5 rounded-full border font-bold shadow-sm whitespace-nowrap ", txt = "";
-                                                if(r){ cls += "bg-orange-600/20 border-orange-600/50"; txt = "text-orange-400"; }
-                                                else if(t.startsWith('new')){ cls += "bg-emerald-500/20 border-emerald-500/30"; txt = "text-emerald-400"; }
-                                                else if(t === 'swap' || autoSwap){ cls += "bg-slate-900 border-slate-800"; txt = "text-slate-400"; }
-                                                else { cls += "bg-slate-500/20 border-slate-500/30"; txt = "text-slate-300"; }
-                                                return `<span class="${cls}"><span class="${txt}">${i18n[currentCar].tires[t] || t}</span> <span class="text-slate-100 font-mono text-[9px] ml-0.5">(${s})</span></span>`;
-                                            };
-                                            return `
-                                            <div class="bg-black/20 p-3 rounded-xl border border-slate-800 flex flex-col gap-2 transition-all">
-                                                <div class="flex justify-between items-start flex-wrap gap-2">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="text-[10px] font-bold text-indigo-400 uppercase">${getTxt('stintPrefix')} ${idx + 1}</span>
-                                                        ${st.laps ? `<span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30 font-bold">${st.laps} Laps</span>` : ''}
-                                                        ${autoSwap && !(r1 || r2) ? `<span class="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/30 font-bold">Swap</span>` : ''}
+                            <div id="detail-${s.id}" class="hidden px-4 pb-4">
+                                <div class="bg-[#1c1e24] border border-slate-700/50 rounded-lg p-4 space-y-4 shadow-inner text-sm">
+                                    <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('purposeTitle')}</p><p class="text-slate-200 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.purpose || '-'}</p></div>
+                                    <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('stintListTitle')}</p><div class="flex flex-col gap-3 mt-1">
+                                        ${(() => {
+                                            const seen = new Set(), origins = new Map();
+                                            return (s.stints || []).map((st, idx) => {
+                                                let autoSwap = (idx > 0 && st.tire1Set === s.stints[idx-1].tire2Set && st.tire2Set === s.stints[idx-1].tire1Set);
+                                                const ck = (t, sid) => { if(!seen.has(sid)){ seen.add(sid); origins.set(sid, t.startsWith('new')); return false; } return origins.get(sid) === true; };
+                                                const r1 = ck(st.tire1Type, st.tire1Set), r2 = ck(st.tire2Type, st.tire2Set);
+                                                const badge = (t, s, r) => {
+                                                    let cls = "text-[11px] px-2 py-0.5 rounded-full border font-bold shadow-sm whitespace-nowrap ", txt = "";
+                                                    if(r){ cls += "bg-orange-600/20 border-orange-600/50"; txt = "text-orange-400"; }
+                                                    else if(t.startsWith('new')){ cls += "bg-emerald-500/20 border-emerald-500/30"; txt = "text-emerald-400"; }
+                                                    else if(t === 'swap' || autoSwap){ cls += "bg-slate-900 border-slate-800"; txt = "text-slate-400"; }
+                                                    else { cls += "bg-slate-500/20 border-slate-500/30"; txt = "text-slate-300"; }
+                                                    return `<span class="${cls}"><span class="${txt}">${i18n[currentCar].tires[t] || t}</span> <span class="text-slate-100 font-mono text-[9px] ml-0.5">(${s})</span></span>`;
+                                                };
+                                                return `
+                                                <div class="bg-black/20 p-3 rounded-xl border border-slate-800 flex flex-col gap-2 transition-all">
+                                                    <div class="flex justify-between items-start flex-wrap gap-2">
+                                                        <div class="flex items-center gap-2">
+                                                            <span class="text-[10px] font-bold text-indigo-400 uppercase">${getTxt('stintPrefix')} ${idx + 1}</span>
+                                                            ${st.laps ? `<span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30 font-bold">${st.laps} Laps</span>` : ''}
+                                                            ${autoSwap && !(r1 || r2) ? `<span class="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/30 font-bold">Swap</span>` : ''}
+                                                        </div>
+                                                        <div class="flex gap-1 flex-wrap justify-end">${badge(st.tire1Type, st.tire1Set, r1)}${badge(st.tire2Type, st.tire2Set, r2)}</div>
                                                     </div>
-                                                    <div class="flex gap-1 flex-wrap justify-end">${badge(st.tire1Type, st.tire1Set, r1)}${badge(st.tire2Type, st.tire2Set, r2)}</div>
-                                                </div>
-                                                <p class="text-slate-300 text-[13px] leading-relaxed whitespace-pre-wrap">${st.content || '-'}</p>
-                                            </div>`;
-                                        }).join('');
-                                    })()}
-                                </div></div>
-                                ${generateTirePlanHTML(s.stints)}
-                                ${s.note ? `<div><p class="text-[10px] font-bold text-slate-500 uppercase mb-1.5 ml-1">${getTxt('noteTitle')}</p><p class="text-slate-300 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.note}</p></div>` : ''}
-                                <div class="pt-2 border-t border-slate-700/50 flex justify-end"><button onclick="openEditor('${s.id}', ${day})" class="px-3.5 py-2 bg-slate-700 text-slate-200 text-[11px] font-bold rounded-lg border border-slate-600/50">${getTxt('edit')}</button></div>
+                                                    <p class="text-slate-300 text-[13px] leading-relaxed whitespace-pre-wrap">${st.content || '-'}</p>
+                                                </div>`;
+                                            }).join('');
+                                        })()}
+                                    </div></div>
+                                    ${generateTirePlanHTML(s.stints)}
+                                    ${s.note ? `<div><p class="text-[10px] font-bold text-slate-500 uppercase mb-1.5 ml-1">${getTxt('noteTitle')}</p><p class="text-slate-300 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.note}</p></div>` : ''}
+                                    <div class="pt-2 border-t border-slate-700/50 flex justify-end"><button onclick="openEditor('${s.id}', ${day})" class="px-3 py-1.5 bg-slate-700 text-slate-200 text-[10px] font-bold rounded-lg border border-slate-600/50">${getTxt('edit')}</button></div>
+                                </div>
                             </div>
                         </div>
                     </div>`;
@@ -493,7 +494,6 @@
                     </div></div></div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
-
             container.insertAdjacentHTML('beforeend', `<button onclick="addDay()" class="w-full mb-6 py-1.5 border-2 border-dashed border-slate-700/60 rounded-xl text-slate-500 font-bold flex items-center justify-center gap-2">+ ${getTxt('addDay')}</button>`);
             renderChecklist();
             updateTimers();
