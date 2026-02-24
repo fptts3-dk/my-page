@@ -288,13 +288,14 @@
                     if (!start || !end) return;
 
                     if (now < start) { 
-                        timerEl.textContent = `-${formatDuration(start - now)}`; 
-                        timerEl.className = "text-[11px] font-bold mt-1 text-slate-500 font-mono"; 
+                        // 마이너스 표시 제거
+                        timerEl.textContent = formatDuration(start - now); 
+                        timerEl.className = "text-[11px] font-bold text-slate-500 font-mono leading-none"; 
                         const diff = start - now;
                         if (diff < minDiff) { minDiff = diff; nextSId = s.id; }
                     } 
-                    else if (now > end) { timerEl.textContent = "0:00"; timerEl.className = "text-[11px] font-bold mt-1 text-red-500/60 font-mono"; }
-                    else { timerEl.textContent = formatDuration(end - now); timerEl.className = "text-[11px] font-bold mt-1 text-indigo-400 font-mono animate-pulse"; }
+                    else if (now > end) { timerEl.textContent = "0:00"; timerEl.className = "text-[11px] font-bold text-red-500/60 font-mono leading-none"; }
+                    else { timerEl.textContent = formatDuration(end - now); timerEl.className = "text-[11px] font-bold text-indigo-400 font-mono animate-pulse leading-none"; }
                 });
             });
 
@@ -336,10 +337,10 @@
                     <div class="flex flex-col border-b border-slate-800/60 last:border-none">
                         <div id="session-row-${s.id}" class="flex flex-col mx-1 rounded-xl border-2 border-transparent transition-all duration-300" onclick="toggleDetail('${s.id}')">
                             <div class="flex min-h-[4.5rem] group cursor-pointer hover:bg-white/[0.02] rounded-t-xl">
-                                <div class="w-16 flex flex-col items-center justify-center shrink-0 pt-1">
-                                    <span class="text-[13px] font-bold text-slate-200 -mb-1">${startStr}</span>
-                                    <span class="text-[10px] text-slate-500 font-medium">${dur}</span>
-                                    <div id="live-timer-${s.id}" class="font-mono"></div>
+                                <div class="w-16 flex flex-col items-center justify-center shrink-0 space-y-1 py-3">
+                                    <span class="text-[13px] font-bold text-slate-200 leading-none">${startStr}</span>
+                                    <span class="text-[10px] text-slate-500 font-medium leading-none">${dur}</span>
+                                    <div id="live-timer-${s.id}" class="font-mono leading-none"></div>
                                 </div>
                                 <div class="flex-1 py-3 pr-4 flex items-center">
                                     <div class="w-full bg-[#20232a] rounded-lg p-3 border-l-4 border-indigo-500 flex justify-between items-center shadow-sm">
@@ -402,7 +403,8 @@
                     </div></div></div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
-            container.insertAdjacentHTML('beforeend', `<button onclick="addDay()" class="w-full mb-6 py-1.5 border-2 border-dashed border-slate-700/60 rounded-xl text-slate-500 font-bold flex items-center justify-center gap-2">+ ${getTxt('addDay')}</button>`);
+            // 일정 추가 버튼 폰트 사이즈 줄임 (text-[11px])
+            container.insertAdjacentHTML('beforeend', `<button onclick="addDay()" class="w-full mb-6 py-1.5 border-2 border-dashed border-slate-700/60 rounded-xl text-slate-500 font-bold text-[11px] flex items-center justify-center gap-2">+ ${getTxt('addDay')}</button>`);
             renderChecklist();
             updateTimers();
         };
