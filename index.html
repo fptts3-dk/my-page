@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Session Plan</title>
+    <title>Race Engineer App - Realtime</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -50,7 +50,7 @@
             height: 20px;
             border: 1px solid #2d333d;
             font-size: 8px; 
-            font-weight: 400; /* 볼드체 해제 */
+            font-weight: 400; 
             display: flex;
             align-items: center;
             justify-content: center;
@@ -147,7 +147,7 @@
                     <input type="text" id="in-day-title" class="w-full rounded-xl p-3.5 text-sm">
                 </div>
                 <div class="flex gap-3 mt-6">
-                    <button id="btn-day-delete" onclick="deleteDay()" class="px-5 bg-red-500/10 text-red-500 py-3.5 rounded-xl text-sm font-bold">Delete Day</button>
+                    <button id="btn-day-delete" onclick="deleteDay()" class="px-5 bg-red-500/10 text-red-500 py-3.5 rounded-xl text-sm font-bold hover:bg-red-500/20">Delete Day</button>
                     <button id="btn-day-apply" onclick="saveDayTitle()" class="flex-1 bg-slate-100 text-slate-900 py-3.5 rounded-xl text-sm font-bold">Apply</button>
                 </div>
             </div>
@@ -243,6 +243,7 @@
 
         window.addStintRow = function(content = '', t1Type = 'new_dry', t1Set = 'Set1', t2Type = 'new_dry', t2Set = 'Set2', laps = '') {
             const container = document.getElementById('stint-rows-container');
+            const stintCount = container.querySelectorAll('.stint-row').length;
             const rowId = 'stint-row-' + Date.now() + Math.random().toString(36).substr(2, 5);
             let t1Opt = "", t2Opt = "";
             for (const [val, label] of Object.entries(i18n[currentCar].tires)) {
@@ -252,7 +253,7 @@
             const html = `
                 <div id="${rowId}" class="stint-row space-y-2 p-3 bg-[#1e2128] rounded-xl border border-slate-700/50 row-item shadow-sm">
                     <div class="flex justify-between items-center">
-                        <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">${getTxt('stintPrefix')}</span>
+                        <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">${getTxt('stintPrefix')} ${stintCount+1}</span>
                         <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-slate-500">✕</button>
                     </div>
                     <input type="text" class="stint-content w-full bg-transparent border-none p-0 text-sm focus:ring-0" placeholder="${getTxt('phStint')}" value="${content}">
@@ -288,7 +289,6 @@
             const lapConfig = [];
             const originIsNew = new Map(); 
             const setsSeen = new Set();
-
             stints.forEach((st, idx) => {
                 const count = parseInt(st.laps) || 0;
                 if (count > 0) {
@@ -305,11 +305,9 @@
                     totalLaps += count;
                 }
             });
-
             if (totalLaps === 0) return '';
             const displayLaps = Math.max(totalLaps, 10);
             const getTCls = (type, swap, reused) => reused ? 'tire-reused' : (swap ? 'tire-swap' : (type.startsWith('new') ? 'tire-new' : 'tire-used'));
-
             const renderRow = (label, tKey, sKey, rKey) => {
                 let cells = '';
                 for (let i = 1; i <= displayLaps; i++) {
@@ -322,10 +320,8 @@
                 }
                 return `<div class="flex items-center"><div class="w-10 text-[10px] font-bold text-slate-500 shrink-0 uppercase">${label}</div><div class="flex">${cells}</div></div>`;
             };
-
             let hdr = '';
             for (let i = 1; i <= displayLaps; i++) hdr += `<div class="tire-grid-cell border-none text-[8px] font-medium">${i}</div>`;
-
             return `
                 <div class="mt-4 pt-4 border-t border-slate-800/50">
                     <div class="text-[10px] font-black text-slate-600 uppercase mb-2 tracking-widest flex justify-center items-center">
@@ -362,18 +358,43 @@
 
         function updateTimers() {
             const now = new Date();
+            let nextSId = null;
+            let minDiff = Infinity;
+
             Object.keys(window.appState.days).forEach(dayKey => {
                 (window.appState.days[dayKey] || []).forEach(s => {
                     const timerEl = document.getElementById(`live-timer-${s.id}`);
+                    const rowEl = document.getElementById(`session-row-${s.id}`);
                     if (!timerEl) return;
                     const tArr = (s.time || "").split(/[-~]/);
                     const start = parseTimeToDate(tArr[0]), end = parseTimeToDate(tArr[1]);
+                    
+                    if (rowEl) {
+                        rowEl.classList.remove('border-yellow-400', 'bg-white/[0.04]', 'border-solid');
+                        rowEl.classList.add('border-transparent');
+                    }
+
                     if (!start || !end) return;
-                    if (now < start) { timerEl.textContent = `-${formatDuration(start - now)}`; timerEl.className = "text-[11px] font-bold mt-1 text-slate-500 font-mono"; }
+
+                    if (now < start) { 
+                        timerEl.textContent = `-${formatDuration(start - now)}`; 
+                        timerEl.className = "text-[11px] font-bold mt-1 text-slate-500 font-mono"; 
+                        const diff = start - now;
+                        if (diff < minDiff) { minDiff = diff; nextSId = s.id; }
+                    } 
                     else if (now > end) { timerEl.textContent = "0:00"; timerEl.className = "text-[11px] font-bold mt-1 text-red-500/60 font-mono"; }
                     else { timerEl.textContent = formatDuration(end - now); timerEl.className = "text-[11px] font-bold mt-1 text-indigo-400 font-mono animate-pulse"; }
                 });
             });
+
+            if (nextSId) {
+                const target = document.getElementById(`session-row-${nextSId}`);
+                if (target) {
+                    target.classList.remove('border-transparent');
+                    // 점선에서 다시 실선(border-solid)으로 변경
+                    target.classList.add('border-solid', 'border-yellow-400', 'bg-white/[0.04]');
+                }
+            }
         }
         setInterval(updateTimers, 1000);
 
@@ -391,7 +412,7 @@
                         <h2 class="text-base font-bold text-slate-100">${titlesMap[day] || `Day ${day}`}</h2>
                         <button onclick="openDayTitleEditor(${day})" class="text-slate-400">⚙️</button>
                     </div>
-                    <div class="flex flex-col">`;
+                    <div class="flex flex-col py-1">`;
 
                 if (sessions.length === 0) html += `<div class="p-6 text-center text-xs text-slate-500 italic">${getTxt('noSessions')}</div>`;
 
@@ -406,7 +427,7 @@
                     
                     html += `
                     <div class="flex flex-col border-b border-slate-800/60 last:border-none">
-                        <div class="flex min-h-[4.5rem] group cursor-pointer hover:bg-white/[0.02]" onclick="toggleDetail('${s.id}')">
+                        <div id="session-row-${s.id}" class="flex min-h-[4.5rem] group cursor-pointer hover:bg-white/[0.02] transition-all duration-300 mx-1 rounded-xl border-2 border-transparent" onclick="toggleDetail('${s.id}')">
                             <div class="w-16 flex flex-col items-center justify-center shrink-0 pt-1">
                                 <span class="text-[13px] font-bold text-slate-200 -mb-1">${startStr}</span>
                                 <span class="text-[10px] text-slate-500 font-medium">${dur}</span>
@@ -475,6 +496,7 @@
 
             container.insertAdjacentHTML('beforeend', `<button onclick="addDay()" class="w-full mb-6 py-1.5 border-2 border-dashed border-slate-700/60 rounded-xl text-slate-500 font-bold flex items-center justify-center gap-2">+ ${getTxt('addDay')}</button>`);
             renderChecklist();
+            updateTimers();
         };
 
         function renderChecklist() {
@@ -561,4 +583,3 @@
     </script>
 </body>
 </html>
-
