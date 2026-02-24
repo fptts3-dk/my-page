@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Race Engineer App - Realtime</title>
+    <title>📝 Session Plan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -20,6 +20,18 @@
             color: #f1f5f9 !important;
             border: 1px solid #334155 !important;
             appearance: none; 
+        }
+
+        /* 숫자 입력창 화살표(Spin Button) 완전 제거 */
+        /* Chrome, Safari, Edge, Opera */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
         }
         
         select {
@@ -426,8 +438,8 @@
                     
                     html += `
                     <div class="flex flex-col border-b border-slate-800/60 last:border-none">
-                        <div id="session-row-${s.id}" class="flex flex-col mx-1 rounded-xl border-2 border-transparent transition-all duration-300">
-                            <div class="flex min-h-[4.5rem] group cursor-pointer hover:bg-white/[0.02] rounded-t-xl" onclick="toggleDetail('${s.id}')">
+                        <div id="session-row-${s.id}" class="flex flex-col mx-1 rounded-xl border-2 border-transparent transition-all duration-300" onclick="toggleDetail('${s.id}')">
+                            <div class="flex min-h-[4.5rem] group cursor-pointer hover:bg-white/[0.02] rounded-t-xl">
                                 <div class="w-16 flex flex-col items-center justify-center shrink-0 pt-1">
                                     <span class="text-[13px] font-bold text-slate-200 -mb-1">${startStr}</span>
                                     <span class="text-[10px] text-slate-500 font-medium">${dur}</span>
