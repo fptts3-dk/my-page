@@ -236,7 +236,6 @@
                 <div id="${rowId}" class="stint-row space-y-3 p-4 bg-[#1e2128] rounded-2xl border border-slate-700/50 row-item shadow-md">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-2">
-                            <!-- 수정된 부분: 흰색 텍스트 유지 + 얇은 테두리와 반투명 배경 추가 -->
                             <span class="text-[10px] font-bold text-white uppercase tracking-widest px-2 py-0.5 rounded border border-white/30 bg-white/5">${getTxt('stintPrefix')} ${stintCount+1}</span>
                             <input type="number" class="stint-laps w-[60px] bg-indigo-900/20 border-indigo-500/20 text-[11px] font-bold text-center h-[28px] rounded-lg" placeholder="${getTxt('phLaps')}" value="${laps}">
                         </div>
@@ -357,16 +356,33 @@
                                     <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('purposeTitle')}</p><p class="text-slate-200 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.purpose || '-'}</p></div>
                                     <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('stintListTitle')}</p><div class="flex flex-col gap-3 mt-1">
                                         ${(s.stints || []).map((st, idx) => {
-                                            const badge = (text) => {
+                                            // 타이어 변경 감지 로직 (Stint 1 제외)
+                                            const prevStint = idx > 0 ? s.stints[idx - 1] : null;
+                                            
+                                            // 변경 확인 함수 (idx > 0 일 때만 활성화)
+                                            const isChanged = (curr, prev) => {
+                                                if (idx === 0) return false; // Stint 1은 무조건 색상 안바뀜
+                                                return prev !== undefined && curr !== "" && prev !== "" && curr !== prev;
+                                            };
+
+                                            const flChanged = isChanged(st.tire1Type, prevStint?.tire1Type);
+                                            const frChanged = isChanged(st.tire1Set, prevStint?.tire1Set);
+                                            const rlChanged = isChanged(st.tire2Type, prevStint?.tire2Type);
+                                            const rrChanged = isChanged(st.tire2Set, prevStint?.tire2Set);
+
+                                            const badge = (text, changed) => {
                                                 if (!text) return '<span class="text-[9px] text-slate-700">-</span>';
-                                                return `<span class="text-[9px] px-1.5 py-0.5 rounded-full border border-slate-600 bg-slate-800 font-bold text-slate-300 shadow-sm whitespace-nowrap">${text}</span>`;
+                                                // 변경 시 Amber 색상으로 강조
+                                                const colorClass = changed 
+                                                    ? 'border-amber-500 bg-amber-500/20 text-amber-100 shadow-[0_0_8px_rgba(245,158,11,0.25)]' 
+                                                    : 'border-slate-600 bg-slate-800 text-slate-300';
+                                                return `<span class="text-[9px] px-1.5 py-0.5 rounded-full border ${colorClass} font-bold shadow-sm whitespace-nowrap transition-colors">${text}</span>`;
                                             };
 
                                             return `
                                             <div class="stint-detail-card p-3 rounded-xl border border-slate-800/80 flex flex-col gap-3 transition-all">
                                                 <div class="flex justify-between items-center">
                                                     <div class="flex items-center gap-2">
-                                                        <!-- 수정된 부분: 흰색 텍스트 유지 + 테두리/배경 추가 -->
                                                         <span class="text-[10px] font-bold text-white uppercase tracking-widest px-2 py-0.5 rounded border border-white/30 bg-white/5">${getTxt('stintPrefix')} ${idx + 1}</span>
                                                         ${st.laps ? `<span class="text-[11px] text-white font-bold ml-1">${st.laps} Laps</span>` : ''}
                                                     </div>
@@ -375,10 +391,10 @@
                                                 <div class="flex gap-4 items-start">
                                                     <div class="shrink-0 mt-1">
                                                         <div class="grid grid-cols-2 gap-0 border border-slate-700 rounded-md overflow-hidden bg-black/40 shadow-lg">
-                                                            <div class="p-1 border-r border-b border-slate-700/50 flex items-center justify-center">${badge(st.tire1Type)}</div>
-                                                            <div class="p-1 border-b border-slate-700/50 flex items-center justify-center">${badge(st.tire1Set)}</div>
-                                                            <div class="p-1 border-r border-slate-700/50 flex items-center justify-center">${badge(st.tire2Type)}</div>
-                                                            <div class="p-1 border-slate-700/50 flex items-center justify-center">${badge(st.tire2Set)}</div>
+                                                            <div class="p-1 border-r border-b border-slate-700/50 flex items-center justify-center">${badge(st.tire1Type, flChanged)}</div>
+                                                            <div class="p-1 border-b border-slate-700/50 flex items-center justify-center">${badge(st.tire1Set, frChanged)}</div>
+                                                            <div class="p-1 border-r border-slate-700/50 flex items-center justify-center">${badge(st.tire2Type, rlChanged)}</div>
+                                                            <div class="p-1 border-slate-700/50 flex items-center justify-center">${badge(st.tire2Set, rrChanged)}</div>
                                                         </div>
                                                     </div>
                                                     <div class="flex-1 min-w-0">
