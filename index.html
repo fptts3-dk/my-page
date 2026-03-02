@@ -247,6 +247,7 @@
             return `${Math.floor(m / 60)}:${(m % 60).toString().padStart(2, '0')}`;
         };
 
+        // 타이머 및 하이라이트 로직 수정
         setInterval(() => {
             const now = new Date();
             let nextSId = null;
@@ -270,21 +271,27 @@
                     if (!start || !end) return;
 
                     if (now < start) { 
+                        // 대기 중 (아직 시작 안 한 세션 중 가장 가까운 것 찾기)
                         timerEl.textContent = formatDur(start - now); 
                         timerEl.className = "text-[11px] font-bold text-slate-500 font-mono";
                         const diff = start - now;
-                        if (diff < minDiff) { minDiff = diff; nextSId = s.id; }
+                        if (diff < minDiff) { 
+                            minDiff = diff; 
+                            nextSId = s.id; 
+                        }
                     } else if (now > end) { 
+                        // 종료됨
                         timerEl.textContent = "0:00"; 
                         timerEl.className = "text-[11px] font-bold text-red-500/60 font-mono"; 
                     } else { 
+                        // 진행 중 (테두리 하이라이트에서 제외하기 위해 nextSId를 업데이트하지 않음)
                         timerEl.textContent = formatDur(end - now); 
                         timerEl.className = "text-[11px] font-bold text-indigo-400 font-mono animate-pulse";
-                        nextSId = s.id;
                     }
                 });
             });
 
+            // 오직 아직 시작하지 않은 'Next Session'에만 테두리 표시
             if (nextSId) {
                 const target = document.getElementById(`session-row-${nextSId}`);
                 if (target) {
@@ -294,17 +301,16 @@
             }
         }, 1000);
 
-        window.renderAll = () => {
+        window.renderAll = function() {
             const container = document.getElementById('timeline-container');
             const addDayContainer = document.getElementById('add-day-ui');
             if (!container || !addDayContainer) return;
 
             container.innerHTML = '';
-            // dayTitles를 기준으로 루프를 돌아 빈 일정도 표시되게 수정
             const dayIds = Object.keys(window.appState.dayTitles).map(Number).sort((a,b)=>a-b);
             
             dayIds.forEach(day => {
-                if (day === 0) return; // Firebase 배열 변환 시 생기는 인덱스 0 방지
+                if (day === 0) return;
                 const sessions = window.appState.days[day] || [];
                 let html = `<div class="mb-6 border border-slate-700/60 rounded-xl overflow-hidden bg-[#16181d] shadow-lg">
                     <div class="p-4 border-b border-slate-700/60 flex justify-between items-center bg-[#1c1e24]">
@@ -418,16 +424,12 @@
         window.deleteCheck = (i) => { window.appState.checklist.splice(i, 1); window.saveData(); };
         
         window.addDay = () => { 
-            // dayTitles 기준으로 다음 번호 계산
             const k = Object.keys(window.appState.dayTitles).map(Number); 
             const n = k.length > 0 ? Math.max(...k) + 1 : 1; 
             if (!window.appState.days) window.appState.days = {};
             if (!window.appState.dayTitles) window.appState.dayTitles = {};
-            
             window.appState.days[n] = []; 
             window.appState.dayTitles[n] = `Day ${n} 일정`; 
-            
-            // 즉시 렌더링 및 저장
             renderAll();
             window.saveData(); 
         };
