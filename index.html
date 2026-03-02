@@ -29,7 +29,7 @@
         .row-item input, .row-item textarea {
             background-color: #262932 !important;
             border: 1px solid #3f4451 !important;
-            font-size: 14px !important;
+            font-size: 13px !important;
             padding: 0.5rem 0.75rem !important;
             border-radius: 0.75rem !important;
         }
@@ -66,47 +66,47 @@
         <div id="modal" class="fixed inset-0 z-50 hidden flex flex-col items-center justify-end sm:justify-center">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeModal()"></div>
             <div class="w-full max-w-[480px] bg-[#16181d] rounded-t-3xl sm:rounded-3xl z-10 flex flex-col max-h-[90vh] border border-slate-700/50 shadow-2xl transition-transform">
-                <div class="p-5 border-b border-slate-800 flex justify-between items-center shrink-0">
-                    <h3 id="modal-session-title" class="text-lg font-extrabold text-white">Edit Session</h3>
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center shrink-0">
+                    <h3 id="modal-session-title" class="text-base font-bold text-white uppercase tracking-tight">Edit Session</h3>
                     <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center text-slate-400">✕</button>
                 </div>
-                <form id="session-form" class="p-5 space-y-6 overflow-y-auto" onsubmit="event.preventDefault();">
+                <form id="session-form" class="p-5 space-y-5 overflow-y-auto" onsubmit="event.preventDefault();">
                     <input type="hidden" id="edit-id">
-                    <div class="space-y-5">
+                    <div class="space-y-4">
                         <div>
-                            <label class="text-[12px] font-bold text-white uppercase tracking-widest block mb-2 ml-1">Session Title</label>
-                            <input type="text" id="in-name" class="w-full rounded-xl py-2 px-4 text-base font-bold">
+                            <label id="lbl-modal-title" class="text-[11px] font-bold text-white uppercase tracking-widest block mb-1.5 ml-1">Session Title</label>
+                            <input type="text" id="in-name" class="w-full rounded-xl py-2 px-4 text-[15px] font-bold">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="text-[12px] font-bold text-white uppercase tracking-widest block mb-2 ml-1">Start Time</label>
-                                <input type="text" id="in-start-time" class="w-full rounded-xl py-2 px-4 text-sm font-bold font-mono" placeholder="09:00">
+                                <label id="lbl-modal-start" class="text-[11px] font-bold text-white uppercase tracking-widest block mb-1.5 ml-1">Start Time</label>
+                                <input type="text" id="in-start-time" class="w-full rounded-xl py-2 px-4 text-[13px] font-bold font-mono" placeholder="09:00">
                             </div>
                             <div>
-                                <label class="text-[12px] font-bold text-white uppercase tracking-widest block mb-2 ml-1">End Time</label>
-                                <input type="text" id="in-end-time" class="w-full rounded-xl py-2 px-4 text-sm font-bold font-mono" placeholder="09:30">
+                                <label id="lbl-modal-end" class="text-[11px] font-bold text-white uppercase tracking-widest block mb-1.5 ml-1">End Time</label>
+                                <input type="text" id="in-end-time" class="w-full rounded-xl py-2 px-4 text-[13px] font-bold font-mono" placeholder="09:30">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="text-[12px] font-bold text-white uppercase tracking-widest block mb-2 ml-1">Fuel (L)</label>
-                                <input type="number" id="in-fuel" class="w-full rounded-xl py-2 px-4 text-base font-bold font-mono">
+                                <label id="lbl-modal-fuel" class="text-[11px] font-bold text-white uppercase tracking-widest block mb-1.5 ml-1">Fuel (L)</label>
+                                <input type="number" id="in-fuel" class="w-full rounded-xl py-2 px-4 text-[15px] font-bold font-mono">
                             </div>
                             <div class="flex flex-col">
-                                <label id="lbl-session-color-lbl" class="text-[12px] font-bold text-white uppercase tracking-widest block mb-3 ml-1">세션 타이어 색상</label>
-                                <div class="flex gap-4 px-1 mt-1" id="color-picker-container">
+                                <label id="lbl-session-color-lbl" class="text-[11px] font-bold text-white uppercase tracking-widest block mb-2.5 ml-1">세션 타이어 색상</label>
+                                <div class="flex gap-4 px-1 mt-0.5" id="color-picker-container">
                                     <div class="color-picker-group active flex items-center gap-1.5 cursor-pointer group" data-color="#22c55e" onclick="selectColor(this)">
                                         <div class="color-picker-item" style="background-color: #22c55e;"></div>
-                                        <span class="text-[11px] font-black text-slate-400 group-hover:text-white">New</span>
+                                        <span class="text-[10px] font-black text-slate-400 group-hover:text-white">New</span>
                                     </div>
                                     <div class="color-picker-group flex items-center gap-1.5 cursor-pointer group" data-color="#eab308" onclick="selectColor(this)">
                                         <div class="color-picker-item" style="background-color: #eab308;"></div>
-                                        <span class="text-[11px] font-black text-slate-400 group-hover:text-white">Used</span>
+                                        <span class="text-[10px] font-black text-slate-400 group-hover:text-white">Used</span>
                                     </div>
-                                    <div class="color-picker-group flex items-center gap-2 cursor-pointer group" data-color="#3b82f6" onclick="selectColor(this)">
+                                    <div class="color-picker-group flex items-center gap-1.5 cursor-pointer group" data-color="#3b82f6" onclick="selectColor(this)">
                                         <div class="color-picker-item" style="background-color: #3b82f6;"></div>
-                                        <span class="text-[11px] font-black text-slate-400 group-hover:text-white">Wet</span>
+                                        <span class="text-[10px] font-black text-slate-400 group-hover:text-white">Wet</span>
                                     </div>
                                 </div>
                                 <input type="hidden" id="in-color" value="#22c55e">
@@ -114,25 +114,26 @@
                         </div>
 
                         <div>
-                            <label class="text-[12px] font-bold text-white uppercase tracking-widest block mb-2 ml-1">목표/목적</label>
-                            <input type="text" id="in-purpose" class="w-full rounded-xl py-2 px-4 text-base font-bold">
+                            <label id="lbl-modal-purpose" class="text-[11px] font-bold text-white uppercase tracking-widest block mb-1.5 ml-1">목표/목적</label>
+                            <input type="text" id="in-purpose" class="w-full rounded-xl py-2 px-4 text-[14px] font-bold">
                         </div>
-                        <div class="space-y-4">
+                        <div class="space-y-3">
                             <div class="flex justify-between items-end mb-1 px-1">
-                                <label class="text-[12px] font-bold text-white uppercase tracking-widest block">Stint Strategy</label>
-                                <button type="button" onclick="window.addStintRow()" class="text-[11px] bg-indigo-600/30 hover:bg-indigo-600/50 text-white px-3 py-2 rounded-lg font-black border border-indigo-500/50">+ Add Stint</button>
+                                <label id="lbl-modal-stint" class="text-[11px] font-bold text-white uppercase tracking-widest block">Stint Strategy</label>
+                                <button type="button" id="btn-add-stint" onclick="window.addStintRow()" class="text-[10px] bg-indigo-600/30 hover:bg-indigo-600/50 text-white px-2.5 py-1.5 rounded-lg font-bold border border-indigo-500/50">+ Add Stint</button>
                             </div>
                             <div id="stint-rows-container" class="space-y-4 bg-black/20 p-3 rounded-2xl border border-slate-800/50"></div>
                         </div>
                         <div>
-                            <label class="text-[12px] font-bold text-white uppercase tracking-widest block mb-2 ml-1">기타</label>
-                            <input type="text" id="in-note" class="w-full rounded-xl py-2 px-4 text-base font-bold">
+                            <label id="lbl-modal-note" class="text-[11px] font-bold text-white uppercase tracking-widest block mb-1.5 ml-1">기타</label>
+                            <input type="text" id="in-note" class="w-full rounded-xl py-2 px-4 text-[14px] font-bold">
                         </div>
                     </div>
                 </form>
-                <div class="p-5 border-t border-slate-800 flex gap-3 bg-[#16181d] rounded-b-3xl shrink-0">
-                    <button id="btn-session-delete" onclick="deleteSessionFromModal()" class="px-6 py-4 bg-red-500/20 text-red-500 rounded-xl text-base font-black">Delete</button>
-                    <button id="btn-session-save" onclick="saveSession()" class="flex-1 py-4 bg-indigo-600 text-white rounded-xl text-base font-black shadow-lg">Save Changes</button>
+                <div class="p-4 border-t border-slate-800 flex gap-3 bg-[#16181d] rounded-b-3xl shrink-0">
+                    <!-- 버튼 사이즈 축소 및 폰트 밸런스 조정 -->
+                    <button id="btn-modal-delete" onclick="deleteSessionFromModal()" class="px-5 py-2.5 bg-red-500/20 text-red-500 rounded-xl text-sm font-bold">Delete</button>
+                    <button id="btn-modal-save" onclick="saveSession()" class="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -140,19 +141,19 @@
         <!-- Day Title Modal -->
         <div id="day-title-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeDayTitleModal()"></div>
-            <div class="bg-[#16181d] max-sm w-full rounded-3xl p-6 shadow-2xl z-10 border border-slate-700/50">
+            <div class="bg-[#16181d] max-sm w-full rounded-3xl p-5 shadow-2xl z-10 border border-slate-700/50">
                 <input type="hidden" id="editing-day-id">
                 <div class="flex justify-between items-center mb-5">
-                    <h3 id="modal-day-title" class="font-extrabold text-white text-lg">일정 제목 수정</h3>
+                    <h3 id="modal-day-title" class="font-bold text-white text-base">일정 제목 수정</h3>
                     <button onclick="closeDayTitleModal()" class="text-slate-400">✕</button>
                 </div>
                 <div>
-                    <label class="text-[12px] font-bold text-white uppercase tracking-widest block mb-2 ml-1">제목 (Title)</label>
+                    <label id="lbl-day-title-modal" class="text-[11px] font-bold text-white uppercase tracking-widest block mb-2 ml-1">제목 (Title)</label>
                     <input type="text" id="in-day-title" class="w-full rounded-xl py-2 px-4 text-base font-bold">
                 </div>
-                <div class="flex gap-3 mt-8">
-                    <button onclick="deleteDay()" class="px-5 bg-red-500/20 text-red-500 py-4 rounded-xl text-sm font-black hover:bg-red-500/30">Delete Day</button>
-                    <button onclick="saveDayTitle()" class="flex-1 bg-slate-100 text-slate-900 py-4 rounded-xl text-sm font-black">Apply</button>
+                <div class="flex gap-3 mt-6">
+                    <button id="btn-day-delete" onclick="deleteDay()" class="px-4 bg-red-500/20 text-red-500 py-2.5 rounded-xl text-sm font-bold hover:bg-red-500/30">Delete Day</button>
+                    <button id="btn-day-apply" onclick="saveDayTitle()" class="flex-1 bg-slate-100 text-slate-900 py-2.5 rounded-xl text-sm font-bold">Apply</button>
                 </div>
             </div>
         </div>
@@ -177,8 +178,20 @@
         let currentCar = "#97", currentDataRef = null;
 
         const i18n = {
-            "#97": { header: "Session Plan", maintenance: "Checklist", noSessions: "등록된 세션이 없습니다.", addDay: "일정 추가", addSession: "세션 추가", stintPrefix: "Stint", lblColor: "세션 타이어 색상" },
-            "#87": { header: "Session Plan", maintenance: "Checklist", noSessions: "No sessions scheduled.", addDay: "Add Day", addSession: "Add Session", stintPrefix: "Stint", lblColor: "Session Tire Color" }
+            "#97": { 
+                header: "Session Plan", maintenance: "Checklist", noSessions: "등록된 세션이 없습니다.", addDay: "일정 추가", addSession: "세션 추가", edit: "수정하기", stintPrefix: "Stint", 
+                purposeTitle: "목표/목적", noteTitle: "기타", stintListTitle: "스틴트별 계획",
+                lblColor: "세션 타이어 색상", modalSession: "세션 편집", modalDay: "일정 제목 수정",
+                lblTitle: "세션 제목", lblStart: "시작 시간", lblEnd: "종료 시간", lblFuel: "연료 (L)", lblPurpose: "목표/목적", lblStint: "Stint Strategy", lblNote: "기타", lblDayTitle: "제목 (Title)",
+                btnDelete: "Delete", btnSave: "Save Changes", btnDeleteDay: "Delete Day", btnApply: "Apply", btnAddStint: "+ Add Stint"
+            },
+            "#87": { 
+                header: "Session Plan", maintenance: "Checklist", noSessions: "No sessions scheduled.", addDay: "Add Day", addSession: "Add Session", edit: "Edit", stintPrefix: "Stint", 
+                purposeTitle: "Purpose / Goal", noteTitle: "Note / Misc", stintListTitle: "Stint Plans",
+                lblColor: "Session Tire Color", modalSession: "Edit Session", modalDay: "Edit Day Title",
+                lblTitle: "Session Title", lblStart: "Start Time", lblEnd: "End Time", lblFuel: "Fuel (L)", lblPurpose: "Purpose / Goal", lblStint: "Stint Strategy", lblNote: "Note / Misc", lblDayTitle: "Title",
+                btnDelete: "Delete", btnSave: "Save Changes", btnDeleteDay: "Delete Day", btnApply: "Apply", btnAddStint: "+ Add Stint"
+            }
         };
 
         const getTxt = (key) => i18n[currentCar][key] || key;
@@ -202,9 +215,25 @@
                 } else {
                     window.appState = getEmptyState();
                 }
+                
                 document.getElementById('header-title').textContent = getTxt('header');
-                const lblColor = document.getElementById('lbl-session-color-lbl');
-                if (lblColor) lblColor.textContent = getTxt('lblColor');
+                document.getElementById('modal-session-title').textContent = getTxt('modalSession');
+                document.getElementById('lbl-modal-title').textContent = getTxt('lblTitle');
+                document.getElementById('lbl-modal-start').textContent = getTxt('lblStart');
+                document.getElementById('lbl-modal-end').textContent = getTxt('lblEnd');
+                document.getElementById('lbl-modal-fuel').textContent = getTxt('lblFuel');
+                document.getElementById('lbl-session-color-lbl').textContent = getTxt('lblColor');
+                document.getElementById('lbl-modal-purpose').textContent = getTxt('lblPurpose');
+                document.getElementById('lbl-modal-stint').textContent = getTxt('lblStint');
+                document.getElementById('btn-add-stint').textContent = getTxt('btnAddStint');
+                document.getElementById('lbl-modal-note').textContent = getTxt('lblNote');
+                document.getElementById('btn-modal-delete').textContent = getTxt('btnDelete');
+                document.getElementById('btn-modal-save').textContent = getTxt('btnSave');
+                document.getElementById('modal-day-title').textContent = getTxt('modalDay');
+                document.getElementById('lbl-day-title-modal').textContent = getTxt('lblDayTitle');
+                document.getElementById('btn-day-delete').textContent = getTxt('btnDeleteDay');
+                document.getElementById('btn-day-apply').textContent = getTxt('btnApply');
+
                 renderAll();
             });
         };
@@ -215,7 +244,7 @@
             const container = document.getElementById('stint-rows-container');
             const rowId = `stint-row-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
             const html = `
-                <div id="${rowId}" class="stint-row space-y-4 p-5 bg-[#1e2128] rounded-2xl border border-slate-700/50 row-item shadow-md">
+                <div id="${rowId}" class="stint-row space-y-3 p-4 bg-[#1e2128] rounded-2xl border border-slate-700/50 row-item shadow-md">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-2">
                             <span class="text-[11px] font-bold text-white px-2 py-0.5 rounded border border-white/30 bg-white/5">${getTxt('stintPrefix')}</span>
@@ -247,7 +276,6 @@
             return `${Math.floor(m / 60)}:${(m % 60).toString().padStart(2, '0')}`;
         };
 
-        // 타이머 및 하이라이트 로직 수정
         setInterval(() => {
             const now = new Date();
             let nextSId = null;
@@ -256,42 +284,31 @@
             Object.keys(window.appState.days).forEach(dayKey => {
                 const daySessions = window.appState.days[dayKey];
                 if (!daySessions) return;
-
                 daySessions.forEach(s => {
                     const rowEl = document.getElementById(`session-row-${s.id}`);
                     if (rowEl) {
                         rowEl.classList.remove('border-yellow-400', 'bg-white/[0.04]');
                         rowEl.classList.add('border-transparent');
                     }
-                    
                     const timerEl = document.getElementById(`live-timer-${s.id}`);
                     if (!timerEl) return;
                     const t = (s.time || "").split(/[-~]/);
                     const start = parseTime(t[0]), end = parseTime(t[1]);
                     if (!start || !end) return;
-
                     if (now < start) { 
-                        // 대기 중 (아직 시작 안 한 세션 중 가장 가까운 것 찾기)
                         timerEl.textContent = formatDur(start - now); 
                         timerEl.className = "text-[11px] font-bold text-slate-500 font-mono";
                         const diff = start - now;
-                        if (diff < minDiff) { 
-                            minDiff = diff; 
-                            nextSId = s.id; 
-                        }
+                        if (diff < minDiff) { minDiff = diff; nextSId = s.id; }
                     } else if (now > end) { 
-                        // 종료됨
                         timerEl.textContent = "0:00"; 
                         timerEl.className = "text-[11px] font-bold text-red-500/60 font-mono"; 
                     } else { 
-                        // 진행 중 (테두리 하이라이트에서 제외하기 위해 nextSId를 업데이트하지 않음)
                         timerEl.textContent = formatDur(end - now); 
                         timerEl.className = "text-[11px] font-bold text-indigo-400 font-mono animate-pulse";
                     }
                 });
             });
-
-            // 오직 아직 시작하지 않은 'Next Session'에만 테두리 표시
             if (nextSId) {
                 const target = document.getElementById(`session-row-${nextSId}`);
                 if (target) {
@@ -305,10 +322,8 @@
             const container = document.getElementById('timeline-container');
             const addDayContainer = document.getElementById('add-day-ui');
             if (!container || !addDayContainer) return;
-
             container.innerHTML = '';
             const dayIds = Object.keys(window.appState.dayTitles).map(Number).sort((a,b)=>a-b);
-            
             dayIds.forEach(day => {
                 if (day === 0) return;
                 const sessions = window.appState.days[day] || [];
@@ -317,14 +332,11 @@
                         <h2 class="text-base font-bold text-slate-100">${window.appState.dayTitles[day] || `Day ${day}`}</h2>
                         <button onclick="openDayTitleEditor(${day})" class="text-slate-400">⚙️</button>
                     </div><div class="flex flex-col py-1">`;
-                
                 if (sessions.length === 0) html += `<div class="p-6 text-center text-xs text-slate-500 italic">${getTxt('noSessions')}</div>`;
-                
                 sessions.forEach(s => {
                     const t = (s.time || "").split(/[-~]/);
                     const start = parseTime(t[0]), end = parseTime(t[1]);
                     const dur = (start && end) ? `${Math.round((end - start) / 60000)}'` : "";
-                    
                     html += `<div class="border-b border-slate-800/60 last:border-none">
                         <div id="session-row-${s.id}" class="flex flex-col mx-1 rounded-xl border-2 border-transparent transition-all duration-300" onclick="toggleDetail('${s.id}')">
                             <div class="flex min-h-[4.5rem] cursor-pointer hover:bg-white/[0.02]">
@@ -348,12 +360,12 @@
                                     <div><p class="text-[10px] font-bold text-white uppercase tracking-widest mb-1.5 ml-1 opacity-50">${getTxt('purposeTitle')}</p><p class="text-slate-200 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px] font-bold">${s.purpose || '-'}</p></div>
                                     <div><p class="text-[10px] font-bold text-white uppercase tracking-widest mb-1.5 ml-1 opacity-50">${getTxt('stintListTitle')}</p><div class="flex flex-col gap-3 mt-1">
                                         ${(s.stints || []).map((st, idx) => {
-                                            const prev = idx > 0 ? s.stints[idx-1] : null;
+                                            const prev = idx > 0 ? s.stints[idx - 1] : null;
                                             const check = (c, p) => idx > 0 && c && p && c !== p;
                                             const badge = (txt, chg) => `<span class="text-[9px] px-1.5 py-0.5 rounded-full border ${chg ? 'border-amber-500 bg-amber-500/20 text-amber-100' : 'border-slate-600 bg-slate-800 text-slate-300'} font-bold whitespace-nowrap">${txt || '-'}</span>`;
                                             return `<div class="stint-detail-card p-3 rounded-xl border border-slate-800/80 flex flex-col gap-3">
                                                 <div class="flex items-center gap-1">
-                                                    <span class="text-[11px] font-bold text-white tracking-tight px-2 py-0.5 rounded border border-white/30 bg-white/5">${getTxt('stintPrefix')} ${idx+1}</span>
+                                                    <span class="text-[11px] font-bold text-white tracking-tight px-2 py-0.5 rounded border border-white/30 bg-white/5">${getTxt('stintPrefix')} ${idx + 1}</span>
                                                     ${st.laps ? `<span class="text-[11px] text-white font-bold px-2 py-0.5 rounded border border-white/30 bg-white/5">${st.laps} Laps</span>` : ''}
                                                 </div>
                                                 <div class="flex gap-4 items-start">
@@ -379,7 +391,6 @@
                 </div></div></div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
-            
             addDayContainer.innerHTML = `<button onclick="window.addDay()" class="w-full mb-6 py-1.5 border-2 border-dashed border-slate-700/60 rounded-xl text-slate-500 font-bold text-[11px] flex items-center justify-center gap-2">+ ${getTxt('addDay')}</button>`;
             renderChecklist();
         };
@@ -484,11 +495,9 @@
                 laps: r.querySelector('.stint-laps').value
             }));
             const data = { id: sid, name: document.getElementById('in-name').value, time: start && end ? `${start} - ${end}` : start, fuel: parseInt(document.getElementById('in-fuel').value) || 0, color: document.getElementById('in-color').value, purpose: document.getElementById('in-purpose').value, stints, note: document.getElementById('in-note').value };
-            
             if (!window.appState.days[editingDayId]) window.appState.days[editingDayId] = [];
             const idx = window.appState.days[editingDayId].findIndex(x => x.id === sid);
             if (idx !== -1) window.appState.days[editingDayId][idx] = data; else window.appState.days[editingDayId].push(data);
-            
             document.getElementById('modal').classList.add('hidden'); window.saveData();
         };
 
