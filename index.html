@@ -9,10 +9,12 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #0b0c10; color: #e2e8f0; -webkit-font-smoothing: antialiased; }
         
+        /* 스크롤바 최적화 */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         
+        /* 입력 요소 통합 스타일 */
         input, select, textarea { 
             background-color: #1e2128 !important; 
             color: #ffffff !important;
@@ -33,6 +35,8 @@
         }
 
         .stint-detail-card { background-color: #0d0f14 !important; }
+
+        /* 색상 선택기 스타일 */
         .color-picker-item { width: 16px; height: 16px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
         .color-picker-group.active .color-picker-item { border-color: #ffffff; transform: scale(1.2); box-shadow: 0 0 10px rgba(255,255,255,0.4); }
         .color-picker-group.active span { color: #ffffff; }
@@ -178,8 +182,6 @@
         };
 
         const getTxt = (key) => i18n[currentCar][key] || key;
-        
-        // 상태 초기화 함수 (기존 데이터 간섭 방지)
         const getEmptyState = () => ({ dayTitles: {}, days: {}, checklist: [] });
         window.appState = getEmptyState();
         let editingDayId = 1;
@@ -187,15 +189,10 @@
         window.switchCar = (carValue) => {
             currentCar = carValue;
             if (currentDataRef) off(currentDataRef);
-            
-            // 차량 변경 시 로컬 상태 초기화 (핵심 해결책)
             window.appState = getEmptyState();
-            
             currentDataRef = ref(db, `raceData/${carValue.replace('#', 'car')}`);
             onValue(currentDataRef, (snapshot) => {
                 const data = snapshot.val();
-                
-                // 데이터가 있으면 덮어쓰고, 없으면 빈 상태 유지
                 if (data) {
                     window.appState = { 
                         dayTitles: data.dayTitles || {}, 
@@ -205,7 +202,6 @@
                 } else {
                     window.appState = getEmptyState();
                 }
-                
                 document.getElementById('header-title').textContent = getTxt('header');
                 const lblColor = document.getElementById('lbl-session-color-lbl');
                 if (lblColor) lblColor.textContent = getTxt('lblColor');
@@ -257,7 +253,10 @@
             let minDiff = Infinity;
 
             Object.keys(window.appState.days).forEach(dayKey => {
-                (window.appState.days[dayKey] || []).forEach(s => {
+                const daySessions = window.appState.days[dayKey];
+                if (!daySessions) return;
+
+                daySessions.forEach(s => {
                     const rowEl = document.getElementById(`session-row-${s.id}`);
                     if (rowEl) {
                         rowEl.classList.remove('border-yellow-400', 'bg-white/[0.04]');
@@ -301,13 +300,18 @@
             if (!container || !addDayContainer) return;
 
             container.innerHTML = '';
-            Object.keys(window.appState.days).map(Number).sort((a,b)=>a-b).forEach(day => {
+            // dayTitles를 기준으로 루프를 돌아 빈 일정도 표시되게 수정
+            const dayIds = Object.keys(window.appState.dayTitles).map(Number).sort((a,b)=>a-b);
+            
+            dayIds.forEach(day => {
+                if (day === 0) return; // Firebase 배열 변환 시 생기는 인덱스 0 방지
                 const sessions = window.appState.days[day] || [];
                 let html = `<div class="mb-6 border border-slate-700/60 rounded-xl overflow-hidden bg-[#16181d] shadow-lg">
                     <div class="p-4 border-b border-slate-700/60 flex justify-between items-center bg-[#1c1e24]">
                         <h2 class="text-base font-bold text-slate-100">${window.appState.dayTitles[day] || `Day ${day}`}</h2>
                         <button onclick="openDayTitleEditor(${day})" class="text-slate-400">⚙️</button>
                     </div><div class="flex flex-col py-1">`;
+                
                 if (sessions.length === 0) html += `<div class="p-6 text-center text-xs text-slate-500 italic">${getTxt('noSessions')}</div>`;
                 
                 sessions.forEach(s => {
@@ -370,7 +374,7 @@
                 container.insertAdjacentHTML('beforeend', html);
             });
             
-            addDayContainer.innerHTML = `<button onclick="addDay()" class="w-full mb-6 py-1.5 border-2 border-dashed border-slate-700/60 rounded-xl text-slate-500 font-bold text-[11px] flex items-center justify-center gap-2">+ ${getTxt('addDay')}</button>`;
+            addDayContainer.innerHTML = `<button onclick="window.addDay()" class="w-full mb-6 py-1.5 border-2 border-dashed border-slate-700/60 rounded-xl text-slate-500 font-bold text-[11px] flex items-center justify-center gap-2">+ ${getTxt('addDay')}</button>`;
             renderChecklist();
         };
 
@@ -412,7 +416,22 @@
         window.toggleCheck = (i) => { window.appState.checklist[i].checked = !window.appState.checklist[i].checked; window.saveData(); };
         window.addCheck = (input) => { const v = input.value.trim(); if (!v) return; window.appState.checklist.push({ text: v, checked: false }); input.value = ''; window.saveData(); };
         window.deleteCheck = (i) => { window.appState.checklist.splice(i, 1); window.saveData(); };
-        window.addDay = () => { const k = Object.keys(window.appState.days).map(Number); const n = k.length > 0 ? Math.max(...k) + 1 : 1; window.appState.days[n] = []; window.appState.dayTitles[n] = `Day ${n} 일정`; window.saveData(); };
+        
+        window.addDay = () => { 
+            // dayTitles 기준으로 다음 번호 계산
+            const k = Object.keys(window.appState.dayTitles).map(Number); 
+            const n = k.length > 0 ? Math.max(...k) + 1 : 1; 
+            if (!window.appState.days) window.appState.days = {};
+            if (!window.appState.dayTitles) window.appState.dayTitles = {};
+            
+            window.appState.days[n] = []; 
+            window.appState.dayTitles[n] = `Day ${n} 일정`; 
+            
+            // 즉시 렌더링 및 저장
+            renderAll();
+            window.saveData(); 
+        };
+
         window.openDayTitleEditor = (d) => { document.getElementById('editing-day-id').value = d; document.getElementById('in-day-title').value = window.appState.dayTitles[d] || ""; document.getElementById('day-title-modal').classList.remove('hidden'); };
         window.saveDayTitle = () => { const d = document.getElementById('editing-day-id').value; window.appState.dayTitles[d] = document.getElementById('in-day-title').value; document.getElementById('day-title-modal').classList.add('hidden'); window.saveData(); };
         window.deleteDay = () => { const d = document.getElementById('editing-day-id').value; delete window.appState.days[d]; delete window.appState.dayTitles[d]; document.getElementById('day-title-modal').classList.add('hidden'); window.saveData(); };
@@ -423,7 +442,10 @@
         };
 
         window.openEditor = (id, day) => {
-            editingDayId = day; const s = window.appState.days[day].find(x => x.id === id); if (!s) return;
+            editingDayId = day; 
+            const daySessions = window.appState.days[day] || [];
+            const s = daySessions.find(x => x.id === id); 
+            if (!s) return;
             document.getElementById('edit-id').value = id;
             document.getElementById('in-name').value = s.name;
             const t = (s.time || "").split(/[-~]/);
@@ -460,13 +482,19 @@
                 laps: r.querySelector('.stint-laps').value
             }));
             const data = { id: sid, name: document.getElementById('in-name').value, time: start && end ? `${start} - ${end}` : start, fuel: parseInt(document.getElementById('in-fuel').value) || 0, color: document.getElementById('in-color').value, purpose: document.getElementById('in-purpose').value, stints, note: document.getElementById('in-note').value };
+            
+            if (!window.appState.days[editingDayId]) window.appState.days[editingDayId] = [];
             const idx = window.appState.days[editingDayId].findIndex(x => x.id === sid);
             if (idx !== -1) window.appState.days[editingDayId][idx] = data; else window.appState.days[editingDayId].push(data);
+            
             document.getElementById('modal').classList.add('hidden'); window.saveData();
         };
 
         window.deleteSessionFromModal = () => { 
-            window.appState.days[editingDayId] = window.appState.days[editingDayId].filter(x => x.id !== document.getElementById('edit-id').value); 
+            const sid = document.getElementById('edit-id').value;
+            if (window.appState.days[editingDayId]) {
+                window.appState.days[editingDayId] = window.appState.days[editingDayId].filter(x => x.id !== sid); 
+            }
             document.getElementById('modal').classList.add('hidden'); 
             window.saveData(); 
         };
