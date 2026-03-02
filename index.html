@@ -9,12 +9,10 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #0b0c10; color: #e2e8f0; -webkit-font-smoothing: antialiased; }
         
-        /* 스크롤바 최적화 */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         
-        /* 입력 요소 통합 스타일 */
         input, select, textarea { 
             background-color: #1e2128 !important; 
             color: #ffffff !important;
@@ -35,8 +33,6 @@
         }
 
         .stint-detail-card { background-color: #0d0f14 !important; }
-
-        /* 색상 선택기 스타일 */
         .color-picker-item { width: 16px; height: 16px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
         .color-picker-group.active .color-picker-item { border-color: #ffffff; transform: scale(1.2); box-shadow: 0 0 10px rgba(255,255,255,0.4); }
         .color-picker-group.active span { color: #ffffff; }
@@ -131,8 +127,8 @@
                     </div>
                 </form>
                 <div class="p-5 border-t border-slate-800 flex gap-3 bg-[#16181d] rounded-b-3xl shrink-0">
-                    <button id="btn-session-delete" onclick="deleteSessionFromModal()" class="px-6 py-3 bg-red-500/20 text-red-500 rounded-xl text-base font-black">Delete</button>
-                    <button id="btn-session-save" onclick="saveSession()" class="flex-1 py-3 bg-indigo-600 text-white rounded-xl text-base font-black shadow-lg">Save Changes</button>
+                    <button id="btn-session-delete" onclick="deleteSessionFromModal()" class="px-6 py-4 bg-red-500/20 text-red-500 rounded-xl text-base font-black">Delete</button>
+                    <button id="btn-session-save" onclick="saveSession()" class="flex-1 py-4 bg-indigo-600 text-white rounded-xl text-base font-black shadow-lg">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -177,21 +173,39 @@
         let currentCar = "#97", currentDataRef = null;
 
         const i18n = {
-            "#97": { header: "Session Plan", maintenance: "Checklist", noSessions: "등록된 세션이 없습니다.", addDay: "일정 추가", addSession: "세션 추가", edit: "수정하기", loading: "데이터 로딩 중...", purposeTitle: "목표/목적", stintListTitle: "스틴트별 계획", noteTitle: "기타", stintPrefix: "Stint", lblColor: "세션 타이어 색상" },
-            "#87": { header: "Session Plan", maintenance: "Checklist", noSessions: "No sessions scheduled.", addDay: "Add Day", addSession: "Add Session", edit: "Edit", loading: "Loading data...", purposeTitle: "Purpose / Goal", stintListTitle: "Stint Plans", noteTitle: "Note / Misc", stintPrefix: "Stint", lblColor: "Session Tire Color" }
+            "#97": { header: "Session Plan", maintenance: "Checklist", noSessions: "등록된 세션이 없습니다.", addDay: "일정 추가", addSession: "세션 추가", stintPrefix: "Stint", lblColor: "세션 타이어 색상" },
+            "#87": { header: "Session Plan", maintenance: "Checklist", noSessions: "No sessions scheduled.", addDay: "Add Day", addSession: "Add Session", stintPrefix: "Stint", lblColor: "Session Tire Color" }
         };
 
         const getTxt = (key) => i18n[currentCar][key] || key;
-        window.appState = { dayTitles: { 1: "Day 1 Schedule" }, days: { 1: [] }, checklist: [] };
+        
+        // 상태 초기화 함수 (기존 데이터 간섭 방지)
+        const getEmptyState = () => ({ dayTitles: {}, days: {}, checklist: [] });
+        window.appState = getEmptyState();
         let editingDayId = 1;
 
         window.switchCar = (carValue) => {
             currentCar = carValue;
             if (currentDataRef) off(currentDataRef);
+            
+            // 차량 변경 시 로컬 상태 초기화 (핵심 해결책)
+            window.appState = getEmptyState();
+            
             currentDataRef = ref(db, `raceData/${carValue.replace('#', 'car')}`);
             onValue(currentDataRef, (snapshot) => {
                 const data = snapshot.val();
-                if (data) window.appState = { ...window.appState, ...data };
+                
+                // 데이터가 있으면 덮어쓰고, 없으면 빈 상태 유지
+                if (data) {
+                    window.appState = { 
+                        dayTitles: data.dayTitles || {}, 
+                        days: data.days || {}, 
+                        checklist: data.checklist || [] 
+                    };
+                } else {
+                    window.appState = getEmptyState();
+                }
+                
                 document.getElementById('header-title').textContent = getTxt('header');
                 const lblColor = document.getElementById('lbl-session-color-lbl');
                 if (lblColor) lblColor.textContent = getTxt('lblColor');
@@ -237,7 +251,6 @@
             return `${Math.floor(m / 60)}:${(m % 60).toString().padStart(2, '0')}`;
         };
 
-        // 타이머 및 하이라이트 로직
         setInterval(() => {
             const now = new Date();
             let nextSId = null;
@@ -245,13 +258,13 @@
 
             Object.keys(window.appState.days).forEach(dayKey => {
                 (window.appState.days[dayKey] || []).forEach(s => {
-                    const timerEl = document.getElementById(`live-timer-${s.id}`);
                     const rowEl = document.getElementById(`session-row-${s.id}`);
                     if (rowEl) {
                         rowEl.classList.remove('border-yellow-400', 'bg-white/[0.04]');
                         rowEl.classList.add('border-transparent');
                     }
                     
+                    const timerEl = document.getElementById(`live-timer-${s.id}`);
                     if (!timerEl) return;
                     const t = (s.time || "").split(/[-~]/);
                     const start = parseTime(t[0]), end = parseTime(t[1]);
@@ -262,15 +275,13 @@
                         timerEl.className = "text-[11px] font-bold text-slate-500 font-mono";
                         const diff = start - now;
                         if (diff < minDiff) { minDiff = diff; nextSId = s.id; }
-                    }
-                    else if (now > end) { 
+                    } else if (now > end) { 
                         timerEl.textContent = "0:00"; 
                         timerEl.className = "text-[11px] font-bold text-red-500/60 font-mono"; 
-                    }
-                    else { 
+                    } else { 
                         timerEl.textContent = formatDur(end - now); 
                         timerEl.className = "text-[11px] font-bold text-indigo-400 font-mono animate-pulse";
-                        nextSId = s.id; // 현재 진행 중인 세션 강조
+                        nextSId = s.id;
                     }
                 });
             });
@@ -304,7 +315,6 @@
                     const start = parseTime(t[0]), end = parseTime(t[1]);
                     const dur = (start && end) ? `${Math.round((end - start) / 60000)}'` : "";
                     
-                    // 각 세션별 구분 테두리(하단)를 위한 wrapper 추가
                     html += `<div class="border-b border-slate-800/60 last:border-none">
                         <div id="session-row-${s.id}" class="flex flex-col mx-1 rounded-xl border-2 border-transparent transition-all duration-300" onclick="toggleDetail('${s.id}')">
                             <div class="flex min-h-[4.5rem] cursor-pointer hover:bg-white/[0.02]">
@@ -314,10 +324,10 @@
                                     <div id="live-timer-${s.id}"></div>
                                 </div>
                                 <div class="flex-1 py-3 pr-4 flex items-center">
-                                    <div class="w-full bg-[#20232a] rounded-lg p-3 border-l-4 flex justify-between items-center" style="border-left-color: ${s.color || '#22c55e'}">
-                                        <div class="min-w-0 pr-2">
-                                            <h4 class="text-[13px] font-bold text-slate-100 truncate">${s.name}</h4>
-                                            <p class="text-[11px] text-slate-300 font-semibold truncate">${s.fuel}L • ${s.purpose || '-'}</p>
+                                    <div class="w-full bg-[#20232a] rounded-lg p-3 border-l-4 flex justify-between items-center shadow-md transition-colors" style="border-left-color: ${s.color || '#22c55e'}">
+                                        <div class="min-w-0 pr-2 text-white">
+                                            <h4 class="text-[13px] font-bold truncate">${s.name}</h4>
+                                            <p class="text-[11px] font-semibold truncate opacity-70">${s.fuel}L • ${s.purpose || '-'}</p>
                                         </div>
                                         <svg id="icon-${s.id}" class="transition-transform" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 9l6 6 6-6"/></svg>
                                     </div>
@@ -325,8 +335,8 @@
                             </div>
                             <div id="detail-${s.id}" class="hidden px-4 pb-4">
                                 <div class="bg-[#1c1e24] border border-slate-700/50 rounded-lg p-4 space-y-4 shadow-inner text-sm">
-                                    <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('purposeTitle')}</p><p class="text-slate-200 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.purpose || '-'}</p></div>
-                                    <div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">${getTxt('stintListTitle')}</p><div class="flex flex-col gap-3 mt-1">
+                                    <div><p class="text-[10px] font-bold text-white uppercase tracking-widest mb-1.5 ml-1 opacity-50">${getTxt('purposeTitle')}</p><p class="text-slate-200 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px] font-bold">${s.purpose || '-'}</p></div>
+                                    <div><p class="text-[10px] font-bold text-white uppercase tracking-widest mb-1.5 ml-1 opacity-50">${getTxt('stintListTitle')}</p><div class="flex flex-col gap-3 mt-1">
                                         ${(s.stints || []).map((st, idx) => {
                                             const prev = idx > 0 ? s.stints[idx-1] : null;
                                             const check = (c, p) => idx > 0 && c && p && c !== p;
@@ -343,17 +353,15 @@
                                                         <div class="p-1 border-r border-slate-700/50 flex items-center justify-center">${badge(st.tire2Type, check(st.tire2Type, prev?.tire2Type))}</div>
                                                         <div class="p-1 border-slate-700/50 flex items-center justify-center">${badge(st.tire2Set, check(st.tire2Set, prev?.tire2Set))}</div>
                                                     </div>
-                                                    <div class="flex-1 text-slate-300 text-[11px] whitespace-pre-wrap">${st.content || '-'}</div>
+                                                    <div class="flex-1 text-slate-300 text-[11px] font-bold whitespace-pre-wrap">${st.content || '-'}</div>
                                                 </div>
                                             </div>`;
                                         }).join('')}
                                     </div></div>
-                                    ${s.note ? `<div><p class="text-[10px] font-bold text-slate-500 uppercase mb-1.5 ml-1">${getTxt('noteTitle')}</p><p class="text-slate-300 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px]">${s.note}</p></div>` : ''}
+                                    ${s.note ? `<div><p class="text-[10px] font-bold text-white uppercase mb-1.5 ml-1 opacity-50">${getTxt('noteTitle')}</p><p class="text-slate-300 bg-black/20 p-2.5 rounded-lg border border-slate-800/50 text-[13px] font-bold">${s.note}</p></div>` : ''}
                                     <div class="pt-2 border-t border-slate-700/50 flex justify-end"><button onclick="openEditor('${s.id}', ${day})" class="px-3 py-1.5 bg-slate-700 text-slate-200 text-[10px] font-bold rounded-lg border border-slate-600/50">${getTxt('edit')}</button></div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>`;
+                            </div></div>`;
                 });
                 html += `<div class="flex min-h-[3.2rem] group cursor-pointer hover:bg-white/[0.01]" onclick="addNewSession(${day})">
                     <div class="w-16 flex items-center justify-center shrink-0"><span class="text-slate-600 text-lg font-light">+</span></div>
@@ -363,7 +371,6 @@
             });
             
             addDayContainer.innerHTML = `<button onclick="addDay()" class="w-full mb-6 py-1.5 border-2 border-dashed border-slate-700/60 rounded-xl text-slate-500 font-bold text-[11px] flex items-center justify-center gap-2">+ ${getTxt('addDay')}</button>`;
-            
             renderChecklist();
         };
 
@@ -383,7 +390,7 @@
                 html += `<div class="flex items-center justify-between py-1.5 px-3 border-b border-slate-800/60 last:border-none">
                     <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="toggleCheck(${i})">
                         <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center ${item.checked ? 'bg-indigo-500 border-indigo-500' : 'border-slate-500'}">${item.checked ? '✓' : ''}</div>
-                        <span class="text-xs ${item.checked ? 'text-slate-500 line-through' : 'text-slate-300'}">${item.text}</span>
+                        <span class="text-xs font-bold ${item.checked ? 'text-slate-500 line-through' : 'text-slate-300'}">${item.text}</span>
                     </div><button onclick="deleteCheck(${i})" class="text-slate-600 px-2">✕</button>
                 </div>`;
             });
@@ -458,7 +465,11 @@
             document.getElementById('modal').classList.add('hidden'); window.saveData();
         };
 
-        window.deleteSessionFromModal = () => { window.appState.days[editingDayId] = window.appState.days[editingDayId].filter(x => x.id !== document.getElementById('edit-id').value); document.getElementById('modal').classList.add('hidden'); window.saveData(); };
+        window.deleteSessionFromModal = () => { 
+            window.appState.days[editingDayId] = window.appState.days[editingDayId].filter(x => x.id !== document.getElementById('edit-id').value); 
+            document.getElementById('modal').classList.add('hidden'); 
+            window.saveData(); 
+        };
         window.closeModal = () => document.getElementById('modal').classList.add('hidden');
         window.closeDayTitleModal = () => document.getElementById('day-title-modal').classList.add('hidden');
         window.switchCar("#97");
